@@ -1,0 +1,11 @@
+*.pyc
+*.pyo
+__pycache__
+/.streamlit/secrets.toml
+/db
+/archive
+/pages/archive
+/project
+/planning
+.vscode
+testing.py

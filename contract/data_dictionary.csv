@@ -1,0 +1,7 @@
+Column,Required,DataType,Description
+week,Yes,DateTime,Week-ending time-series date values in 'MM/DD/YYYY' format.
+{dimensions},No,String,"Categorical dimensions that, along with ['WEEK'], define the unique observations of the model input data."
+y,Yes,Float,The value of the modeled response metric.
+{non-media factors},No,Float,"The value of the non-media factors, as separate columns (e.g., ['Price'], ['Trend']), to be modeled as controls."
+{media factors},Yes,Float,"The value of media factors, as separate columns (e.g., ['TV'], ['Search']), to be modeled as media variables."
+{media spend},Yes,Float,"The corresponding value of media investment, as separate columns (e.g., ['spend_TV'], ['spend_Search']), to be applied in the Post-Model reporting scorecards."
