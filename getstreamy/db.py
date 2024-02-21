@@ -40,15 +40,19 @@ class Handler():
         self.db_name = db_name
 
         # Setup connection
-        self.connection = sqlite3.connect(
-            os.path.join(
-                dir_name,
-                db_name
+        try:
+            self.connection = sqlite3.connect(
+                os.path.join(
+                    dir_name,
+                    db_name
+                )
             )
-        )
 
-        # Setup cursor
-        self.cursor = self.connection.cursor()
+            # Setup cursor
+            self.cursor = self.connection.cursor()
+
+        except sqlite3.OperationalError as e:
+            raise DatabaseNotFoundError(str(e))
 
     # Define db function(s) to create tables
     def create_table(
@@ -630,6 +634,10 @@ class Handler():
 
 
 # Define exception classes
+class DatabaseNotFoundError(Exception):
+    pass
+
+
 class NullReturnValue(Exception):
     pass
 

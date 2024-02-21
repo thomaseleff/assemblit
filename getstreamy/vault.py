@@ -137,9 +137,10 @@ def authenticate(
                     username
                 )
             )
+    except db.DatabaseNotFoundError as e:
+        raise db.DatabaseNotFoundError(str(e))
 
     except EmailNotValidError as e:
-
         raise InvalidEmail(e)
 
 
@@ -533,6 +534,11 @@ def login():
                 st.session_state[setup.NAME]['dir'],
                 'db'
             )
+        )
+
+    except db.DatabaseNotFoundError:
+        st.session_state[setup.NAME][setup.AUTH_NAME]['login-error'] = (
+            'Incorrect username and/or password.'
         )
 
     except IncorrectPassword:
