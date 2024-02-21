@@ -65,7 +65,7 @@ class Handler():
         if request.status_code == 200:
 
             # Parse the html text content
-            content = BeautifulSoup(request.text, 'lxml')
+            content = BeautifulSoup(request.text, 'html.parser')
 
             return content
 
