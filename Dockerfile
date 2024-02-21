@@ -9,8 +9,11 @@ ENV NAME "getstreamy"
 ENV HOME_PAGE_NAME "Home"
 ENV GITHUB_REPOSITORY_URL "https://github.com/thomaseleff/Get-Streamy"
 
+# Network configuration settings
+ENV PORT 8501
+
 # Database configuration settings
-ENV DIR "=/${NAME}"
+ENV DIR "/$NAME"
 
 # Authentication settings
 ENV REQUIRE_AUTHENTICATION true
@@ -28,7 +31,7 @@ ENV DATA_DB_NAME "data"
 ENV DATA_DB_QUERY_INDEX "dataset_id"
 
 # Set the working directory (cannot be the root directory for Streamlit)
-WORKDIR "/${NAME}"
+WORKDIR "/$NAME"
 
 # Update and install
 RUN apt-get update && apt-get install -y \
@@ -40,24 +43,18 @@ RUN apt-get update && apt-get install -y \
 RUN pip3 install --upgrade pip
 
 # Clone from Github
-RUN git clone "${GITHUB_REPOSITORY_URL}.git" .
+RUN git clone "$GITHUB_REPOSITORY_URL.git" .
 
 # Install Python requirements
 RUN pip3 install -r requirements.txt --no-cache-dir
 
 # Expose the network port
-ARG PORT=8501
-EXPOSE ${PORT}
+EXPOSE $PORT
 
 # Monitor the health of the container
-HEALTHCHECK CMD curl --fail "http://localhost:${PORT}/_stcore/health"
+HEALTHCHECK CMD curl --fail "http://localhost:$PORT/_stcore/health"
 
 # Run
-ENTRYPOINT [ \
-    "streamlit", \
-    "run", \
-    "${HOME_PAGE_NAME}.py", \
-    "--server.port=${PORT}", \
-    # "--server.address=0.0.0.0" \
-    "--server.headless=true" \
-]
+# --server.address=0.0.0.0
+CMD streamlit run $HOME_PAGE_NAME.py --server.port=$PORT --server.headless=true
+

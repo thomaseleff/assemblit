@@ -24,7 +24,7 @@ GITHUB_REPOSITORY_URL = os.environ['GITHUB_REPOSITORY_URL']
 
 # Database configuration settings
 DIR = os.path.abspath(
-    os.environ['WORKDIR']
+    os.environ['DIR']
 )
 
 # Web-page configuration settings
