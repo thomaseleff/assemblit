@@ -132,8 +132,6 @@ def authenticate(
                     username
                 )
             )
-    except db.DatabaseNotFoundError as e:
-        raise db.DatabaseNotFoundError(str(e))
 
     except EmailNotValidError as e:
         raise InvalidEmail(e)
