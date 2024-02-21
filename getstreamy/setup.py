@@ -23,8 +23,14 @@ HOME_PAGE_NAME = os.environ['HOME_PAGE_NAME']
 GITHUB_REPOSITORY_URL = os.environ['GITHUB_REPOSITORY_URL']
 
 # Database configuration settings
-DIR = os.path.abspath(
+ROOT_DIR = os.path.abspath(
     os.environ['DIR']
+)
+DB_DIR = os.path.abspath(
+    os.path.join(
+        os.environ['DIR'],
+        'db'
+    )
 )
 
 # Web-page configuration settings
@@ -73,7 +79,7 @@ SESSION_STATE_DEFAULTS = {
     USERS_DB_NAME: USERS_DEFAULTS,
     SESSIONS_DB_NAME: SESSIONS_DEFAULTS,
     DATA_DB_NAME: DATA_DEFAULTS,
-    'dir': DIR,
+    'dir': ROOT_DIR,
     'pages': {
         'home': '%s.py' % (HOME_PAGE_NAME)
     }

@@ -4,7 +4,7 @@ Information
 Name        : db.py
 Location    : ~/
 Author      : Tom Eleff
-Published   : 2024-02-07
+Published   : 2024-02-21
 Revised on  : .
 
 Description
@@ -17,42 +17,47 @@ import os
 import sqlite3
 import json
 import ast
+from getstreamy import setup
 
 
 class Handler():
 
     def __init__(
         self,
-        dir_name: str,
-        db_name: str
+        db_name: str,
+        dir_name: str = setup.DB_DIR
     ):
         """ Initializes an instance of the database-handler Class().
 
         Parameters
         ----------
-        dir_name : `str`
-            Local directory path of the database.
         db_name : `str`
             Name of the database located within `dir_name`.
+        dir_name : `str`
+            Local directory path of the database.
         """
 
+        # Assign db class variables
         self.dir_name = dir_name
         self.db_name = db_name
 
+        # Create the database directory if it does not exist
+        if not os.path.exists(dir_name):
+            os.mkdir(os.path.join(
+                setup.ROOT_DIR,
+                'db'
+            ))
+
         # Setup connection
-        try:
-            self.connection = sqlite3.connect(
-                os.path.join(
-                    dir_name,
-                    db_name
-                )
+        self.connection = sqlite3.connect(
+            os.path.join(
+                dir_name,
+                db_name
             )
+        )
 
-            # Setup cursor
-            self.cursor = self.connection.cursor()
-
-        except sqlite3.OperationalError as e:
-            raise DatabaseNotFoundError(str(e))
+        # Setup cursor
+        self.cursor = self.connection.cursor()
 
     # Define db function(s) to create tables
     def create_table(
@@ -634,10 +639,6 @@ class Handler():
 
 
 # Define exception classes
-class DatabaseNotFoundError(Exception):
-    pass
-
-
 class NullReturnValue(Exception):
     pass
 

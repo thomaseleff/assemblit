@@ -12,7 +12,6 @@ Description
 Contains the generic methods for a key-value pair settings-page.
 """
 
-import os
 import streamlit as st
 from getstreamy import setup, db
 
@@ -41,10 +40,6 @@ def manage_key_value_pair_database(
 
     # Initialize the connection to the key-value database
     Database = db.Handler(
-        dir_name=os.path.join(
-            st.session_state[setup.NAME]['dir'],
-            'db'
-        ),
         db_name=db_name
     )
 
@@ -507,10 +502,6 @@ def select_setting_table_column_value(
 
     # Initialize the connection to the Database
     Database = db.Handler(
-        dir_name=os.path.join(
-            st.session_state[setup.NAME]['dir'],
-            'db'
-        ),
         db_name=db_name
     )
 
@@ -549,10 +540,6 @@ def update_settings(
 
         # Initialize connection to the database
         Database = db.Handler(
-            dir_name=os.path.join(
-                st.session_state[setup.NAME]['dir'],
-                'db'
-            ),
             db_name=db_name
         )
 

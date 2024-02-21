@@ -12,7 +12,6 @@ Description
 Contains the generic methods for a session-selector.
 """
 
-import os
 import hashlib
 import streamlit as st
 from getstreamy import setup, db
@@ -224,19 +223,11 @@ def select_selector_table_column_values(
 
     # Initialize connection to the users-database
     Users = db.Handler(
-        dir_name=os.path.join(
-            st.session_state[setup.NAME]['dir'],
-            'db'
-        ),
         db_name=setup.USERS_DB_NAME
     )
 
     # Initialize the connection to the session-selector database
     Database = db.Handler(
-        dir_name=os.path.join(
-            st.session_state[setup.NAME]['dir'],
-            'db'
-        ),
         db_name=db_name
     )
 
@@ -403,19 +394,11 @@ def select_query_index_value(
 
     # Initialize connection to the users-database
     Users = db.Handler(
-        dir_name=os.path.join(
-            st.session_state[setup.NAME]['dir'],
-            'db'
-        ),
         db_name=setup.USERS_DB_NAME
     )
 
     # Initialize connection to the session-selector database
     Database = db.Handler(
-        dir_name=os.path.join(
-            st.session_state[setup.NAME]['dir'],
-            'db'
-        ),
         db_name=db_name
     )
 
@@ -495,19 +478,11 @@ def create_session(
 
     # Initialize connection to the users-database
     Users = db.Handler(
-        dir_name=os.path.join(
-            st.session_state[setup.NAME]['dir'],
-            'db'
-        ),
         db_name=setup.USERS_DB_NAME
     )
 
     # Initialize connection to the session-selector database
     Database = db.Handler(
-        dir_name=os.path.join(
-            st.session_state[setup.NAME]['dir'],
-            'db'
-        ),
         db_name=db_name
     )
 
@@ -627,10 +602,6 @@ def update_session(
 
     # Initialize connection to the session-selector database
     Database = db.Handler(
-        dir_name=os.path.join(
-            st.session_state[setup.NAME]['dir'],
-            'db'
-        ),
         db_name=db_name
     )
 
@@ -728,10 +699,6 @@ def delete_session():
 
     # # Initialize connection to the users-database
     # Users = db.Handler(
-    #     dir_name=os.path.join(
-    #         st.session_state[setup.NAME]['dir'],
-    #         'db'
-    #     ),
     #     db_name=setup.USERS_DB_NAME
     # )
 
@@ -746,10 +713,6 @@ def delete_session():
 
     # # Initialize connection to the session-selector database
     # Database = db.Handler(
-    #     dir_name=os.path.join(
-    #         st.session_state[setup.NAME]['dir'],
-    #         'db'
-    #     ),
     #     db_name=self.db_name
     # )
 

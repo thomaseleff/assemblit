@@ -4,7 +4,7 @@ Information
 Name        : data.py
 Location    : ~/
 Author      : Tom Eleff
-Published   : 2024-02-08
+Published   : 2024-02-21
 Revised on  : .
 
 Description
@@ -181,10 +181,6 @@ class Content():
 
                 # Initialize the connection to the session-selector database
                 Sessions = db.Handler(
-                    dir_name=os.path.join(
-                        st.session_state[setup.NAME]['dir'],
-                        'db'
-                    ),
                     db_name=setup.SESSIONS_DB_NAME
                 )
 
@@ -198,10 +194,6 @@ class Content():
 
                 # Initialize the connection to the data-ingestion database
                 Database = db.Handler(
-                    dir_name=os.path.join(
-                        st.session_state[setup.NAME]['dir'],
-                        'db'
-                    ),
                     db_name=self.db_name
                 )
 
@@ -1078,19 +1070,11 @@ class Content():
 
         # Initialize connection to the sessions-database
         Sessions = db.Handler(
-            dir_name=os.path.join(
-                st.session_state[setup.NAME]['dir'],
-                'db'
-            ),
             db_name=setup.SESSIONS_DB_NAME
         )
 
         # Initialize connection to the data-ingestion database
         Database = db.Handler(
-            dir_name=os.path.join(
-                st.session_state[setup.NAME]['dir'],
-                'db'
-            ),
             db_name=self.db_name
         )
 
@@ -1134,19 +1118,11 @@ class Content():
 
         # Initialize the connection to the session-selector database
         Sessions = db.Handler(
-            dir_name=os.path.join(
-                st.session_state[setup.NAME]['dir'],
-                'db'
-            ),
             db_name=setup.SESSIONS_DB_NAME
         )
 
         # Initialize connection to the data-ingestion database
         Database = db.Handler(
-            dir_name=os.path.join(
-                st.session_state[setup.NAME]['dir'],
-                'db'
-            ),
             db_name=self.db_name
         )
 
@@ -1338,19 +1314,11 @@ class Content():
 
         # Initialize the connection to the session-selector database
         Sessions = db.Handler(
-            dir_name=os.path.join(
-                st.session_state[setup.NAME]['dir'],
-                'db'
-            ),
             db_name=setup.SESSIONS_DB_NAME
         )
 
         # Initialize connection to the data-ingestion database
         Database = db.Handler(
-            dir_name=os.path.join(
-                st.session_state[setup.NAME]['dir'],
-                'db'
-            ),
             db_name=self.db_name
         )
 
@@ -1482,10 +1450,6 @@ class Content():
 
         # Initialize connection to the data-ingestion database
         Database = db.Handler(
-            dir_name=os.path.join(
-                st.session_state[setup.NAME]['dir'],
-                'db'
-            ),
             db_name=self.db_name
         )
 
@@ -1519,10 +1483,6 @@ class Content():
 
         # Initialize connection to the data-ingestion database
         Database = db.Handler(
-            dir_name=os.path.join(
-                st.session_state[setup.NAME]['dir'],
-                'db'
-            ),
             db_name=self.db_name
         )
 
@@ -1580,10 +1540,6 @@ class Content():
 
         # Initialize connection to the data-ingestion database
         Database = db.Handler(
-            dir_name=os.path.join(
-                st.session_state[setup.NAME]['dir'],
-                'db'
-            ),
             db_name=self.db_name
         )
 

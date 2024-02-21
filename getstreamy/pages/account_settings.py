@@ -4,7 +4,7 @@ Information
 Name        : account_settings.py
 Location    : ~/
 Author      : Tom Eleff
-Published   : 2024-02-13
+Published   : 2024-02-21
 Revised on  : .
 
 Description
@@ -12,7 +12,6 @@ Description
 Contains the `Class` for the account-management user-settings-page.
 """
 
-import os
 import copy
 import streamlit as st
 from getstreamy import setup, db, vault
@@ -181,10 +180,6 @@ class Content():
 
             # Initialize the connection to the users database
             Users = db.Handler(
-                dir_name=os.path.join(
-                    st.session_state[setup.NAME]['dir'],
-                    'db'
-                ),
                 db_name=self.db_name
             )
 

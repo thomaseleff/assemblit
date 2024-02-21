@@ -15,7 +15,7 @@ data-ingestion-page of the getstreamy web-application.
 import os
 import pandas as pd
 from getstreamy import setup
-import getstreamy.pages.data_ingestion as data_ingestion
+from getstreamy.pages import data_ingestion
 
 # Initialize the data-ingestion-page content
 Data = data_ingestion.Content(
@@ -24,7 +24,7 @@ Data = data_ingestion.Content(
     content_info='Navigate to the **Studies** page to load a session.',
     data_dictionary=pd.read_csv(
         os.path.join(
-            setup.DIR,
+            setup.ROOT_DIR,
             'contract',
             'data_dictionary.csv'
         ),
@@ -32,7 +32,7 @@ Data = data_ingestion.Content(
     ),
     data_example=pd.read_csv(
         os.path.join(
-            setup.DIR,
+            setup.ROOT_DIR,
             'contract',
             'data_example.csv'
         ),

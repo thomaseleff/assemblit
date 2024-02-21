@@ -4,7 +4,7 @@ Information
 Name        : vault.py
 Location    : ~/
 Author      : Tom Eleff
-Published   : 2024-02-07
+Published   : 2024-02-21
 Revised on  : .
 
 Description
@@ -13,7 +13,6 @@ Utility functions for authenticating, creating, updating and deleting
 user-credentials.
 """
 
-import os
 import hashlib
 import datetime
 import argon2
@@ -27,8 +26,7 @@ from getstreamy.components import _core
 # Define generic authentication function(s)
 def authenticate(
     username: str,
-    password: str,
-    dir_name: str
+    password: str
 ) -> dict:
     """ Authenticates the log-in credentials of a user and returns the associated
     user name and id as a `dict`.
@@ -42,8 +40,6 @@ def authenticate(
     password : `str`
         Password credential. If the incorrect password is provided,
             an `IncorrectPassword` is raised.
-    dir_name : `str`
-        Local directory path of the users database.
     """
 
     # Escape the username and password
@@ -60,7 +56,6 @@ def authenticate(
 
         # Initialize connection to the users database
         Users = db.Handler(
-            dir_name=dir_name,
             db_name=setup.USERS_DB_NAME
         )
 
@@ -149,8 +144,7 @@ def add_credentials(
     first_name: str,
     username: str,
     password0: str,
-    password1: str,
-    dir_name: str
+    password1: str
 ) -> dict:
     """ Adds a new user and credentials returns the associated user name and id as a `dict`.
 
@@ -165,8 +159,6 @@ def add_credentials(
     password1 : `str`
         Repeated password credential, must match `password0`. If an invalid password is
             provided then a `PasswordsDoNotMatch` is raised.
-    dir_name : `str`
-        Local directory path of the users database.
     """
 
     # Escape the first name, username and password
@@ -188,7 +180,6 @@ def add_credentials(
 
             # Initialize connection to the users database
             Users = db.Handler(
-                dir_name=dir_name,
                 db_name=setup.USERS_DB_NAME
             )
 
@@ -266,11 +257,7 @@ def update_credentials(
                     user_id=(
                         st.session_state[setup.NAME][setup.USERS_DB_NAME][setup.USERS_DB_QUERY_INDEX]
                     ),
-                    username=response['change_username'],
-                    dir_name=os.path.join(
-                        st.session_state[setup.NAME]['dir'],
-                        'db'
-                    )
+                    username=response['change_username']
                 )
 
                 # Log success
@@ -307,11 +294,7 @@ def update_credentials(
                         st.session_state[setup.NAME][setup.USERS_DB_NAME][setup.USERS_DB_QUERY_INDEX]
                     ),
                     password0=response['change_password0'],
-                    password1=response['change_password1'],
-                    dir_name=os.path.join(
-                        st.session_state[setup.NAME]['dir'],
-                        'db'
-                    )
+                    password1=response['change_password1']
                 )
 
                 # Log success
@@ -343,10 +326,6 @@ def update_credentials(
             delete_account(
                 user_id=(
                     st.session_state[setup.NAME][setup.USERS_DB_NAME][setup.USERS_DB_QUERY_INDEX]
-                ),
-                dir_name=os.path.join(
-                    st.session_state[setup.NAME]['dir'],
-                    'db'
                 )
             )
 
@@ -359,8 +338,7 @@ def update_credentials(
 
 def update_username(
     user_id: str,
-    username: str,
-    dir_name: str
+    username: str
 ):
     """ Updates the username of an existing user.
 
@@ -372,8 +350,6 @@ def update_username(
         Username credential as a valid email. If an invalid email is provided,
             an `InvalidEmail` is raised. If the user already exists,
             a `UserAlreadyExists` is raised.
-    dir_name : `str`
-        Local directory path of the users database.
     """
 
     # Escape the username
@@ -386,7 +362,6 @@ def update_username(
 
         # Initialize connection to the users database
         Users = db.Handler(
-            dir_name=dir_name,
             db_name=setup.USERS_DB_NAME
         )
 
@@ -428,7 +403,6 @@ def update_password(
     user_id: str,
     password0: str,
     password1: str,
-    dir_name: str
 ):
     """ Updates the password of an existing user.
 
@@ -441,8 +415,6 @@ def update_password(
     password1 : `str`
         Repeated password credential, must match `password0`. If an invalid password is
             provided then a `PasswordsDoNotMatch` is raised.
-    dir_name : `str`
-        Local directory path of the users database.
     """
 
     # Escape the password
@@ -457,7 +429,6 @@ def update_password(
 
         # Initialize connection to the users database
         Users = db.Handler(
-            dir_name=dir_name,
             db_name=setup.USERS_DB_NAME
         )
 
@@ -484,8 +455,7 @@ def update_password(
 
 
 def delete_account(
-    user_id: str,
-    dir_name: str
+    user_id: str
 ):
     """ Deletes the account information associated with an existing user.
 
@@ -493,13 +463,10 @@ def delete_account(
     ----------
     user_id : `str`
         User ID of the existing user.
-    dir_name : `str`
-        Local directory path of the users database.
     """
 
     # Initialize connection to the users database
     Users = db.Handler(
-        dir_name=dir_name,
         db_name=setup.USERS_DB_NAME
     )
 
@@ -529,16 +496,7 @@ def login():
     try:
         st.session_state[setup.NAME][setup.USERS_DB_NAME] = authenticate(
             username=st.session_state['username'],
-            password=st.session_state['password'],
-            dir_name=os.path.join(
-                st.session_state[setup.NAME]['dir'],
-                'db'
-            )
-        )
-
-    except db.DatabaseNotFoundError:
-        st.session_state[setup.NAME][setup.AUTH_NAME]['login-error'] = (
-            'Incorrect username and/or password.'
+            password=st.session_state['password']
         )
 
     except IncorrectPassword:
@@ -575,11 +533,7 @@ def sign_up():
             first_name=st.session_state['name'],
             username=st.session_state['username'],
             password0=st.session_state['password0'],
-            password1=st.session_state['password1'],
-            dir_name=os.path.join(
-                st.session_state[setup.NAME]['dir'],
-                'db'
-            )
+            password1=st.session_state['password1']
         )
 
     except UserAlreadyExists:
