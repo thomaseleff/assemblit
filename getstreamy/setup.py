@@ -23,7 +23,7 @@ NAME = os.environ['NAME']
 HOME_PAGE_NAME = os.environ['HOME_PAGE_NAME']
 GITHUB_REPOSITORY_URL = os.environ['GITHUB_REPOSITORY_URL']
 GITHUB_BRANCH_NAME = os.environ['GITHUB_BRANCH_NAME']
-GITHUB_CONTENT_URL = 'https://raw.githubusercontent.com/%s/%s' % (
+GITHUB_CONTENT_URL = 'https://raw.githubusercontent.com/%s/%s/' % (
     up.urlparse(GITHUB_REPOSITORY_URL).path.lstrip('/'),
     GITHUB_BRANCH_NAME.lstrip('/')
 )

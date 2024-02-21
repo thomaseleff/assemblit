@@ -37,7 +37,7 @@ class Content():
             String to display as the web-page tagline
         content_url : `str`
             URL of the README.md document to display as the web-page content
-        content_url : `str`
+        content_file_name : `str`
             Name of the README.md document to display as the web-page content. By
                 default the README.md of the Github repository will be used when
                 `content_url` is provided.
@@ -87,12 +87,10 @@ class Content():
                 if readme is not None:
                     col2.markdown(readme, unsafe_allow_html=True)
 
-                else:
-
-                    # Display content information
-                    _core.display_page_content_info(
-                        content_info=self.content_info
-                    )
+                # Display content information
+                _core.display_page_content_info(
+                    content_info=self.content_info
+                )
 
             else:
 
