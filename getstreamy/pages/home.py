@@ -85,7 +85,7 @@ class Content():
                 readme = Github.get_readme(name=self.content_file_name)
 
                 if readme is not None:
-                    col2.markdown(readme, unsafe_allow_html=True)
+                    col2.markdown(readme)
 
                 # Display content information
                 _core.display_page_content_info(
