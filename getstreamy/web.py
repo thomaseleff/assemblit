@@ -2,7 +2,7 @@
 Information
 ---------------------------------------------------------------------
 Name        : web.py
-Location    : ~/
+Location    : ~/getstreamy
 Author      : Tom Eleff
 Published   : 2024-02-21
 Revised on  : .
@@ -43,20 +43,21 @@ class Handler():
         Parameters
         ----------
         name : `str`
-            Name of the markdown document to display as the web-page content
+            Name of the markdown document to display as the web-page content.
+
+            Examples,
+                'README.md' or 'folder/sub-folder/README.md'
         """
 
         if name:
-
             request = requests.get(
                 url=up.urljoin(
                     self.url,
-                    'main/%s' % (name)
+                    name.lstrip('/')
                 )
             )
 
         else:
-
             request = requests.get(
                 url=self.url
             )
@@ -69,5 +70,4 @@ class Handler():
             return content
 
         else:
-
             return None

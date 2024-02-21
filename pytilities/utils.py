@@ -2,7 +2,7 @@
 Information
 ---------------------------------------------------------------------
 Name        : utils.py
-Location    : ~/mostlytidyGUI/
+Location    : ~/pytilities
 Author      : Tom Eleff
 Published   : 2023-07-11
 Revised on  : 2023-09-30
@@ -13,7 +13,6 @@ Contains the utility functions necessary for managing configuration,
 validation and user-logging.
 """
 
-# Import Modules
 import json
 import os
 import time

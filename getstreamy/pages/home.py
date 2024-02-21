@@ -2,7 +2,7 @@
 Information
 ---------------------------------------------------------------------
 Name        : home.py
-Location    : ~/
+Location    : ~/getstreamy/pages
 Author      : Tom Eleff
 Published   : 2024-02-21
 Revised on  : .
@@ -24,6 +24,7 @@ class Content():
         header: str = 'Welcome',
         tagline: str = 'A ```gitstreamy``` web-application for Github projects.',
         content_url: str = None,
+        content_file_name: str = 'README.md',
         content_info: str = 'For more information, visit the Github repository.'
     ):
         """ Initializes an instance of the home-page `Class`.
@@ -36,6 +37,10 @@ class Content():
             String to display as the web-page tagline
         content_url : `str`
             URL of the README.md document to display as the web-page content
+        content_url : `str`
+            Name of the README.md document to display as the web-page content. By
+                default the README.md of the Github repository will be used when
+                `content_url` is provided.
         content_info : `str`
             String to display as `streamlit.info()` when `content_url = None`
         """
@@ -44,6 +49,7 @@ class Content():
         self.header = header
         self.tagline = tagline
         self.content_url = content_url
+        self.content_file_name = content_file_name
         self.content_info = content_info
 
         # Initialize database class variables
@@ -76,7 +82,17 @@ class Content():
 
                 # Display readme
                 Github = web.Handler(url=self.content_url)
-                col2.markdown(Github.get_readme(name='README.md'))
+                readme = Github.get_readme(name=self.content_file_name)
+
+                if readme is not None:
+                    col2.markdown(readme, unsafe_allow_html=True)
+
+                else:
+
+                    # Display content information
+                    _core.display_page_content_info(
+                        content_info=self.content_info
+                    )
 
             else:
 

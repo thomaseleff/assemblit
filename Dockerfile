@@ -8,6 +8,7 @@ ENV DEV false
 ENV NAME "getstreamy"
 ENV HOME_PAGE_NAME "Home"
 ENV GITHUB_REPOSITORY_URL "https://github.com/thomaseleff/Get-Streamy"
+ENV GITHUB_BRANCH_NAME "main"
 
 # Network configuration settings
 ENV PORT 8501
@@ -43,7 +44,7 @@ RUN apt-get update && apt-get install -y \
 RUN pip3 install --upgrade pip
 
 # Clone from Github
-RUN git clone "$GITHUB_REPOSITORY_URL.git" .
+RUN git clone --branch $GITHUB_BRANCH_NAME "$GITHUB_REPOSITORY_URL.git" .
 
 # Install Python requirements
 RUN pip3 install -r requirements.txt --no-cache-dir

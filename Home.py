@@ -20,8 +20,9 @@ Home = home.Content(
     header='Welcome to %s' % (setup.NAME),
     tagline='A streamlit-based web-application for showcasing analytics models hosted on Github.',
     content_url=(
-        setup.GITHUB_REPOSITORY_URL
+        setup.GITHUB_CONTENT_URL
     ),
+    content_file_name='README.md',
     content_info='For more information, visit the [Get-Streamy](%s) Github page.' % (
         setup.GITHUB_REPOSITORY_URL
     )

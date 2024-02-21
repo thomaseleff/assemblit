@@ -2,7 +2,7 @@
 Information
 ---------------------------------------------------------------------
 Name        : sessions.py
-Location    : ~/
+Location    : ~/getstreamy/pages
 Author      : Tom Eleff
 Published   : 2024-02-21
 Revised on  : .

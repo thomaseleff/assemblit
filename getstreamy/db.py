@@ -2,7 +2,7 @@
 Information
 ---------------------------------------------------------------------
 Name        : db.py
-Location    : ~/
+Location    : ~/getstreamy
 Author      : Tom Eleff
 Published   : 2024-02-21
 Revised on  : .

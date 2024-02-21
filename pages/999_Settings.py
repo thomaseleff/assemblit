@@ -2,7 +2,7 @@
 Information
 ---------------------------------------------------------------------
 Name        : 999_Settings.py
-Location    : ~/
+Location    : ~/pages
 Author      : Tom Eleff
 Published   : 2024-02-21
 Revised on  : .
