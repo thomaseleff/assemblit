@@ -2,9 +2,9 @@
 Information
 ---------------------------------------------------------------------
 Name        : db.py
-Location    : ~/getstreamy
+Location    : ~/
 Author      : Tom Eleff
-Published   : 2024-02-21
+Published   : 2024-03-05
 Revised on  : .
 
 Description
@@ -78,7 +78,7 @@ class Handler():
         if not self.table_exists(table_name=table_name):
             self.cursor.execute(
                 "CREATE TABLE %s(%s)" % (
-                    table_name,
+                    str(table_name),
                     ', '.join(cols)
                 )
             )
@@ -96,7 +96,7 @@ class Handler():
         """
 
         if self.cursor.execute(
-            "SELECT name FROM sqlite_master WHERE name='%s';" % (table_name)
+            "SELECT name FROM sqlite_master WHERE name='%s';" % (str(table_name))
         ).fetchall():
             return True
         else:
@@ -114,8 +114,9 @@ class Handler():
         table_name : `str`
             Name of the database table.
         """
+
         self.cursor.execute(
-            """DROP TABLE '%s'""" % (table_name)
+            """DROP TABLE '%s'""" % (str(table_name))
         )
         self.connection.commit()
 
@@ -166,12 +167,13 @@ class Handler():
                 table_name=table_name
             )
         ):
+
             # Insert values into table
             self.cursor.execute(
                 """
                 INSERT INTO %s VALUES (%s);
                 """ % (
-                    table_name,
+                    str(table_name),
                     ', '.join(
                         [
                             "'%s'" % str(i) for i in list(
@@ -233,24 +235,23 @@ class Handler():
                 }
         """
 
-        # Get number of table records returned from the query
+        # Get the number of table records returned from the query
         records = self.select_num_table_records(
             table_name=table_name,
             filtr=filtr
         )
 
+        # Update values in the database table
         if records == 1:
-
-            # Update values in table
             self.cursor.execute(
                 """
                 UPDATE %s SET %s = '%s' WHERE %s = '%s';
                 """ % (
-                    table_name,
-                    values['col'],
-                    values['val'],
-                    filtr['col'],
-                    filtr['val']
+                    str(table_name),
+                    str(values['col']),
+                    str(values['val']),
+                    str(filtr['col']),
+                    str(filtr['val'])
                 )
             )
             self.connection.commit()
@@ -280,13 +281,14 @@ class Handler():
                     'val' : 'Jimmy'
                 }
         """
+
         self.cursor.execute(
             """
             UPDATE %s SET %s = '%s';
             """ % (
-                table_name,
-                values['col'],
-                values['val']
+                str(table_name),
+                str(values['col']),
+                str(values['val'])
             )
         )
         self.connection.commit()
@@ -294,15 +296,170 @@ class Handler():
     # Define db function(s) to delete table values
     def delete(
         self,
+        database_table_object: list
+    ):
+        """ Removes all rows of values in a filtered database table for each
+        database table object.
+
+        Parameters
+        ----------
+        database_table_object: list
+            List of dictionary objects containing kwargs for deleting table
+                column values.
+
+                e.g., [
+                    {
+                        'table_name': 'table',
+                        'filtr': {
+                            'col' : 'id',
+                            'val' : ['1']
+                        }
+                    }
+                ]
+        """
+
+        # Delete values from each database table object
+        if database_table_object:
+            for kwargs in database_table_object:
+                self.delete_table_column_value(
+                    **kwargs
+                )
+
+    def delete_table_column_value(
+        self,
         table_name: str,
         filtr: dict
     ):
-        """ Removes a row of values in a filtered database table.
+        """ Removes all rows of values in a filtered database table.
 
         Parameters
         ----------
         table_name : `str`
             Name of the database table.
+        filtr : `dict`
+            Dictionary object containing the column `col` and value
+                `val` to filter `table_name`. The returned record(s) are
+                deleted from `table_name`.
+
+                e.g., {
+                    'col' : 'id',
+                    'val' : '1'
+                }
+        """
+
+        # Delete value(s) from the database table
+        if type(filtr['val']) is list:
+            self.cursor.execute(
+                """
+                DELETE FROM %s WHERE %s IN (%s);
+                """ % (
+                    str(table_name),
+                    str(filtr['col']),
+                    ', '.join(["'%s'" % str(i) for i in filtr['val']])
+                )
+            )
+        else:
+            self.cursor.execute(
+                """
+                DELETE FROM %s WHERE %s = '%s';
+                """ % (
+                    str(table_name),
+                    str(filtr['col']),
+                    str(filtr['val'])
+                )
+            )
+        self.connection.commit()
+
+    def build_database_table_objects_to_delete(
+        self,
+        table_names: list,
+        query_index: str,
+        query_index_values: list
+    ) -> list:
+        """ Creates a list object of database table objects to delete and returns it as a `list`.
+
+        Parameters
+        ----------
+        table_names : `list`
+            Names of all database tables that contain `query_index`.
+        query_index : `str`
+            Name of the database query index.
+        query_index_values : `list`
+            List of database `query_index` values that will be deleted.
+        """
+
+        object_to_delete = []
+        if table_names:
+            for table in table_names:
+                if self.table_record_exists(
+                    table_name=table,
+                    filtr={
+                        'col': query_index,
+                        'val': query_index_values
+                    }
+                ):
+                    object_to_delete += self.create_object_to_delete(
+                        table_name=table,
+                        query_index=query_index,
+                        query_index_values=query_index_values
+                    )
+        return object_to_delete
+
+    def create_database_table_dependencies(
+        self,
+        table_names: list,
+        query_index: str,
+        query_index_value: str,
+        dependent_query_index: str
+    ) -> list:
+        """ Creates a list object of all `dependent_query_index` values that will no longer have
+        an associated parent after the provided `query_index_value` is deleted and returns
+        it as a `list`.
+
+        Parameters
+        ----------
+        table_names : `list`
+            Names of all database tables that contain `query_index`.
+        query_index : `str`
+            Name of the database query index, which identifies unique records within the database.
+        query_index_value : `str`
+            Value of the database `query_index` that will be deleted.
+        dependent_query_index : `str`
+            Name of the database `query_index` that depends on `query_index`.
+        """
+
+        dependent_query_index_values = []
+        if table_names:
+            for table in table_names:
+                dependencies = self.select_orphaned_table_column_values(
+                    table_name=table,
+                    col=dependent_query_index,
+                    filtr={
+                        'col': query_index,
+                        'val': query_index_value
+                    }
+                )
+                if dependencies:
+                    dependent_query_index_values += dependencies
+        return dependent_query_index_values
+
+    def select_orphaned_table_column_values(
+        self,
+        table_name: str,
+        col: str,
+        filtr: dict
+    ) -> list:
+        """ Selects the associated database table `col` values that belong
+        only to the filtered index value, `filtr['val']`, and returns them as a `list`.
+        The returned values would have no owner once `filtr['val']`
+        is deleted from the database.
+
+        Parameters
+        ----------
+        table_name : `str`
+            Name of the database table.
+        col : `str`
+            Name of the database table column.
         filtr : `dict`
             Dictionary object containing the column `col` and value
                 `val` to filter `table_name`. The returned record is
@@ -314,17 +471,73 @@ class Handler():
                 }
         """
 
-        # Delete values from table
-        self.cursor.execute(
-            """
-            DELETE FROM %s WHERE %s = '%s';
+        if type(filtr['val']) is list:
+            query = """
+                SELECT %s FROM (
+                    SELECT %s, %s, COUNT(%s) as COUNT FROM %s
+                        GROUP BY %s
+                ) WHERE COUNT = 1 AND %s in (%s);
             """ % (
-                table_name,
+                str(col),
+                str(col),
+                str(filtr['col']),
+                str(col),
+                str(table_name),
+                str(col),
                 filtr['col'],
-                filtr['val']
+                ', '.join(["'%s'" % str(i) for i in filtr['val']])
             )
-        )
-        self.connection.commit()
+        else:
+            query = """
+                SELECT %s FROM (
+                    SELECT %s, %s, COUNT(%s) as COUNT FROM %s
+                        GROUP BY %s
+                ) WHERE COUNT = 1 AND %s = '%s';
+            """ % (
+                str(col),
+                str(col),
+                str(filtr['col']),
+                str(col),
+                str(table_name),
+                str(col),
+                str(filtr['col']),
+                str(filtr['val'])
+            )
+
+        values = [
+            i[0] for i in self.cursor.execute(query).fetchall()
+        ]
+
+        return [as_type(value=i, return_dtype='str') for i in values]
+
+    def create_object_to_delete(
+        self,
+        table_name: str,
+        query_index: str,
+        query_index_values: list
+    ) -> list:
+        """ Creates a dictionary object containg kwargs for deleting rows of a database table
+        and returns it as a `list`.
+
+        Parameters
+        ----------
+        table_names : `list`
+            Name of the database table.
+        query_index : `str`
+            Name of the database query index.
+        query_index_values : `list`
+            List of database `query_index` values that will be deleted.
+        """
+
+        return [
+            {
+                'table_name': table_name,
+                'filtr': {
+                    'col': query_index,
+                    'val': query_index_values
+                }
+            }
+        ]
 
     # Define generic db function(s) for retrieving table information
     def table_record_exists(
@@ -332,7 +545,7 @@ class Handler():
         table_name: str,
         filtr: dict
     ) -> bool:
-        """ Returns `True` when the filtered record exists within a database table.
+        """ Returns `True` when the filtered records exist within a database table.
 
         Parameters
         ----------
@@ -349,23 +562,36 @@ class Handler():
                 }
         """
 
-        if self.cursor.execute(
-            "SELECT %s FROM %s WHERE %s = '%s'" % (
-                str(filtr['col']),
-                table_name,
-                str(filtr['col']),
-                str(filtr['val'])
-            )
-        ).fetchall():
-            return True
+        if type(filtr['val']) is list:
+            if self.cursor.execute(
+                "SELECT %s FROM %s WHERE %s IN (%s)" % (
+                    str(filtr['col']),
+                    str(table_name),
+                    str(filtr['col']),
+                    ', '.join(["'%s'" % str(i) for i in filtr['val']])
+                )
+            ).fetchall():
+                return True
+            else:
+                return False
         else:
-            return False
+            if self.cursor.execute(
+                "SELECT %s FROM %s WHERE %s = '%s'" % (
+                    str(filtr['col']),
+                    str(table_name),
+                    str(filtr['col']),
+                    str(filtr['val'])
+                )
+            ).fetchall():
+                return True
+            else:
+                return False
 
     def select_table_column_names_as_list(
         self,
         table_name: str
     ) -> list:
-        """ Returns the table column names in a database table as a `list`.
+        """ Returns the column names of a database table as a `list`.
 
         Parameters
         ----------
@@ -675,7 +901,6 @@ def as_type(
 
             try:
                 return ast.literal_eval(value)
-
             except (SyntaxError, ValueError):
                 raise TypeError(
                     ' '.join([
@@ -694,7 +919,6 @@ def as_type(
         ):
             try:
                 return json.loads(value)
-
             except json.decoder.JSONDecodeError:
                 raise TypeError(
                     ' '.join([
@@ -706,14 +930,12 @@ def as_type(
                         )
                     ])
                 )
-
         else:
             raise NameError(
                 'Invalid return datatype {%s}.' % (
                     return_dtype
                 )
             )
-
     except ValueError:
         raise TypeError(
             ' '.join([

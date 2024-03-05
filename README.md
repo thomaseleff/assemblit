@@ -1,2 +1,2 @@
-# Get-Streamy
+# getstreamy
 A streamlit-based web-application for showcasing analytics models hosted on Github.

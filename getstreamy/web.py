@@ -2,7 +2,7 @@
 Information
 ---------------------------------------------------------------------
 Name        : web.py
-Location    : ~/getstreamy
+Location    : ~/
 Author      : Tom Eleff
 Published   : 2024-02-21
 Revised on  : .

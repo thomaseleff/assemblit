@@ -2,9 +2,9 @@
 Information
 ---------------------------------------------------------------------
 Name        : vault.py
-Location    : ~/getstreamy
+Location    : ~/
 Author      : Tom Eleff
-Published   : 2024-02-21
+Published   : 2024-03-05
 Revised on  : .
 
 Description
@@ -327,9 +327,6 @@ def update_credentials(
                 )
             )
 
-            # Logout
-            logout()
-
             # Return to home-page
             st.switch_page(st.session_state[setup.NAME]['pages']['home'])
 
@@ -455,12 +452,12 @@ def update_password(
 def delete_account(
     user_id: str
 ):
-    """ Deletes the account information associated with an existing user.
+    """ Deletes all database table information associated with the selected user.
 
     Parameters
     ----------
     user_id : `str`
-        User ID of the existing user.
+        User ID of the selected user.
     """
 
     # Initialize connection to the users database
@@ -468,21 +465,88 @@ def delete_account(
         db_name=setup.USERS_DB_NAME
     )
 
-    # Get all tables with ['user_id']
-    tables = Users.select_all_tables_with_column_name(
-        col=setup.USERS_DB_QUERY_INDEX
+    # Initialize connection to the sessions database
+    Sessions = db.Handler(
+        db_name=setup.SESSIONS_DB_NAME
     )
 
-    # Delete all user records in all tables
-    for table in tables:
+    # Initialize connection to the data-ingestion database
+    Data = db.Handler(
+        db_name=setup.DATA_DB_NAME
+    )
 
-        Users.delete(
-            table_name=table,
-            filtr={
-                'col': setup.USERS_DB_QUERY_INDEX,
-                'val': user_id
-            }
+    # Build database table objects to remove users from the users database
+    users_db_query_index_objects_to_delete = Users.build_database_table_objects_to_delete(
+        table_names=Users.select_all_tables_with_column_name(
+            col=setup.USERS_DB_QUERY_INDEX
+        ),
+        query_index=setup.USERS_DB_QUERY_INDEX,
+        query_index_values=[user_id]
+    )
+
+    # Get all orphaned sessions-db-query-index values
+    sessions_to_delete = Users.create_database_table_dependencies(
+        table_names=Users.select_all_tables_with_column_name(
+            col=setup.SESSIONS_DB_QUERY_INDEX
+        ),
+        query_index=setup.USERS_DB_QUERY_INDEX,
+        query_index_value=user_id,
+        dependent_query_index=setup.SESSIONS_DB_QUERY_INDEX
+    )
+
+    # Build database table objects to remove sessions from the sessions database
+    if sessions_to_delete:
+        sessions_db_query_index_objects_to_delete = Sessions.build_database_table_objects_to_delete(
+            table_names=Sessions.select_all_tables_with_column_name(
+                col=setup.SESSIONS_DB_QUERY_INDEX
+            ),
+            query_index=setup.SESSIONS_DB_QUERY_INDEX,
+            query_index_values=sessions_to_delete
         )
+
+        # Get all orphaned data-db-query-index values
+        data_to_delete = Sessions.create_database_table_dependencies(
+            table_names=Sessions.select_all_tables_with_column_name(
+                col=setup.DATA_DB_QUERY_INDEX
+            ),
+            query_index=setup.SESSIONS_DB_QUERY_INDEX,
+            query_index_value=sessions_to_delete,
+            dependent_query_index=setup.DATA_DB_QUERY_INDEX
+        )
+
+        # Build database table objects to remove datasets from the data database
+        if data_to_delete:
+            data_db_query_index_objects_to_delete = Data.build_database_table_objects_to_delete(
+                table_names=Data.select_all_tables_with_column_name(
+                    col=setup.DATA_DB_QUERY_INDEX
+                ),
+                query_index=setup.DATA_DB_QUERY_INDEX,
+                query_index_values=data_to_delete
+            )
+
+            # Drop all data-ingestion database tables
+            for table in data_to_delete:
+                Data.drop_table(
+                    table_name=table
+                )
+
+            # Delete all data-ingestion database table values
+            Data.delete(
+                database_table_object=data_db_query_index_objects_to_delete
+            )
+
+        # Delete all sessions database table values
+        Sessions.delete(
+            database_table_object=sessions_db_query_index_objects_to_delete
+        )
+
+    # Delete all user database table values
+    Users.delete(
+        database_table_object=users_db_query_index_objects_to_delete
+    )
+
+    # Logout to reset the session state
+    logout()
 
 
 # Define generic user-session mangement function(s)

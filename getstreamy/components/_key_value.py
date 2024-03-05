@@ -2,9 +2,9 @@
 Information
 ---------------------------------------------------------------------
 Name        : _key_value.py
-Location    : ~/
+Location    : ~/components
 Author      : Tom Eleff
-Published   : 2024-02-13
+Published   : 2024-03-05
 Revised on  : .
 
 Description
@@ -558,7 +558,7 @@ def update_settings(
                         table_name=table_name,
                         values={
                             'col': parameter,
-                            'val': response[parameter]
+                            'val': str(response[parameter]).strip()
                         },
                         filtr={
                             'col': query_index,

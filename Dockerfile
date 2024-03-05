@@ -1,8 +1,10 @@
 # Setup environment
 FROM python:3.10-slim
 
-# Developer mode
-ENV DEV false
+# Developer configuration settings
+ENV ENV PROD
+ENV VERSION "1.0.0"
+ENV DEBUG true
 
 # Web-app configuration settings
 ENV NAME "getstreamy"

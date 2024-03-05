@@ -2,9 +2,9 @@
 Information
 ---------------------------------------------------------------------
 Name        : _selector.py
-Location    : ~/
+Location    : ~/components
 Author      : Tom Eleff
-Published   : 2024-02-19
+Published   : 2024-03-05
 Revised on  : .
 
 Description
@@ -15,7 +15,7 @@ Contains the generic methods for a session-selector.
 import hashlib
 import streamlit as st
 from getstreamy import setup, db
-from getstreamy.components import _key_value
+from getstreamy.components import _core, _key_value
 
 
 # Define core-component key-value pair function(s)
@@ -122,7 +122,10 @@ def display_selector(
                     db_name=db_name,
                     table_name=table_name
                 ),
-                # on_click=delete,
+                on_click=delete_session,
+                kwargs={
+                    'session_id': st.session_state[setup.NAME][db_name][query_index]
+                },
                 type='secondary',
                 disabled=False,
                 use_container_width=True
@@ -134,7 +137,10 @@ def display_selector(
                     db_name=db_name,
                     table_name=table_name
                 ),
-                # on_click=delete,
+                on_click=delete_session,
+                kwargs={
+                    'session_id': st.session_state[setup.NAME][db_name][query_index]
+                },
                 type='secondary',
                 disabled=True,
                 use_container_width=True
@@ -496,8 +502,8 @@ def create_session(
 
         # Create an id from query index values
         string_to_hash = ''.join(
-            [response[st.session_state[setup.NAME][db_name][table_name]['selector']['parameter']]]
-            + [st.session_state[setup.NAME][setup.USERS_DB_NAME][setup.USERS_DB_QUERY_INDEX]]
+            [st.session_state[setup.NAME][setup.USERS_DB_NAME][setup.USERS_DB_QUERY_INDEX]]
+            + [response[st.session_state[setup.NAME][db_name][table_name]['selector']['parameter']]]
         )
 
         # Generate id
@@ -617,8 +623,6 @@ def update_session(
         # Check for empty form entries
         if '' not in [str(i).strip() for i in response.values()]:
 
-            print(response.values())
-
             # Update session-selector parameters
             for parameter in list(response.keys()):
 
@@ -695,76 +699,97 @@ def update_session(
         )
 
 
-def delete_session():
+def delete_session(
+    session_id: str
+):
+    """ Deletes all database table information associated with the selected session.
 
-    # # Initialize connection to the users-database
-    # Users = db.Handler(
-    #     db_name=setup.USERS_DB_NAME
-    # )
+    Parameters
+    ----------
+    session_id : `str`
+        Session ID of the selected session.
+    """
 
-    # # Remove study id from users-database
-    # Users.delete(
-    #     table_name=self.table_name,
-    #     filtr={
-    #         'col': self.query_index,
-    #         'val': self.query_index_value
-    #     }
-    # )
+    # Initialize connection to the users database
+    Users = db.Handler(
+        db_name=setup.USERS_DB_NAME
+    )
 
-    # # Initialize connection to the session-selector database
-    # Database = db.Handler(
-    #     db_name=self.db_name
-    # )
+    # Initialize connection to the sessions database
+    Sessions = db.Handler(
+        db_name=setup.SESSIONS_DB_NAME
+    )
 
-    # # Get all tables with study id
-    # tables = Database.select_all_tables_with_column_name(
-    #     col=self.query_index
-    # )
+    # Initialize connection to the data-ingestion database
+    Data = db.Handler(
+        db_name=setup.DATA_DB_NAME
+    )
 
-    # # Delete all session-selector records in all tables
-    # for table in tables:
+    # Build database table objects to remove sessions from the users database
+    users_db_query_index_objects_to_delete = Users.build_database_table_objects_to_delete(
+        table_names=Users.select_all_tables_with_column_name(
+            col=setup.SESSIONS_DB_QUERY_INDEX
+        ),
+        query_index=setup.SESSIONS_DB_QUERY_INDEX,
+        query_index_values=[session_id]
+    )
 
-    #     # Remove study id from session-selector database
-    #     Database.delete(
-    #         table_name=table,
-    #         filtr={
-    #             'col': self.query_index,
-    #             'val': self.query_index_value
-    #         }
-    #     )
+    # Build database table objects to remove sessions from the sessions database
+    sessions_db_query_index_objects_to_delete = Sessions.build_database_table_objects_to_delete(
+        table_names=Sessions.select_all_tables_with_column_name(
+            col=setup.SESSIONS_DB_QUERY_INDEX
+        ),
+        query_index=setup.SESSIONS_DB_QUERY_INDEX,
+        query_index_values=[session_id]
+    )
 
-    # # Delete work directory for the selected study
-    # if os.path.isdir(
-    #     os.path.join(
-    #         os.path.join(
-    #             st.session_state[setup.NAME]['dir'],
-    #             self.db_name,
-    #             self.query_index_value
-    #         )
-    #     )
-    # ):
-    #     os.rmdir(
-    #         os.path.join(
-    #             st.session_state[setup.NAME]['dir'],
-    #             self.db_name,
-    #             self.query_index_value
-    #         )
-    #     )
+    # Get all orphaned data-db-query-index values
+    data_to_delete = Sessions.create_database_table_dependencies(
+        table_names=Sessions.select_all_tables_with_column_name(
+            col=setup.DATA_DB_QUERY_INDEX
+        ),
+        query_index=setup.SESSIONS_DB_QUERY_INDEX,
+        query_index_value=session_id,
+        dependent_query_index=setup.DATA_DB_QUERY_INDEX
+    )
 
-    # # Log successes
-    # st.session_state[setup.NAME][self.db_name]['successes'] = (
-    #     st.session_state[setup.NAME][self.db_name]['successes'] + [
-    #         'The entry {%s} was deleted successfully.' % (
-    #             st.session_state[setup.NAME][self.db_name]['name']
-    #         )
-    #     ]
-    # )
+    # Build database table objects to remove datasets from the data database
+    if data_to_delete:
+        data_db_query_index_objects_to_delete = Data.build_database_table_objects_to_delete(
+            table_names=Data.select_all_tables_with_column_name(
+                col=setup.DATA_DB_QUERY_INDEX
+            ),
+            query_index=setup.DATA_DB_QUERY_INDEX,
+            query_index_values=data_to_delete
+        )
 
-    # # Reset session state
-    # del st.session_state[setup.NAME][self.db_name]['name']
-    # del st.session_state[setup.NAME][self.db_name][self.query_index]
-    # self.query_index_value = None
+        # Drop all data-ingestion database tables
+        for table in data_to_delete:
+            Data.drop_table(
+                table_name=table
+            )
 
-    # # Reset button
-    # del st.session_state['delete_%s' % self.table_name]
-    pass
+        # Delete all data-ingestion database table values
+        Data.delete(
+            database_table_object=data_db_query_index_objects_to_delete
+        )
+
+    # Delete all sessions database table values
+    Sessions.delete(
+        database_table_object=sessions_db_query_index_objects_to_delete
+    )
+
+    # Delete all user database table values
+    Users.delete(
+        database_table_object=users_db_query_index_objects_to_delete
+    )
+
+    # Reset session state
+    _core.initialize_session_state_database_defaults(
+        db_name=setup.SESSIONS_DB_NAME,
+        defaults=setup.SESSIONS_DEFAULTS
+    )
+    _core.initialize_session_state_database_defaults(
+        db_name=setup.DATA_DB_NAME,
+        defaults=setup.DATA_DEFAULTS
+    )

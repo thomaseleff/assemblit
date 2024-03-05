@@ -1,10 +1,10 @@
 """
 Information
 ---------------------------------------------------------------------
-Name        : workflow.py
-Location    : ~/getstreamy/pages
+Name        : workflow_settings.py
+Location    : ~/pages
 Author      : Tom Eleff
-Published   : 2024-02-21
+Published   : 2024-03-05
 Revised on  : .
 
 Description
@@ -33,7 +33,7 @@ class Content():
             )
         ),
         headerless: bool = False,
-        clear_on_submit: bool = True,
+        clear_on_submit: bool = False,
         table_name: str = 'workflow',
         settings: list = [
             {

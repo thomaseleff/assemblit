@@ -1,10 +1,10 @@
 """
 Information
 ---------------------------------------------------------------------
-Name        : sessions.py
-Location    : ~/getstreamy/pages
+Name        : sessions_selector.py
+Location    : ~/pages
 Author      : Tom Eleff
-Published   : 2024-02-21
+Published   : 2024-03-05
 Revised on  : .
 
 Description
@@ -32,11 +32,6 @@ class Content():
             "name": "Session Name",
             "value": "",
             "kwargs": None,
-            "query": {
-                'db_name': setup.USERS_DB_NAME,
-                'table_name': setup.SESSIONS_DB_NAME,
-                'col': 'session_name'
-            },
             "description": "Select a session."
         },
         settings: list = [
@@ -48,11 +43,6 @@ class Content():
                 "name": "Session Name",
                 "value": "",
                 "kwargs": None,
-                "query": {
-                    'db_name': setup.SESSIONS_DB_NAME,
-                    'table_name': setup.SESSIONS_DB_NAME,
-                    'col': 'session_name'
-                },
                 "description": "Input the name of a new session."
             }
         ],

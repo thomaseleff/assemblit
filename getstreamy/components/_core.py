@@ -2,9 +2,9 @@
 Information
 ---------------------------------------------------------------------
 Name        : _core.py
-Location    : ~/
+Location    : ~/components
 Author      : Tom Eleff
-Published   : 2024-02-13
+Published   : 2024-03-05
 Revised on  : .
 
 Description
@@ -29,6 +29,24 @@ def initialize_session_state_defaults():
             setup.SESSION_STATE_DEFAULTS.items()
         ):
             st.session_state[setup.NAME][key] = copy.deepcopy(value)
+
+
+def initialize_session_state_database_defaults(
+    db_name: str,
+    defaults: dict
+):
+    """
+    Reset the session state with the default setup parameter(s) for a single database.
+
+    Parameters
+    ----------
+    db_name : 'str'
+        Name of the database.
+    defaults : 'dict'
+        Dictionary containing the database table default parameters.
+    """
+    if db_name in st.session_state[setup.NAME]:
+        st.session_state[setup.NAME][db_name] = copy.deepcopy(defaults)
 
 
 def initialize_session_state_status_defaults(
@@ -113,7 +131,7 @@ def display_page_header(
             col1, col2, col3, col4, col5 = st.columns(setup.HEADER_COLUMNS)
 
             # Display the header
-            col2.header(header)
+            col2.markdown('# %s' % header)
             col2.write(tagline)
             col2.write('')
             col2.write('')
@@ -140,7 +158,7 @@ def display_page_header(
             col4.write('')
 
     # Debug
-    if setup.DEV:
+    if setup.DEBUG:
         print(
             json.dumps(
                 st.session_state.to_dict(),

@@ -2,9 +2,9 @@
 Information
 ---------------------------------------------------------------------
 Name        : account_settings.py
-Location    : ~/getstreamy/pages
+Location    : ~/pages
 Author      : Tom Eleff
-Published   : 2024-02-21
+Published   : 2024-03-05
 Revised on  : .
 
 Description
@@ -156,9 +156,7 @@ class Content():
 
             # Personalize the header content
             if self.personalize:
-                self.header = """
-                    %s, %s
-                """ % (
+                self.header = '%s, %s' % (
                     self.header,
                     st.session_state[setup.NAME][self.db_name]['name']
                 )

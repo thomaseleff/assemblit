@@ -4,7 +4,7 @@ Information
 Name        : setup.py
 Location    : ~/
 Author      : Tom Eleff
-Published   : 2024-02-21
+Published   : 2024-03-05
 Revised on  : .
 
 Description
@@ -13,10 +13,18 @@ Contains the generic static variables and methods for a getstreamy app.
 """
 
 import os
+import dotenv
+import copy
 import urllib.parse as up
 
-# Developer mode
-DEV = os.environ['DEV']
+# Load environment
+if 'ENV' not in os.environ:
+    dotenv.load_dotenv()
+
+# Developer configuration settings
+ENV = os.environ['ENV']
+VERSION = os.environ['VERSION']
+DEBUG = os.environ['DEBUG']
 
 # Web-app configuration settings
 NAME = os.environ['NAME']
@@ -81,16 +89,12 @@ DATA_DEFAULTS = {
 
 # Session state defaults
 SESSION_STATE_DEFAULTS = {
-    AUTH_NAME: AUTH_DEFAULTS,
-    USERS_DB_NAME: USERS_DEFAULTS,
-    SESSIONS_DB_NAME: SESSIONS_DEFAULTS,
-    DATA_DB_NAME: DATA_DEFAULTS,
+    AUTH_NAME: copy.deepcopy(AUTH_DEFAULTS),
+    USERS_DB_NAME: copy.deepcopy(USERS_DEFAULTS),
+    SESSIONS_DB_NAME: copy.deepcopy(SESSIONS_DEFAULTS),
+    DATA_DB_NAME: copy.deepcopy(DATA_DEFAULTS),
     'dir': ROOT_DIR,
     'pages': {
         'home': '%s.py' % (HOME_PAGE_NAME)
     }
 }
-
-# Db dependencies
-USERS_DEPENDENTS = {}
-SESSIONS_DEPENDENTS = {}

@@ -1,10 +1,10 @@
 """
 Information
 ---------------------------------------------------------------------
-Name        : data.py
-Location    : ~/getstreamy/pages
+Name        : data_ingestion.py
+Location    : ~/pages
 Author      : Tom Eleff
-Published   : 2024-02-21
+Published   : 2024-03-05
 Revised on  : .
 
 Description
@@ -53,11 +53,6 @@ class Content():
             "name": "Datafile name",
             "value": "",
             "kwargs": None,
-            "query": {
-                'db_name': setup.SESSIONS_DB_NAME,
-                'table_name': 'datasets',
-                'col': setup.DATA_DB_QUERY_INDEX
-            },
             "description": "Select a datafile to review."
         },
         headerless: bool = False,
@@ -193,12 +188,12 @@ class Content():
                 )
 
                 # Initialize the connection to the data-ingestion database
-                Database = db.Handler(
+                Data = db.Handler(
                     db_name=self.db_name
                 )
 
                 # Create table in the data-ingestion database
-                Database.create_table(
+                Data.create_table(
                     table_name=self.table_name,
                     cols=(
                         [
@@ -540,7 +535,7 @@ class Content():
 
                             # Retreive drop-down selector options & set button state
                             try:
-                                options = Database.select_table_column_value(
+                                options = Data.select_table_column_value(
                                     table_name=self.table_name,
                                     col=st.session_state[setup.NAME][self.db_name]['selector']['parameter'],
                                     filtr={
@@ -575,7 +570,7 @@ class Content():
 
                                 # Select the 'Final' version of the session datafile
                                 index = options.index(
-                                    Database.select_table_column_value(
+                                    Data.select_table_column_value(
                                         table_name=self.table_name,
                                         col=st.session_state[setup.NAME][self.db_name]['selector']['parameter'],
                                         filtr={
@@ -593,7 +588,7 @@ class Content():
                                     index = options.index(
                                         db.as_type(
                                             [
-                                                i[0] for i in Database.cursor.execute(
+                                                i[0] for i in Data.cursor.execute(
                                                     """
                                                         SELECT %s FROM %s
                                                             WHERE %s IN (%s)
@@ -632,6 +627,11 @@ class Content():
                                     # Set the default index
                                     index = 0
 
+                            except ValueError:
+
+                                # Set the default index
+                                index = 0
+
                             # Apply defaults to the session state
                             if options:
                                 st.session_state[setup.NAME][self.db_name]['name'] = options[index]
@@ -667,7 +667,7 @@ class Content():
                             col2.button(
                                 label='Finalize',
                                 key='Button:%s-finalize' % (self.db_name),
-                                on_click=self.finalize,
+                                on_click=self.finalize_dataset,
                                 type='primary',
                                 use_container_width=True,
                                 disabled=button_state
@@ -678,7 +678,7 @@ class Content():
                             col3.button(
                                 label='Save',
                                 key='Button:%s-save' % (self.db_name),
-                                on_click=self.save,
+                                on_click=self.save_dataset,
                                 type='secondary',
                                 use_container_width=True,
                                 disabled=button_state
@@ -689,7 +689,10 @@ class Content():
                             col4.button(
                                 label='Delete',
                                 key='Button:%s-delete' % (self.db_name),
-                                on_click=self.delete,
+                                on_click=self.delete_dataset,
+                                kwargs={
+                                    'dataset_id': st.session_state[setup.NAME][self.db_name][self.query_index]
+                                },
                                 type='secondary',
                                 use_container_width=True,
                                 disabled=button_state
@@ -1074,11 +1077,11 @@ class Content():
         )
 
         # Initialize connection to the data-ingestion database
-        Database = db.Handler(
+        Data = db.Handler(
             db_name=self.db_name
         )
 
-        values = Database.cursor.execute(
+        values = Data.cursor.execute(
             """
             SELECT %s
                 FROM %s
@@ -1122,7 +1125,7 @@ class Content():
         )
 
         # Initialize connection to the data-ingestion database
-        Database = db.Handler(
+        Data = db.Handler(
             db_name=self.db_name
         )
 
@@ -1131,7 +1134,8 @@ class Content():
 
             # Create an id from the session name and file name
             string_to_hash = ''.join(
-                [st.session_state[setup.NAME][setup.SESSIONS_DB_NAME]['name']] + [self.selected_file_name]
+                [st.session_state[setup.NAME][setup.SESSIONS_DB_NAME][setup.SESSIONS_DB_QUERY_INDEX]]
+                + [self.selected_file_name]
             )
 
             # Generate id
@@ -1160,11 +1164,11 @@ class Content():
                     sql="""
                         SELECT * FROM '%s';
                     """ % dataset_id,
-                    con=Database.connection
+                    con=Data.connection
                 )
 
                 # Set selector options
-                self.datetime = Database.select_generic_query(
+                self.datetime = Data.select_generic_query(
                     query="""
                         SELECT datetime FROM %s
                             WHERE %s = '%s';
@@ -1175,7 +1179,7 @@ class Content():
                     ),
                     return_dtype='list'
                 )
-                self.dimensions = Database.select_generic_query(
+                self.dimensions = Data.select_generic_query(
                     query="""
                         SELECT dimensions FROM %s
                             WHERE %s = '%s';
@@ -1186,7 +1190,7 @@ class Content():
                     ),
                     return_dtype='list'
                 )
-                self.metrics = Database.select_generic_query(
+                self.metrics = Data.select_generic_query(
                     query="""
                         SELECT metrics FROM %s
                             WHERE %s = '%s';
@@ -1200,7 +1204,7 @@ class Content():
 
                 # Set selector defaults
                 try:
-                    self.selected_datetime = Database.select_generic_query(
+                    self.selected_datetime = Data.select_generic_query(
                         query="""
                             SELECT selected_datetime FROM %s
                                 WHERE %s = '%s';
@@ -1213,7 +1217,7 @@ class Content():
                     )
                 except db.NullReturnValue:
                     self.selected_datetime = []
-                self.selected_dimensions = Database.select_generic_query(
+                self.selected_dimensions = Data.select_generic_query(
                     query="""
                         SELECT selected_dimensions FROM %s
                             WHERE %s = '%s';
@@ -1224,7 +1228,7 @@ class Content():
                     ),
                     return_dtype='list'
                 )
-                self.selected_metrics = Database.select_generic_query(
+                self.selected_metrics = Data.select_generic_query(
                     query="""
                         SELECT selected_metrics FROM %s
                             WHERE %s = '%s';
@@ -1235,7 +1239,7 @@ class Content():
                     ),
                     return_dtype='list'
                 )
-                self.selected_aggrules = Database.select_generic_query(
+                self.selected_aggrules = Data.select_generic_query(
                     query="""
                         SELECT selected_aggrules FROM %s
                             WHERE %s = '%s';
@@ -1250,7 +1254,7 @@ class Content():
                 # Check that the datafile hash matches
                 if not hashlib.sha256(
                     df.to_string().encode('utf8')
-                ).hexdigest() == Database.select_generic_query(
+                ).hexdigest() == Data.select_generic_query(
                     query="""
                         SELECT sha256 FROM %s
                             WHERE %s = '%s';
@@ -1305,7 +1309,7 @@ class Content():
         df : `pd.DataFrame`
             Pandas dataframe object to promote to the database.
         dbms : `str`
-            Database management system name of the data to promote ('csv', 'parquet').
+            Data management system name of the data to promote ('csv', 'parquet').
         file_name : `str`
             Name of the datafile.
         file_size : `str`
@@ -1318,14 +1322,14 @@ class Content():
         )
 
         # Initialize connection to the data-ingestion database
-        Database = db.Handler(
+        Data = db.Handler(
             db_name=self.db_name
         )
 
         # Retrieve the latest data version number
         try:
             version = int(
-                Database.select_generic_query(
+                Data.select_generic_query(
                     query="""
                         SELECT MAX(version) FROM %s
                             WHERE %s in (%s);
@@ -1357,7 +1361,8 @@ class Content():
 
         # Create an id from the session name and file name
         string_to_hash = ''.join(
-            [st.session_state[setup.NAME][setup.SESSIONS_DB_NAME]['name']] + [file_name]
+            [st.session_state[setup.NAME][setup.SESSIONS_DB_NAME][setup.SESSIONS_DB_QUERY_INDEX]]
+            + [file_name]
         )
 
         # Generate id
@@ -1366,7 +1371,7 @@ class Content():
         ).hexdigest()
 
         # Check if the file name already exists
-        if Database.table_exists(table_name=self.query_index_value) == 0:
+        if Data.table_exists(table_name=self.query_index_value) == 0:
 
             # Update the session-selector database
             Sessions.insert(
@@ -1380,7 +1385,7 @@ class Content():
             )
 
             # Update the data ingestion database
-            Database.insert(
+            Data.insert(
                 table_name=self.table_name,
                 values={
                     self.query_index: (
@@ -1403,15 +1408,15 @@ class Content():
                     'sha256': hashlib.sha256(df.to_string().encode('utf8')).hexdigest()
                 },
                 validate={
-                    'col': 'file_name',
-                    'val': file_name
+                    'col': self.query_index,
+                    'val': self.query_index_value
                 }
             )
 
             # Promote the datafile to the data-ingestion database as a table
             df.to_sql(
                 name=self.query_index_value,
-                con=Database.connection,
+                con=Data.connection,
                 index=False
             )
 
@@ -1442,19 +1447,19 @@ class Content():
                 icon='✅'
             )
 
-    def finalize(
+    def finalize_dataset(
         self
     ):
         """ Finalizes the selected datafile within the data-ingestion database table.
         """
 
         # Initialize connection to the data-ingestion database
-        Database = db.Handler(
+        Data = db.Handler(
             db_name=self.db_name
         )
 
         # Reset all datasets
-        Database.reset_table_column_value(
+        Data.reset_table_column_value(
             table_name=self.table_name,
             values={
                 'col': 'final',
@@ -1463,7 +1468,7 @@ class Content():
         )
 
         # Set the selected datafile as final
-        Database.update(
+        Data.update(
             table_name=self.table_name,
             values={
                 'col': 'final',
@@ -1475,19 +1480,19 @@ class Content():
             }
         )
 
-    def save(
+    def save_dataset(
         self
     ):
         """ Updates the drop-down selection defaults stored within the data-ingestion database table for the selected datafile.
         """
 
         # Initialize connection to the data-ingestion database
-        Database = db.Handler(
+        Data = db.Handler(
             db_name=self.db_name
         )
 
         # Update the database with the latest selected values
-        Database.update(
+        Data.update(
             table_name=self.table_name,
             values={
                 'col': 'selected_datetime',
@@ -1498,7 +1503,7 @@ class Content():
                 'val': st.session_state[setup.NAME][self.db_name][self.query_index]
             }
         )
-        Database.update(
+        Data.update(
             table_name=self.table_name,
             values={
                 'col': 'selected_dimensions',
@@ -1509,7 +1514,7 @@ class Content():
                 'val': st.session_state[setup.NAME][self.db_name][self.query_index]
             }
         )
-        Database.update(
+        Data.update(
             table_name=self.table_name,
             values={
                 'col': 'selected_metrics',
@@ -1520,7 +1525,7 @@ class Content():
                 'val': st.session_state[setup.NAME][self.db_name][self.query_index]
             }
         )
-        Database.update(
+        Data.update(
             table_name=self.table_name,
             values={
                 'col': 'selected_aggrules',
@@ -1532,29 +1537,65 @@ class Content():
             }
         )
 
-    def delete(
-        self
+    def delete_dataset(
+        self,
+        dataset_id: str
     ):
-        """ Deletes the selected datafile from all tables within the data-ingestion database.
+        """ Deletes the database table information associated with the selected dataset.
+
+        Parameters
+        ----------
+        dataset_id : `str`
+            Dataset ID of the selected dataset
         """
 
+        # Initialize connection to the sessions database
+        Sessions = db.Handler(
+            db_name=setup.SESSIONS_DB_NAME
+        )
+
         # Initialize connection to the data-ingestion database
-        Database = db.Handler(
-            db_name=self.db_name
+        Data = db.Handler(
+            db_name=setup.DATA_DB_NAME
         )
 
-        # Remove the table metadata
-        Database.delete(
-            table_name=self.table_name,
-            filtr={
-                'col': self.query_index,
-                'val': st.session_state[setup.NAME][self.db_name][self.query_index]
-            }
+        # Build database table objects to remove datasets from the sessions database
+        sessions_db_query_index_objects_to_delete = Sessions.build_database_table_objects_to_delete(
+            table_names=Sessions.select_all_tables_with_column_name(
+                col=setup.DATA_DB_QUERY_INDEX
+            ),
+            query_index=setup.DATA_DB_QUERY_INDEX,
+            query_index_values=[dataset_id]
         )
 
-        # Remove the datafile table
-        Database.drop_table(
-            table_name=st.session_state[setup.NAME][self.db_name][self.query_index]
+        # Build database table objects to remove datasets from the data-ingestion database
+        data_db_query_index_objects_to_delete = Data.build_database_table_objects_to_delete(
+            table_names=Data.select_all_tables_with_column_name(
+                col=setup.DATA_DB_QUERY_INDEX
+            ),
+            query_index=setup.DATA_DB_QUERY_INDEX,
+            query_index_values=[dataset_id]
+        )
+
+        # Drop all data-ingestion database tables
+        Data.drop_table(
+            table_name=dataset_id
+        )
+
+        # Delete all data-ingestion database table values
+        Data.delete(
+            database_table_object=data_db_query_index_objects_to_delete
+        )
+
+        # Delete all sessions database table values
+        Sessions.delete(
+            database_table_object=sessions_db_query_index_objects_to_delete
+        )
+
+        # Reset session state
+        _core.initialize_session_state_database_defaults(
+            db_name=setup.DATA_DB_NAME,
+            defaults=setup.DATA_DEFAULTS
         )
 
     def plot_timeseries(
