@@ -4,7 +4,7 @@ Information
 Name        : _key_value.py
 Location    : ~/components
 Author      : Tom Eleff
-Published   : 2024-03-05
+Published   : 2024-03-16
 Revised on  : .
 
 Description
@@ -17,7 +17,7 @@ from getstreamy import setup, db
 
 
 # Define core-component key-value pair function(s)
-def manage_key_value_pair_database(
+def initialize_key_value_pair_table(
     db_name: str,
     table_name: str,
     query_index: str,
@@ -38,17 +38,12 @@ def manage_key_value_pair_database(
         List of dictionary objects containing the setting(s) parameters & values.
     """
 
-    # Initialize the connection to the key-value database
-    Database = db.Handler(
-        db_name=db_name
-    )
-
-    # Create table in the key-value database
-    Database.create_table(
+    # Initialize the key-value database
+    Db = db.initialize_table(
+        db_name=db_name,
         table_name=table_name,
         cols=(
-            [query_index]
-            + get_key_value_pair_parameters(
+            [query_index] + get_key_value_pair_parameters(
                 db_name=db_name,
                 table_name=table_name
             )
@@ -59,7 +54,7 @@ def manage_key_value_pair_database(
     if st.session_state[setup.NAME][db_name][query_index]:
 
         # Assign the table information to the session state for the form content
-        if Database.table_record_exists(
+        if Db.table_record_exists(
             table_name=table_name,
             filtr={
                 'col': query_index,
@@ -69,7 +64,7 @@ def manage_key_value_pair_database(
 
             # Retrieve the table information
             dictionary = (
-                Database.select_multi_table_column_value(
+                Db.select_multi_table_column_value(
                     table_name=table_name,
                     cols=get_key_value_pair_parameters(
                         db_name=db_name,
@@ -94,7 +89,7 @@ def manage_key_value_pair_database(
         else:
 
             # Insert the table information as defaults
-            Database.insert(
+            Db.insert(
                 table_name=table_name,
                 values=get_default_key_value_pair_settings(
                     db_name=db_name,
@@ -501,13 +496,13 @@ def select_setting_table_column_value(
     """
 
     # Initialize the connection to the Database
-    Database = db.Handler(
+    Db = db.Handler(
         db_name=db_name
     )
 
     # Return the table column value
     return (
-        Database.select_generic_query(
+        Db.select_generic_query(
             query=query,
             return_dtype=return_dtype
         )
@@ -539,14 +534,14 @@ def update_settings(
     if response:
 
         # Initialize connection to the database
-        Database = db.Handler(
+        Db = db.Handler(
             db_name=db_name
         )
 
         # Update database settings
         for parameter in list(response.keys()):
 
-            if Database.table_record_exists(
+            if Db.table_record_exists(
                 table_name=table_name,
                 filtr={
                     'col': query_index,
@@ -554,7 +549,7 @@ def update_settings(
                 }
             ):
                 try:
-                    Database.update(
+                    Db.update(
                         table_name=table_name,
                         values={
                             'col': parameter,

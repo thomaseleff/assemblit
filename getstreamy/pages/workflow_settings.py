@@ -4,7 +4,7 @@ Information
 Name        : workflow_settings.py
 Location    : ~/pages
 Author      : Tom Eleff
-Published   : 2024-03-05
+Published   : 2024-03-12
 Revised on  : .
 
 Description
@@ -259,8 +259,8 @@ class Content():
                         response=response
                     )
 
-                # Manage the workflow-key-value-pair-settings database table
-                _key_value.manage_key_value_pair_database(
+                # Initialize the workflow-key-value-pair-settings database table
+                _key_value.initialize_key_value_pair_table(
                     db_name=self.db_name,
                     table_name=self.table_name,
                     query_index=self.query_index,

@@ -3,14 +3,14 @@ FROM python:3.10-slim
 
 # Developer configuration settings
 ENV ENV PROD
-ENV VERSION "1.0.0"
-ENV DEBUG true
+ENV VERSION "v0.1.0"
+ENV DEBUG false
 
 # Web-app configuration settings
 ENV NAME "getstreamy"
 ENV HOME_PAGE_NAME "Home"
-ENV GITHUB_REPOSITORY_URL "https://github.com/thomaseleff/Get-Streamy"
-ENV GITHUB_BRANCH_NAME "main"
+ENV GITHUB_REPOSITORY_URL "https://github.com/thomaseleff/Getstreamy"
+ENV GITHUB_BRANCH_NAME "v0.1.0"
 
 # Network configuration settings
 ENV PORT 8501
@@ -41,6 +41,7 @@ RUN apt-get update && apt-get install -y \
     build-essential \
     curl \
     software-properties-common \
+    nano \
     git --no-install-recommends && \
     rm -rf /var/lib/apt/lists/*
 RUN pip3 install --upgrade pip
@@ -54,10 +55,5 @@ RUN pip3 install -r requirements.txt --no-cache-dir
 # Expose the network port
 EXPOSE $PORT
 
-# Monitor the health of the container
-HEALTHCHECK CMD curl --fail "http://localhost:$PORT/_stcore/health"
-
 # Run
-# --server.address=0.0.0.0
 CMD streamlit run $HOME_PAGE_NAME.py --server.port=$PORT --server.headless=true
-
