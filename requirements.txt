@@ -8,3 +8,4 @@ email-validator==2.1.0.post1
 pandas==2.1.4
 pandera==0.18.0
 plotly==5.8.0
+python-dotenv==1.0.0

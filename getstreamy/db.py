@@ -4,7 +4,7 @@ Information
 Name        : db.py
 Location    : ~/
 Author      : Tom Eleff
-Published   : 2024-03-05
+Published   : 2024-03-12
 Revised on  : .
 
 Description
@@ -264,9 +264,10 @@ class Handler():
     def reset_table_column_value(
         self,
         table_name: str,
-        values: dict
+        values: dict,
+        filtr: dict = {}
     ):
-        """ Resets a column value within a database table.
+        """ Resets a column value within a filtered database table.
 
         Parameters
         ----------
@@ -280,17 +281,55 @@ class Handler():
                     'col' : 'name',
                     'val' : 'Jimmy'
                 }
+
+        filtr : `dict`
+            Dictionary object containing the column `col` and value
+                `val` to filter `table_name`. If the filtered table
+                returns more than one record, a `ValueError` is raised.
+
+                e.g., {
+                    'col' : 'id',
+                    'val' : '1'
+                }
         """
 
-        self.cursor.execute(
-            """
-            UPDATE %s SET %s = '%s';
-            """ % (
-                str(table_name),
-                str(values['col']),
-                str(values['val'])
+        if filtr:
+            if type(filtr['val']) is list:
+                self.cursor.execute(
+                    """
+                    UPDATE %s SET %s = '%s'
+                        WHERE %s IN (%s);
+                    """ % (
+                        str(table_name),
+                        str(values['col']),
+                        str(values['val']),
+                        str(filtr['col']),
+                        ', '.join(["'%s'" % str(i) for i in filtr['val']])
+                    )
+                )
+            else:
+                self.cursor.execute(
+                    """
+                    UPDATE %s SET %s = '%s'
+                        WHERE %s = '%s';
+                    """ % (
+                        str(table_name),
+                        str(values['col']),
+                        str(values['val']),
+                        str(filtr['col']),
+                        str(filtr['val'])
+                    )
+                )
+        else:
+            self.cursor.execute(
+                """
+                UPDATE %s SET %s = '%s';
+                """ % (
+                    str(table_name),
+                    str(values['col']),
+                    str(values['val'])
+                )
             )
-        )
         self.connection.commit()
 
     # Define db function(s) to delete table values
@@ -870,6 +909,37 @@ class NullReturnValue(Exception):
 
 
 # Define generic db function(s)
+def initialize_table(
+    db_name: str,
+    table_name: str,
+    cols: list
+) -> Handler:
+    """ Initializes a database table.
+
+    Parameters
+    ----------
+    db_name : `str`
+        Name of the database.
+    table_name : `str`
+        Name of the database table.
+    cols : `list`
+        List object containing the columns of `table_name`.
+    """
+
+    # Initialize the connection to the database
+    Db = Handler(
+        db_name=db_name
+    )
+
+    # Create the table in the database
+    Db.create_table(
+        table_name=table_name,
+        cols=cols
+    )
+
+    return Db
+
+
 def as_type(
     value: str,
     return_dtype: str = 'str'

@@ -4,7 +4,7 @@ Information
 Name        : _selector.py
 Location    : ~/components
 Author      : Tom Eleff
-Published   : 2024-03-05
+Published   : 2024-03-16
 Revised on  : .
 
 Description
@@ -18,244 +18,167 @@ from getstreamy import setup, db
 from getstreamy.components import _core, _key_value
 
 
-# Define core-component key-value pair function(s)
+# Define core-component selector function(s)
 def display_selector(
     db_name: str,
     table_name: str,
     query_index: str,
+    scope_db_name: str,
+    scope_query_index: str,
     options: list,
-    index: int
+    index: int,
+    disabled: bool
 ):
     """ Displays the database table drop-down options and default value as a selector.
 
     Parameters
     ----------
-    db_name : 'str'
+    db_name : `str`
         Name of the database to store the drop-down options & default value.
-    table_name : 'str'
+    table_name : `str`
         Name of the table within `db_name` to store the drop-down options & default value.
-    query_index : 'str'
+    query_index : `str`
         Name of the index within `db_name` & `table_name`. May only be one column.
+    scope_db_name : `str`
+        Name of the database that contains the associated scope for the selector
+    scope_query_index : `str`
+        Name of the index within `scope_db_name` & `table_name`. May only be one column.
     options: `list`
         The list containing the the drop-down options.
     index : `int`
         The index position of the value to be displayed as the default selection.
+    disabled : `int`
+        `True` or `False`, whether the selector is displayed disabled or not.
     """
 
-    # Layout columns
-    col1, col2, col3 = st.columns(setup.CONTENT_COLUMNS)
+    # Display the session-selector input object
+    if st.session_state[setup.NAME][db_name][table_name]['selector']['kwargs']:
+        st.selectbox(
+            key='Selector:%s' % generate_selector_key(
+                db_name=db_name,
+                table_name=table_name,
+                parameter=st.session_state[setup.NAME][db_name][table_name]['selector']['parameter']
+            ),
+            label=st.session_state[setup.NAME][db_name][table_name]['selector']['name'],
+            options=options,
+            index=index,
+            placeholder=st.session_state[setup.NAME][db_name][table_name]['selector']['description'],
+            on_change=set_query_index_value,
+            kwargs={
+                'db_name': db_name,
+                'table_name': table_name,
+                'query_index': query_index,
+                'scope_db_name': scope_db_name,
+                'scope_query_index': scope_query_index
+            },
+            disabled=disabled,
+            label_visibility='collapsed',
+            **st.session_state[setup.NAME][db_name][table_name]['selector']['kwargs']
+        )
 
-    # Display the session-selector drop-down
-    with col2:
-
-        # Layout session-selector columns
-        col1, col2, col3 = st.columns([.6, .2, .2])
-
-        # Display the session-selector input object
-        if not st.session_state[setup.NAME][db_name][table_name]['set-up']:
-            if st.session_state[setup.NAME][db_name][table_name]['selector']['kwargs']:
-                col1.selectbox(
-                    key='Selector:%s' % generate_selector_key(
-                        db_name=db_name,
-                        table_name=table_name
-                    ),
-                    label=st.session_state[setup.NAME][db_name][table_name]['selector']['name'],
-                    options=options,
-                    index=index,
-                    placeholder=st.session_state[setup.NAME][db_name][table_name]['selector']['description'],
-                    on_change=set_query_index_value,
-                    kwargs={
-                        'db_name': db_name,
-                        'table_name': table_name,
-                        'query_index': query_index,
-                    },
-                    label_visibility='collapsed',
-                    **st.session_state[setup.NAME][db_name][table_name]['selector']['kwargs']
-                )
-
-            else:
-                col1.selectbox(
-                    key='Selector:%s' % generate_selector_key(
-                        db_name=db_name,
-                        table_name=table_name
-                    ),
-                    label=st.session_state[setup.NAME][db_name][table_name]['selector']['name'],
-                    options=options,
-                    index=index,
-                    placeholder=st.session_state[setup.NAME][db_name][table_name]['selector']['description'],
-                    on_change=set_query_index_value,
-                    kwargs={
-                        'db_name': db_name,
-                        'table_name': table_name,
-                        'query_index': query_index,
-                    },
-                    label_visibility='collapsed'
-                )
-        else:
-            col1.selectbox(
-                key='Selector:%s' % generate_selector_key(
-                    db_name=db_name,
-                    table_name=table_name
-                ),
-                label=st.session_state[setup.NAME][db_name][table_name]['selector']['name'],
-                options=options,
-                index=index,
-                placeholder=st.session_state[setup.NAME][db_name][table_name]['selector']['description'],
-                on_change=set_query_index_value,
-                kwargs={
-                    'db_name': db_name,
-                    'table_name': table_name,
-                    'query_index': query_index,
-                },
-                disabled=True,
-                label_visibility='collapsed'
-            )
-
-        # Display the 'Delete' button
-        if (
-            (options)
-            and (not st.session_state[setup.NAME][db_name][table_name]['set-up'])
-        ):
-            col2.button(
-                label='Delete',
-                key='Button:%s-Delete' % generate_selector_key(
-                    db_name=db_name,
-                    table_name=table_name
-                ),
-                on_click=delete_session,
-                kwargs={
-                    'session_id': st.session_state[setup.NAME][db_name][query_index]
-                },
-                type='secondary',
-                disabled=False,
-                use_container_width=True
-            )
-        else:
-            col2.button(
-                label='Delete',
-                key='Button:%s-Delete' % generate_selector_key(
-                    db_name=db_name,
-                    table_name=table_name
-                ),
-                on_click=delete_session,
-                kwargs={
-                    'session_id': st.session_state[setup.NAME][db_name][query_index]
-                },
-                type='secondary',
-                disabled=True,
-                use_container_width=True
-            )
-
-        # Display the 'New' or 'Reset' button
-        if (
-            (options)
-            and (st.session_state[setup.NAME][db_name][table_name]['set-up'])
-        ):
-            col3.button(
-                label='Edit',
-                key='Button:%s-Edit' % generate_selector_key(
-                    db_name=db_name,
-                    table_name=table_name
-                ),
-                type='primary',
-                disabled=False,
-                on_click=display_session_setup_form,
-                kwargs={
-                    'db_name': db_name,
-                    'table_name': table_name,
-                    'value': False
-                },
-                use_container_width=True
-            )
-        else:
-            col3.button(
-                label='New',
-                key='Button:%s-New' % generate_selector_key(
-                    db_name=db_name,
-                    table_name=table_name
-                ),
-                type='primary',
-                disabled=False,
-                on_click=display_session_setup_form,
-                kwargs={
-                    'db_name': db_name,
-                    'table_name': table_name,
-                    'value': True
-                },
-                use_container_width=True
-            )
+    else:
+        st.selectbox(
+            key='Selector:%s' % generate_selector_key(
+                db_name=db_name,
+                table_name=table_name,
+                parameter=st.session_state[setup.NAME][db_name][table_name]['selector']['parameter']
+            ),
+            label=st.session_state[setup.NAME][db_name][table_name]['selector']['name'],
+            options=options,
+            index=index,
+            placeholder=st.session_state[setup.NAME][db_name][table_name]['selector']['description'],
+            on_change=set_query_index_value,
+            kwargs={
+                'db_name': db_name,
+                'table_name': table_name,
+                'query_index': query_index,
+                'scope_db_name': scope_db_name,
+                'scope_query_index': scope_query_index
+            },
+            disabled=disabled,
+            label_visibility='collapsed'
+        )
 
 
 # Define function(s) for creating selectors
 def generate_selector_key(
     db_name: str,
-    table_name: str
+    table_name: str,
+    parameter: str
 ):
     """ Generates a database table-specific key that contains the selector content.
 
     Parameters
     ----------
-    db_name : 'str'
+    db_name : `str`
         Name of the database to store the drop-down options & default value.
-    table_name : 'str'
+    table_name : `str`
         Name of the table within `db_name` to store the drop-down options & default value.
+    parameter : `str`
+        Name of the parameter.
     """
 
     return str('%s-%s-%s-%s').strip().lower() % (
         setup.NAME,
         str(db_name).strip().lower(),
         str(table_name).strip().lower(),
-        str(st.session_state[setup.NAME][db_name][table_name]['selector']['parameter']).strip().lower()
+        str(parameter).strip().lower()
     )
 
 
 # Define function(s) for standard selector database queries
-def select_selector_table_column_values(
+def select_selector_dropdown_options(
     db_name: str,
     table_name: str,
-    query_index: str
+    query_index: str,
+    scope_db_name: str,
+    scope_query_index: str
 ) -> list:
     """ Returns the drop-down options from the database table as a `list`.
 
     Parameters
     ----------
-    db_name : 'str'
+    db_name : `str`
         Name of the database to store the drop-down options & default value.
-    table_name : 'str'
+    table_name : `str`
         Name of the table within `db_name` to store the drop-down options & default value.
-    query_index : 'str'
+    query_index : `str`
         Name of the index within `db_name` & `table_name`. May only be one column.
+    scope_db_name : `str`
+        Name of the database that contains the associated scope for the selector
+    scope_query_index : `str`
+        Name of the index within `scope_db_name` & `table_name`. May only be one column.
     """
 
-    # Initialize connection to the users-database
-    Users = db.Handler(
-        db_name=setup.USERS_DB_NAME
+    # Initialize connection to the scope-database
+    Scope = db.Handler(
+        db_name=scope_db_name
     )
 
     # Initialize the connection to the session-selector database
-    Database = db.Handler(
+    Db = db.Handler(
         db_name=db_name
     )
 
     # Select session-selector drop-down options
-    if Users.table_record_exists(
+    if Scope.table_record_exists(
         table_name=table_name,
         filtr={
-            'col': setup.USERS_DB_QUERY_INDEX,
-            'val': st.session_state[setup.NAME][setup.USERS_DB_NAME][setup.USERS_DB_QUERY_INDEX]
+            'col': scope_query_index,
+            'val': st.session_state[setup.NAME][scope_db_name][scope_query_index]
         }
     ):
-        options = Database.select_table_column_value(
+        options = Db.select_table_column_value(
             table_name=table_name,
             col=st.session_state[setup.NAME][db_name][table_name]['selector']['parameter'],
             filtr={
                 'col': query_index,
-                'val': Users.select_table_column_value(
+                'val': Scope.select_table_column_value(
                     table_name=table_name,
                     col=query_index,
                     filtr={
-                        'col': setup.USERS_DB_QUERY_INDEX,
-                        'val': st.session_state[setup.NAME][setup.USERS_DB_NAME][setup.USERS_DB_QUERY_INDEX]
+                        'col': scope_query_index,
+                        'val': st.session_state[setup.NAME][scope_db_name][scope_query_index]
                     },
                     multi=True
                 )
@@ -273,18 +196,24 @@ def select_selector_default_value(
     db_name: str,
     table_name: str,
     query_index: str,
+    scope_db_name: str,
+    scope_query_index: str,
     options: list
 ) -> int:
     """ Selects the default value and returns the index position of the value in `options` as an `int`.
 
     Parameters
     ----------
-    db_name : 'str'
+    db_name : `str`
         Name of the database to store the drop-down options & default value.
-    table_name : 'str'
+    table_name : `str`
         Name of the table within `db_name` to store the drop-down options & default value.
-    query_index : 'str'
+    query_index : `str`
         Name of the index within `db_name` & `table_name`. May only be one column.
+    scope_db_name : `str`
+        Name of the database that contains the associated scope for the selector
+    scope_query_index : `str`
+        Name of the index within `scope_db_name` & `table_name`. May only be one column.
     options: `list`
         The list containing the the drop-down options.
     """
@@ -294,16 +223,14 @@ def select_selector_default_value(
         try:
             index = options.index(st.session_state[setup.NAME][db_name]['name'])
 
-            # Apply selector values to the session state
-            # st.session_state[setup.NAME][self.db_name]['name'] = options[index]
-            # st.session_state[setup.NAME][self.db_name][self.table_name]['selector']['value'] = options[index]
-
             # Set query index value
             st.session_state[setup.NAME][db_name]['name'] = options[index]
             st.session_state[setup.NAME][db_name][query_index] = select_query_index_value(
                 db_name=db_name,
                 table_name=table_name,
                 query_index=query_index,
+                scope_db_name=scope_db_name,
+                scope_query_index=scope_query_index,
                 filtr={
                     'col': st.session_state[setup.NAME][db_name][table_name]['selector']['parameter'],
                     'val': options[index]
@@ -318,6 +245,8 @@ def select_selector_default_value(
                 db_name=db_name,
                 table_name=table_name,
                 query_index=query_index,
+                scope_db_name=scope_db_name,
+                scope_query_index=scope_query_index,
                 filtr={
                     'col': st.session_state[setup.NAME][db_name][table_name]['selector']['parameter'],
                     'val': options[index]
@@ -332,49 +261,48 @@ def select_selector_default_value(
 def set_query_index_value(
     db_name: str,
     table_name: str,
-    query_index: str
+    query_index: str,
+    scope_db_name: str,
+    scope_query_index: str
 ):
     """ Sets the session state name and query index value to the selected value.
 
     Parameters
     ----------
-    db_name : 'str'
+    db_name : `str`
         Name of the database to store the drop-down options & default value.
-    table_name : 'str'
+    table_name : `str`
         Name of the table within `db_name` to store the drop-down options & default value.
-    query_index : 'str'
+    query_index : `str`
         Name of the index within `db_name` & `table_name`. May only be one column.
+    scope_db_name : `str`
+        Name of the database that contains the associated scope for the selector
+    scope_query_index : `str`
+        Name of the index within `scope_db_name` & `table_name`. May only be one column.
     """
 
     # Retrieve selected value
     selected_value = st.session_state[
         'Selector:%s' % generate_selector_key(
             db_name=db_name,
-            table_name=table_name
+            table_name=table_name,
+            parameter=st.session_state[setup.NAME][db_name][table_name]['selector']['parameter']
         )
     ]
 
     # Update session state
     if st.session_state[setup.NAME][db_name]['name'] != selected_value:
-        st.session_state[setup.NAME][db_name]['name'] = st.session_state[
-            'Selector:%s' % generate_selector_key(
-                db_name=db_name,
-                table_name=table_name
-            )
-        ]
+        st.session_state[setup.NAME][db_name]['name'] = selected_value
 
         st.session_state[setup.NAME][db_name][query_index] = select_query_index_value(
             db_name=db_name,
             table_name=table_name,
             query_index=query_index,
+            scope_db_name=scope_db_name,
+            scope_query_index=scope_query_index,
             filtr={
                 'col': st.session_state[setup.NAME][db_name][table_name]['selector']['parameter'],
-                'val': st.session_state[
-                    'Selector:%s' % generate_selector_key(
-                        db_name=db_name,
-                        table_name=table_name
-                    )
-                ]
+                'val': selected_value
             }
         )
 
@@ -383,10 +311,24 @@ def select_query_index_value(
     db_name: str,
     table_name: str,
     query_index: str,
+    scope_db_name: str,
+    scope_query_index: str,
     filtr: dict
 ) -> str:
     """ Returns the query index value from a filtered database table.
 
+    Parameters
+    ----------
+    db_name : `str`
+        Name of the database to store the drop-down options & default value.
+    table_name : `str`
+        Name of the table within `db_name` to store the drop-down options & default value.
+    query_index : `str`
+        Name of the index within `db_name` & `table_name`. May only be one column.
+    scope_db_name : `str`
+        Name of the database that contains the associated scope for the selector
+    scope_query_index : `str`
+        Name of the index within `scope_db_name` & `table_name`. May only be one column.
     filtr : `dict`
         Dictionary object containing the column `col` and value
             `val` to filter `table_name`. If the filtered table
@@ -398,40 +340,40 @@ def select_query_index_value(
             }
     """
 
-    # Initialize connection to the users-database
-    Users = db.Handler(
-        db_name=setup.USERS_DB_NAME
+    # Initialize connection to the scope-database
+    Scope = db.Handler(
+        db_name=scope_db_name
     )
 
     # Initialize connection to the session-selector database
-    Database = db.Handler(
+    Db = db.Handler(
         db_name=db_name
     )
 
-    values = Database.cursor.execute(
+    values = Db.cursor.execute(
         """
         SELECT %s
             FROM %s
                 WHERE %s IN (%s)
                     AND %s = '%s';
         """ % (
-            query_index,
-            table_name,
-            query_index,
+            str(query_index),
+            str(table_name),
+            str(query_index),
             ', '.join(
-                ["'%s'" % (i) for i in Users.select_table_column_value(
+                ["'%s'" % (i) for i in Scope.select_table_column_value(
                     table_name=table_name,
                     col=query_index,
                     filtr={
-                        'col': setup.USERS_DB_QUERY_INDEX,
-                        'val': st.session_state[setup.NAME][setup.USERS_DB_NAME][setup.USERS_DB_QUERY_INDEX]
+                        'col': scope_query_index,
+                        'val': st.session_state[setup.NAME][scope_db_name][scope_query_index]
                     },
                     return_dtype='str',
                     multi=True
                 )]
             ),
-            filtr['col'],
-            filtr['val']
+            str(filtr['col']),
+            str(filtr['val'])
         )
     ).fetchall()
 
@@ -443,8 +385,8 @@ def select_query_index_value(
 
 # Define function(s) for handling call-backs
 def display_session_setup_form(
-    db_name,
-    table_name,
+    db_name: str,
+    table_name: str,
     value: bool
 ):
     """ Sets the session state flag to display the sessions-set-up form.
@@ -465,6 +407,8 @@ def create_session(
     db_name: str,
     table_name: str,
     query_index: str,
+    scope_db_name: str,
+    scope_query_index: str,
     response: dict
 ):
     """ Inserts a new session into the database table containing the settings parameters & values
@@ -472,23 +416,27 @@ def create_session(
 
     Parameters
     ----------
-    db_name : 'str'
+    db_name : `str`
         Name of the database to store the drop-down options & default value.
-    table_name : 'str'
+    table_name : `str`
         Name of the table within `db_name` to store the drop-down options & default value.
-    query_index : 'str'
+    query_index : `str`
         Name of the index within `db_name` & `table_name`. May only be one column.
+    scope_db_name : `str`
+        Name of the database that contains the associated scope for the selector
+    scope_query_index : `str`
+        Name of the index within `scope_db_name` & `table_name`. May only be one column.
     response : `dict`
         Dictionary object containing the form responses.
     """
 
-    # Initialize connection to the users-database
-    Users = db.Handler(
-        db_name=setup.USERS_DB_NAME
+    # Initialize connection to the scope-database
+    Scope = db.Handler(
+        db_name=scope_db_name
     )
 
     # Initialize connection to the session-selector database
-    Database = db.Handler(
+    Db = db.Handler(
         db_name=db_name
     )
 
@@ -502,7 +450,7 @@ def create_session(
 
         # Create an id from query index values
         string_to_hash = ''.join(
-            [st.session_state[setup.NAME][setup.USERS_DB_NAME][setup.USERS_DB_QUERY_INDEX]]
+            [st.session_state[setup.NAME][scope_db_name][scope_query_index]]
             + [response[st.session_state[setup.NAME][db_name][table_name]['selector']['parameter']]]
         )
 
@@ -513,12 +461,12 @@ def create_session(
 
         # Check if the id already exists
         try:
-            ids = Users.select_table_column_value(
+            ids = Scope.select_table_column_value(
                 table_name=table_name,
                 col=query_index,
                 filtr={
-                    'col': setup.USERS_DB_QUERY_INDEX,
-                    'val': st.session_state[setup.NAME][setup.USERS_DB_NAME][setup.USERS_DB_QUERY_INDEX]
+                    'col': scope_query_index,
+                    'val': st.session_state[setup.NAME][scope_db_name][scope_query_index]
                 },
                 multi=True
             )
@@ -528,11 +476,11 @@ def create_session(
         if id not in ids:
 
             # Add to user database
-            Users.insert(
+            Scope.insert(
                 table_name=table_name,
                 values={
-                    setup.USERS_DB_QUERY_INDEX: (
-                        st.session_state[setup.NAME][setup.USERS_DB_NAME][setup.USERS_DB_QUERY_INDEX]
+                    scope_query_index: (
+                        st.session_state[setup.NAME][scope_db_name][scope_query_index]
                     ),
                     query_index: id
                 }
@@ -543,7 +491,7 @@ def create_session(
             values.update(response)
 
             # Add to studies database
-            Database.insert(
+            Db.insert(
                 table_name=table_name,
                 values=values
             )
@@ -556,7 +504,6 @@ def create_session(
             )
 
             # Set session state
-            #   self.query_index_value is already set
             st.session_state[setup.NAME][db_name]['name'] = response[
                 st.session_state[setup.NAME][db_name][table_name]['selector']['parameter']
             ]
@@ -589,6 +536,8 @@ def update_session(
     db_name: str,
     table_name: str,
     query_index: str,
+    scope_db_name: str,
+    scope_query_index: str,
     response: dict
 ):
     """ Updates an existing session within the database table with the settings parameters & values
@@ -596,27 +545,33 @@ def update_session(
 
     Parameters
     ----------
-    db_name : 'str'
+    db_name : `str`
         Name of the database to store the drop-down options & default value.
-    table_name : 'str'
+    table_name : `str`
         Name of the table within `db_name` to store the drop-down options & default value.
-    query_index : 'str'
+    query_index : `str`
         Name of the index within `db_name` & `table_name`. May only be one column.
+    scope_db_name : `str`
+        Name of the database that contains the associated scope for the selector
+    scope_query_index : `str`
+        Name of the index within `scope_db_name` & `table_name`. May only be one column.
     response : `dict`
         Dictionary object containing the form responses.
     """
 
     # Initialize connection to the session-selector database
-    Database = db.Handler(
+    Db = db.Handler(
         db_name=db_name
     )
 
     # Check for existing session-selector values
     if response[st.session_state[setup.NAME][db_name][table_name]['selector']['parameter']] not in (
-        select_selector_table_column_values(
+        select_selector_dropdown_options(
             db_name=db_name,
             table_name=table_name,
-            query_index=query_index
+            query_index=query_index,
+            scope_db_name=scope_db_name,
+            scope_query_index=scope_query_index
         )
     ):
 
@@ -626,7 +581,7 @@ def update_session(
             # Update session-selector parameters
             for parameter in list(response.keys()):
 
-                if Database.table_record_exists(
+                if Db.table_record_exists(
                     table_name=table_name,
                     filtr={
                         'col': query_index,
@@ -635,7 +590,7 @@ def update_session(
                 ):
 
                     try:
-                        Database.update(
+                        Db.update(
                             table_name=table_name,
                             values={
                                 'col': parameter,
