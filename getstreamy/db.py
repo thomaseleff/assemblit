@@ -175,7 +175,7 @@ class Handler():
                     str(table_name),
                     ', '.join(
                         [
-                            "'%s'" % str(i) for i in list(
+                            "'%s'" % normalize(string=i) for i in list(
                                 values.values()
                             )
                         ]
@@ -248,9 +248,9 @@ class Handler():
                 """ % (
                     str(table_name),
                     str(values['col']),
-                    str(values['val']),
+                    normalize(string=values['val']),
                     str(filtr['col']),
-                    str(filtr['val'])
+                    normalize(string=filtr['val'])
                 )
             )
             self.connection.commit()
@@ -301,9 +301,9 @@ class Handler():
                     """ % (
                         str(table_name),
                         str(values['col']),
-                        str(values['val']),
+                        normalize(string=values['val']),
                         str(filtr['col']),
-                        ', '.join(["'%s'" % str(i) for i in filtr['val']])
+                        ', '.join(["'%s'" % normalize(string=i) for i in filtr['val']])
                     )
                 )
             else:
@@ -314,9 +314,9 @@ class Handler():
                     """ % (
                         str(table_name),
                         str(values['col']),
-                        str(values['val']),
+                        normalize(string=values['val']),
                         str(filtr['col']),
-                        str(filtr['val'])
+                        normalize(string=filtr['val'])
                     )
                 )
         else:
@@ -326,7 +326,7 @@ class Handler():
                 """ % (
                     str(table_name),
                     str(values['col']),
-                    str(values['val'])
+                    normalize(string=values['val'])
                 )
             )
         self.connection.commit()
@@ -393,7 +393,7 @@ class Handler():
                 """ % (
                     str(table_name),
                     str(filtr['col']),
-                    ', '.join(["'%s'" % str(i) for i in filtr['val']])
+                    ', '.join(["'%s'" % normalize(string=i) for i in filtr['val']])
                 )
             )
         else:
@@ -403,7 +403,7 @@ class Handler():
                 """ % (
                     str(table_name),
                     str(filtr['col']),
-                    str(filtr['val'])
+                    normalize(string=filtr['val'])
                 )
             )
         self.connection.commit()
@@ -523,7 +523,7 @@ class Handler():
                 str(table_name),
                 str(col),
                 filtr['col'],
-                ', '.join(["'%s'" % str(i) for i in filtr['val']])
+                ', '.join(["'%s'" % normalize(string=i) for i in filtr['val']])
             )
         else:
             query = """
@@ -539,7 +539,7 @@ class Handler():
                 str(table_name),
                 str(col),
                 str(filtr['col']),
-                str(filtr['val'])
+                normalize(string=filtr['val'])
             )
 
         values = [
@@ -606,7 +606,7 @@ class Handler():
                     str(filtr['col']),
                     str(table_name),
                     str(filtr['col']),
-                    ', '.join(["'%s'" % str(i) for i in filtr['val']])
+                    ', '.join(["'%s'" % normalize(string=i) for i in filtr['val']])
                 )
             ).fetchall():
                 return True
@@ -618,7 +618,7 @@ class Handler():
                     str(filtr['col']),
                     str(table_name),
                     str(filtr['col']),
-                    str(filtr['val'])
+                    normalize(string=filtr['val'])
                 )
             ).fetchall():
                 return True
@@ -670,7 +670,7 @@ class Handler():
         query = "SELECT COUNT(*) FROM %s WHERE %s = '%s';" % (
             table_name,
             str(filtr['col']),
-            str(filtr['val'])
+            normalize(string=filtr['val'])
         )
         value = [
             i[0] for i in self.cursor.execute(query).fetchall()
@@ -751,7 +751,7 @@ class Handler():
                 str(col),
                 table_name,
                 str(filtr['col']),
-                ', '.join(["'%s'" % (i) for i in filtr['val']]),
+                ', '.join(["'%s'" % normalize(string=i) for i in filtr['val']]),
                 str(col),
                 str(order)
             )
@@ -760,7 +760,7 @@ class Handler():
                 str(col),
                 table_name,
                 str(filtr['col']),
-                str(filtr['val']),
+                normalize(string=filtr['val']),
                 str(col),
                 str(order)
             )
@@ -838,7 +838,7 @@ class Handler():
             ),
             table_name,
             filtr['col'],
-            filtr['val']
+            normalize(string=filtr['val'])
         )
         values = self.cursor.execute(query).fetchall()[0]
 
@@ -937,3 +937,31 @@ def initialize_table(
     )
 
     return Db
+
+
+def normalize(
+    string: str
+) -> str:
+    """ Applies all string-formatting to `string` returning the value as a `str`.
+
+    Parameters
+    ----------
+    string: `str`
+        String to format.
+    """
+
+    return escape_quote_char(string=string)
+
+
+def escape_quote_char(
+    string: str
+) -> str:
+    """ Escapes all single quote-characters found in `sting` returning the final value as `str`.
+
+    Parameters
+    ----------
+    string: `str`
+        String to escape.
+    """
+
+    return str(string).replace("'", "''")

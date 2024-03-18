@@ -374,7 +374,7 @@ def select_query_index_value(
                 )]
             ),
             str(filtr['col']),
-            str(filtr['val'])
+            db.normalize(string=filtr['val'])
         )
     ).fetchall()
 
