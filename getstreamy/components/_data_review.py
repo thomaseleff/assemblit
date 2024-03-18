@@ -4,7 +4,7 @@ Information
 Name        : _data_upload.py
 Location    : ~/components
 Author      : Tom Eleff
-Published   : 2024-03-16
+Published   : 2024-03-17
 Revised on  : .
 
 Description
@@ -813,8 +813,8 @@ def retrieve_data_from_database(
 
         # Create an id from the session name and file name
         string_to_hash = ''.join(
-            [st.session_state[setup.NAME][scope_db_name][scope_query_index]]
-            + [st.session_state[setup.NAME][db_name]['name']]
+            [str(st.session_state[setup.NAME][scope_db_name][scope_query_index])]
+            + [str(st.session_state[setup.NAME][db_name]['name'])]
         )
 
         # Generate id

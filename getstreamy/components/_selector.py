@@ -4,7 +4,7 @@ Information
 Name        : _selector.py
 Location    : ~/components
 Author      : Tom Eleff
-Published   : 2024-03-16
+Published   : 2024-03-17
 Revised on  : .
 
 Description
@@ -16,6 +16,7 @@ import hashlib
 import streamlit as st
 from getstreamy import setup, db
 from getstreamy.components import _core, _key_value
+from pytilities import utils
 
 
 # Define core-component selector function(s)
@@ -377,7 +378,7 @@ def select_query_index_value(
         )
     ).fetchall()
 
-    return db.as_type(
+    return utils.as_type(
         [i[0] for i in values][0],
         return_dtype='str'
     )
@@ -450,8 +451,8 @@ def create_session(
 
         # Create an id from query index values
         string_to_hash = ''.join(
-            [st.session_state[setup.NAME][scope_db_name][scope_query_index]]
-            + [response[st.session_state[setup.NAME][db_name][table_name]['selector']['parameter']]]
+            [str(st.session_state[setup.NAME][scope_db_name][scope_query_index])]
+            + [str(response[st.session_state[setup.NAME][db_name][table_name]['selector']['parameter']])]
         )
 
         # Generate id
