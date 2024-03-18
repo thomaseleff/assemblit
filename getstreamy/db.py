@@ -956,7 +956,7 @@ def normalize(
 def escape_quote_char(
     string: str
 ) -> str:
-    """ Escapes all single quote-characters found in `sting` returning the final value as `str`.
+    """ Escapes all single quote-characters found in `string` returning the final value as `str`.
 
     Parameters
     ----------
