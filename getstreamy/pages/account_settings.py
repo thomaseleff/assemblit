@@ -4,7 +4,7 @@ Information
 Name        : account_settings.py
 Location    : ~/pages
 Author      : Tom Eleff
-Published   : 2024-03-05
+Published   : 2024-03-17
 Revised on  : .
 
 Description
@@ -152,74 +152,85 @@ class Content():
         """
 
         # Manage authentication
-        if st.session_state[setup.NAME][setup.AUTH_NAME][setup.AUTH_QUERY_INDEX]:
+        if setup.REQUIRE_AUTHENTICATION:
+            if st.session_state[setup.NAME][setup.AUTH_NAME][setup.AUTH_QUERY_INDEX]:
 
-            # Personalize the header content
-            if self.personalize:
-                self.header = '%s, %s' % (
-                    self.header,
-                    st.session_state[setup.NAME][self.db_name]['name']
+                # Personalize the header content
+                if self.personalize:
+                    self.header = '%s, %s' % (
+                        self.header,
+                        st.session_state[setup.NAME][self.db_name]['name']
+                    )
+
+                # Display web-page header
+                _core.display_page_header(
+                    header=self.header,
+                    tagline=self.tagline,
+                    headerless=self.headerless
                 )
 
-            # Display web-page header
-            _core.display_page_header(
-                header=self.header,
-                tagline=self.tagline,
-                headerless=self.headerless
-            )
+                # Parse the form response & update credentials
+                vault.update_credentials(
+                    response=_key_value.parse_form_response(
+                        db_name=self.db_name,
+                        table_name=self.table_name
+                    )
+                )
 
-            # Parse the form response & update credentials
-            vault.update_credentials(
-                response=_key_value.parse_form_response(
+                # Initialize the connection to the users database
+                Users = db.Handler(
+                    db_name=self.db_name
+                )
+
+                # Apply credential settings into the account parameters
+                st.session_state[setup.NAME][self.db_name][self.table_name]['settings'][0]['value'] = (
+                    Users.select_table_column_value(
+                        table_name='credentials',
+                        col='first_name',
+                        filtr={
+                            'col': self.query_index,
+                            'val': st.session_state[setup.NAME][self.db_name][self.query_index]
+                        },
+                        return_dtype='str'
+                    )
+                )
+                st.session_state[setup.NAME][self.db_name][self.table_name]['settings'][1]['value'] = (
+                    Users.select_table_column_value(
+                        table_name='credentials',
+                        col='username',
+                        filtr={
+                            'col': self.query_index,
+                            'val': st.session_state[setup.NAME][self.db_name][self.query_index]
+                        },
+                        return_dtype='str'
+                    )
+                )
+
+                # Display the account-key-value-pair-settings configuration form
+                _key_value.display_key_value_pair_settings_form(
                     db_name=self.db_name,
-                    table_name=self.table_name
+                    table_name=self.table_name,
+                    query_index=self.query_index,
+                    apply_db_values=False,
+                    clear_on_submit=self.clear_on_submit
                 )
-            )
 
-            # Initialize the connection to the users database
-            Users = db.Handler(
-                db_name=self.db_name
-            )
-
-            # Apply credential settings into the account parameters
-            st.session_state[setup.NAME][self.db_name][self.table_name]['settings'][0]['value'] = (
-                Users.select_table_column_value(
-                    table_name='credentials',
-                    col='first_name',
-                    filtr={
-                        'col': self.query_index,
-                        'val': st.session_state[setup.NAME][self.db_name][self.query_index]
-                    },
-                    return_dtype='str'
+                # Display page status
+                _core.display_page_status(
+                    db_name=self.db_name
                 )
-            )
-            st.session_state[setup.NAME][self.db_name][self.table_name]['settings'][1]['value'] = (
-                Users.select_table_column_value(
-                    table_name='credentials',
-                    col='username',
-                    filtr={
-                        'col': self.query_index,
-                        'val': st.session_state[setup.NAME][self.db_name][self.query_index]
-                    },
-                    return_dtype='str'
-                )
-            )
 
-            # Display the account-key-value-pair-settings configuration form
-            _key_value.display_key_value_pair_settings_form(
-                db_name=self.db_name,
-                table_name=self.table_name,
-                query_index=self.query_index,
-                apply_db_values=False,
-                clear_on_submit=self.clear_on_submit
-            )
+            else:
 
-            # Display page status
-            _core.display_page_status(
-                db_name=self.db_name
-            )
+                # Return to home-page
+                st.switch_page(st.session_state[setup.NAME]['pages']['home'])
 
         else:
-
-            # Return to home-page
-            st.switch_page(st.session_state[setup.NAME]['pages']['home'])
+            raise vault.AuthenticationNotRequired(
+                ' '.join([
+                    'Account settings are unavailable when REQUIRE_AUTHENTICATION = False.',
+                    'To enable account settings, set REQUIRE_AUTHENTICATION = True within the `Dockerfile`.',
+                    'When authentication is required, visitors will be required to sign-up or login and will',
+                    'be able to manage their information, privacy and data via the `Account Settings` page.'
+                ])
+            )

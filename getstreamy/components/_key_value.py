@@ -4,7 +4,7 @@ Information
 Name        : _key_value.py
 Location    : ~/components
 Author      : Tom Eleff
-Published   : 2024-03-16
+Published   : 2024-03-17
 Revised on  : .
 
 Description
@@ -14,6 +14,7 @@ Contains the generic methods for a key-value pair settings-page.
 
 import streamlit as st
 from getstreamy import setup, db
+from pytilities import utils
 
 
 # Define core-component key-value pair function(s)
@@ -81,7 +82,7 @@ def initialize_key_value_pair_table(
             for index, item in enumerate(
                 st.session_state[setup.NAME][db_name][table_name]['settings']
             ):
-                st.session_state[setup.NAME][db_name][table_name]['settings'][index]['value'] = db.as_type(
+                st.session_state[setup.NAME][db_name][table_name]['settings'][index]['value'] = utils.as_type(
                     value=dictionary[item['parameter']],
                     return_dtype=st.session_state[setup.NAME][db_name][table_name]['settings'][index]['dtype']
                 )

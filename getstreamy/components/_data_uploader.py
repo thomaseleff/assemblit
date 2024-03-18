@@ -4,7 +4,7 @@ Information
 Name        : _data_upload.py
 Location    : ~/components
 Author      : Tom Eleff
-Published   : 2024-03-16
+Published   : 2024-03-17
 Revised on  : .
 
 Description
@@ -587,8 +587,8 @@ def promote_data_to_database(
 
     # Create an id from the session name and file name
     string_to_hash = ''.join(
-        [st.session_state[setup.NAME][scope_db_name][scope_query_index]]
-        + [file_name]
+        [str(st.session_state[setup.NAME][scope_db_name][scope_query_index])]
+        + [str(file_name)]
     )
 
     # Generate id

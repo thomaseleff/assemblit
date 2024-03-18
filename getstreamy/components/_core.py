@@ -4,12 +4,12 @@ Information
 Name        : _core.py
 Location    : ~/components
 Author      : Tom Eleff
-Published   : 2024-03-05
+Published   : 2024-03-17
 Revised on  : .
 
 Description
 ---------------------------------------------------------------------
-Contains the generic methods for a gitstreamy web-application.
+Contains the generic methods for a getstreamy web-application.
 """
 
 import json
@@ -137,7 +137,7 @@ def display_page_header(
             col2.write('')
 
             # Display user name
-            if st.session_state[setup.NAME][setup.USERS_DB_NAME][setup.USERS_DB_QUERY_INDEX]:
+            if st.session_state[setup.NAME][setup.USERS_DB_NAME]['name']:
                 col3.write('')
                 col3.markdown(
                     "<p style='padding: 6px; text-align: right;'>%s %s</p>" % (
@@ -147,15 +147,15 @@ def display_page_header(
                     unsafe_allow_html=True
                 )
 
-            # Display 'Logout' button
-            col4.write('')
-            col4.button(
-                label='Logout',
-                on_click=vault.logout,
-                type='secondary',
-                use_container_width=False
-            )
-            col4.write('')
+                # Display 'Logout' button
+                col4.write('')
+                col4.button(
+                    label='Logout',
+                    on_click=vault.logout,
+                    type='secondary',
+                    use_container_width=False
+                )
+                col4.write('')
 
     # Debug
     if setup.DEBUG:

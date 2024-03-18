@@ -4,7 +4,7 @@ FROM python:3.10-slim
 # Developer configuration settings
 ENV ENV PROD
 ENV VERSION "v0.1.0"
-ENV DEBUG false
+ENV DEBUG False
 
 # Web-app configuration settings
 ENV NAME "getstreamy"
@@ -19,7 +19,7 @@ ENV PORT 8501
 ENV DIR "/$NAME"
 
 # Authentication settings
-ENV REQUIRE_AUTHENTICATION true
+ENV REQUIRE_AUTHENTICATION True
 
 # Users db settings
 ENV USERS_DB_NAME "users"

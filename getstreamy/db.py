@@ -4,7 +4,7 @@ Information
 Name        : db.py
 Location    : ~/
 Author      : Tom Eleff
-Published   : 2024-03-12
+Published   : 2024-03-17
 Revised on  : .
 
 Description
@@ -15,9 +15,8 @@ database.
 
 import os
 import sqlite3
-import json
-import ast
 from getstreamy import setup
+from pytilities import utils
 
 
 class Handler():
@@ -547,7 +546,7 @@ class Handler():
             i[0] for i in self.cursor.execute(query).fetchall()
         ]
 
-        return [as_type(value=i, return_dtype='str') for i in values]
+        return [utils.as_type(value=i, return_dtype='str') for i in values]
 
     def create_object_to_delete(
         self,
@@ -772,17 +771,17 @@ class Handler():
 
         if value:
             if len(value) == 1 and not multi:
-                return as_type(
+                return utils.as_type(
                     value=value[0],
                     return_dtype=return_dtype
                 )
             elif len(value) == 1 and multi:
-                return [as_type(
+                return [utils.as_type(
                     value=value[0],
                     return_dtype=return_dtype
                 )]
             elif len(value) > 1 and multi:
-                return [as_type(
+                return [utils.as_type(
                     value=v,
                     return_dtype=return_dtype
                 ) for v in value]
@@ -881,7 +880,7 @@ class Handler():
 
         if value:
             if len(value) == 1:
-                return as_type(
+                return utils.as_type(
                     value=value[0],
                     return_dtype=return_dtype
                 )
@@ -938,82 +937,3 @@ def initialize_table(
     )
 
     return Db
-
-
-def as_type(
-    value: str,
-    return_dtype: str = 'str'
-) -> str | int | float | bool | list | dict:
-    """ Returns `value` as `return_dtype`.
-
-    Parameters
-    ----------
-    value : `str`
-        String of the value to convert to `return_dtype`.
-    return_dtype : `str`
-        Name of the datatype (`str`, `int`, `float`, `bool`, `list`, `dict`) of
-            the returned value. If the returned value cannot be converted
-            to `return_dtype` then a `TypeError` is raised. If the name of the
-            `return_dtype` is invalid, then a `NameError` is returned.
-    """
-
-    try:
-        if return_dtype.strip().upper() == 'STR':
-            return str(value)
-
-        elif return_dtype.strip().upper() == 'INT':
-            return int(value)
-
-        elif return_dtype.strip().upper() == 'FLOAT':
-            return float(value)
-
-        elif return_dtype.strip().upper() == 'BOOL':
-
-            try:
-                return ast.literal_eval(value)
-            except (SyntaxError, ValueError):
-                raise TypeError(
-                    ' '.join([
-                        "{%s} value" % (
-                            value
-                        ),
-                        "cannot be converted to {%s}." % (
-                            return_dtype
-                        )
-                    ])
-                )
-
-        elif (
-            (return_dtype.strip().upper() == 'LIST')
-            or (return_dtype.strip().upper() == 'DICT')
-        ):
-            try:
-                return json.loads(value)
-            except json.decoder.JSONDecodeError:
-                raise TypeError(
-                    ' '.join([
-                        "{%s} value" % (
-                            value
-                        ),
-                        "cannot be converted to {%s}." % (
-                            return_dtype
-                        )
-                    ])
-                )
-        else:
-            raise NameError(
-                'Invalid return datatype {%s}.' % (
-                    return_dtype
-                )
-            )
-    except ValueError:
-        raise TypeError(
-            ' '.join([
-                "{%s} value" % (
-                    value
-                ),
-                "cannot be converted to {%s}." % (
-                    return_dtype
-                )
-            ])
-        )

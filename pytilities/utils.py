@@ -2,38 +2,35 @@
 Information
 ---------------------------------------------------------------------
 Name        : utils.py
-Location    : ~/pytilities
+Location    : ~/
 Author      : Tom Eleff
 Published   : 2023-07-11
-Revised on  : 2023-09-30
+Revised on  : 2024-03-17
 
 Description
 ---------------------------------------------------------------------
-Contains the utility functions necessary for managing configuration,
-validation and user-logging.
+Contains utility functions for managing configuration, validation,
+data-types and user-logging.
 """
 
 import json
 import os
 import time
+import ast
 import datetime as dt
-from dotenv import load_dotenv
+from typing import Callable
 
 
-# Define config-related functions
+# Function(s) related to managing configuration-files
 def read_config(
-    configLoc
-):
-    """
-    Variables
-    ---------------------------------------------------------------------
-    configLoc               = <str> Path to ~/config.json that contains
-                                the parameters essential to the
-                                application.
+    configLoc: str
+) -> dict:
+    """ Reads `configLoc` and returns a dictionary object.
 
-    Description
-    ---------------------------------------------------------------------
-    Reads {configLoc} and returns a dictionary object.
+    Parameters
+    ----------
+    configLoc : `str`
+        Path to ~/config.json that contains the parameters essential to the application.
     """
 
     config = {}
@@ -60,20 +57,17 @@ def read_config(
 
 
 def validate_config(
-    config,
-    dtype
+    config: dict,
+    dtype: dict
 ):
-    """
-    Variables
-    ---------------------------------------------------------------------
-    config                  = <dict> Dictionary object that contains the
-                                parameters essential to the application.
-    dtype                   = <dict> Dictionary object that contains the
-                                expected {config} value dtypes.
+    """ Validates `config` against the dtypes in `dtype`.
 
-    Description
-    ---------------------------------------------------------------------
-    Validates {config} against the dtypes in {dtype}.
+    Parameters
+    ----------
+    config : `dict`
+        Dictionary object that contains the parameters essential to the application.
+    dtype : `dict`
+        Dictionary object that contains the expected `config` value dtypes.
     """
 
     confErrors = {}
@@ -170,19 +164,17 @@ def validate_config(
 
 
 def write_config(
-    configLoc,
-    config
+    configLoc: str,
+    config: dict
 ):
-    """
-    Variables
-    ---------------------------------------------------------------------
-    configLoc               = <str> Path to output {config}
-    config                  = <dict> Dictionary object that contains the
-                                parameters essential to the application.
+    """ Writes the `config` dictionary object to `configLoc`.
 
-    Description
-    ---------------------------------------------------------------------
-    Writes the {config} dictionary object to {configLoc}.
+    Parameters
+    ----------
+    configLoc : `str`
+        Path to output `config`
+    config : `dict`
+        Dictionary object that contains the parameters essential to the application.
     """
 
     try:
@@ -202,17 +194,14 @@ def write_config(
 
 
 def generate_output_directory(
-    config
+    config: dict
 ):
-    """
-    Variables
-    ---------------------------------------------------------------------
-    config                  = <dict> Dictionary object containing the
-                                output directory structure
+    """ Recursively generates an output directory.
 
-    Description
-    ---------------------------------------------------------------------
-    Recursively generates an output directory.
+    Parameters
+    ----------
+    config : `dict`
+        Dictionary object containing the output directory structure.
     """
 
     if 'outputs' in config.keys():
@@ -231,7 +220,6 @@ def generate_output_directory(
 
             # Create output sub-directories
             if 'subFolders' in config['outputs'].keys():
-
                 for folder in config['outputs']['subFolders']:
                     os.mkdir(
                         os.path.join(
@@ -249,49 +237,16 @@ def generate_output_directory(
         )
 
 
-# Define .env-related utility functions
-def load_parameter(
-    envLoc,
-    envParameter
-):
-    """
-    Variables
-    ---------------------------------------------------------------------
-    envLoc                  = <str> Path to ~/.env that contains
-                                the parameters essential to the
-                                application.
-    envParameter            = <str> Name of the environment variable to
-                                return.
-
-    Description
-    ---------------------------------------------------------------------
-    Returns the value of {envParameter}.
-    """
-
-    # Load .env
-    load_dotenv(
-        os.path.join(
-            envLoc,
-            '.env'
-        )
-    )
-
-    # Return .env parameter
-    return os.environ.get(envParameter, None)
-
-
-# Define misc. development utility functions
+# Decorator function(s)
 def run_time(
-    func
-):
-    """
-    Variables
-    ---------------------------------------------------------------------
-    func                    = <func> Function object
+    func: Callable
+) -> Callable:
+    """ Prints the run time of the {func} passed.
 
-    Description
-    ---------------------------------------------------------------------
-    Prints the run time of the {func} passed.
+    Parameters
+    ----------
+    func : `func`
+        Function object
     """
 
     def wrapper(*args, **kwargs):
@@ -308,3 +263,83 @@ def run_time(
         return result
 
     return wrapper
+
+
+# Data-type parsing function(s)
+def as_type(
+    value: str,
+    return_dtype: str = 'str'
+) -> str | int | float | bool | list | dict:
+    """ Returns `value` as `return_dtype`.
+
+    Parameters
+    ----------
+    value : `str`
+        String of the value to convert to `return_dtype`.
+    return_dtype : `str`
+        Name of the datatype (`str`, `int`, `float`, `bool`, `list`, `dict`) of
+            the returned value. If the returned value cannot be converted
+            to `return_dtype` then a `TypeError` is raised. If the name of the
+            `return_dtype` is invalid, then a `NameError` is returned.
+    """
+
+    try:
+        if return_dtype.strip().upper() == 'STR':
+            return str(value)
+
+        elif return_dtype.strip().upper() == 'INT':
+            return int(value)
+
+        elif return_dtype.strip().upper() == 'FLOAT':
+            return float(value)
+
+        elif return_dtype.strip().upper() == 'BOOL':
+
+            try:
+                return ast.literal_eval(value)
+            except (SyntaxError, ValueError):
+                raise TypeError(
+                    ' '.join([
+                        "{%s} value" % (
+                            value
+                        ),
+                        "cannot be converted to {%s}." % (
+                            return_dtype
+                        )
+                    ])
+                )
+
+        elif (
+            (return_dtype.strip().upper() == 'LIST')
+            or (return_dtype.strip().upper() == 'DICT')
+        ):
+            try:
+                return json.loads(value)
+            except json.decoder.JSONDecodeError:
+                raise TypeError(
+                    ' '.join([
+                        "{%s} value" % (
+                            value
+                        ),
+                        "cannot be converted to {%s}." % (
+                            return_dtype
+                        )
+                    ])
+                )
+        else:
+            raise NameError(
+                'Invalid return datatype {%s}.' % (
+                    return_dtype
+                )
+            )
+    except ValueError:
+        raise TypeError(
+            ' '.join([
+                "{%s} value" % (
+                    value
+                ),
+                "cannot be converted to {%s}." % (
+                    return_dtype
+                )
+            ])
+        )

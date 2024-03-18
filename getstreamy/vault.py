@@ -4,7 +4,7 @@ Information
 Name        : vault.py
 Location    : ~/
 Author      : Tom Eleff
-Published   : 2024-03-05
+Published   : 2024-03-17
 Revised on  : .
 
 Description
@@ -201,7 +201,7 @@ def add_credentials(
             user_id = hashlib.md5(
                 ''.join([
                     str(datetime.datetime.now()),
-                    username
+                    str(username)
                 ]).encode('utf-8')
             ).hexdigest()
 
@@ -653,4 +653,8 @@ class UserAlreadyExists(Exception):
 
 
 class PasswordsDoNotMatch(Exception):
+    pass
+
+
+class AuthenticationNotRequired(Exception):
     pass

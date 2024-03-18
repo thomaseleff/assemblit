@@ -4,7 +4,7 @@ Information
 Name        : setup.py
 Location    : ~/
 Author      : Tom Eleff
-Published   : 2024-03-05
+Published   : 2024-03-17
 Revised on  : .
 
 Description
@@ -16,6 +16,7 @@ import os
 import dotenv
 import copy
 import urllib.parse as up
+from pytilities import utils
 
 # Load environment
 if 'ENV' not in os.environ:
@@ -24,7 +25,10 @@ if 'ENV' not in os.environ:
 # Developer configuration settings
 ENV = os.environ['ENV']
 VERSION = os.environ['VERSION']
-DEBUG = os.environ['DEBUG']
+DEBUG = utils.as_type(
+    os.environ['DEBUG'],
+    return_dtype='bool'
+)
 
 # Web-app configuration settings
 NAME = os.environ['NAME']
@@ -56,8 +60,16 @@ CONTENT_COLUMNS = [.075, .7625, .1625]
 # Authentication settings
 AUTH_NAME = 'auth'
 AUTH_QUERY_INDEX = 'authenticated'
+REQUIRE_AUTHENTICATION = utils.as_type(
+    os.environ['REQUIRE_AUTHENTICATION'],
+    return_dtype='bool'
+)
+if REQUIRE_AUTHENTICATION:
+    AUTH_QUERY_INDEX_STATE = False
+else:
+    AUTH_QUERY_INDEX_STATE = True
 AUTH_DEFAULTS = {
-    AUTH_QUERY_INDEX: False,
+    AUTH_QUERY_INDEX: AUTH_QUERY_INDEX_STATE,
     'sign-up': False,
     'login-error': False,
     'sign-up-error': False
@@ -66,9 +78,13 @@ AUTH_DEFAULTS = {
 # Users db settings
 USERS_DB_NAME = os.environ['USERS_DB_NAME']
 USERS_DB_QUERY_INDEX = os.environ['USERS_DB_QUERY_INDEX']
+if REQUIRE_AUTHENTICATION:
+    USERS_DB_QUERY_INDEX_VALUE = None
+else:
+    USERS_DB_QUERY_INDEX_VALUE = 'default-no-auth-required'
 USERS_DEFAULTS = {
     'name': None,
-    USERS_DB_QUERY_INDEX: None
+    USERS_DB_QUERY_INDEX: USERS_DB_QUERY_INDEX_VALUE
 }
 
 # Sessions db settings
