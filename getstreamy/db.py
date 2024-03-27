@@ -9,7 +9,7 @@ Revised on  : .
 
 Description
 ---------------------------------------------------------------------
-Database handler class for retrieving information from a sqlite3
+Database handler `class` for retrieving information from a sqlite3
 database.
 """
 
