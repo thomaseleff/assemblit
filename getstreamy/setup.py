@@ -5,7 +5,7 @@ Name        : setup.py
 Location    : ~/
 Author      : Tom Eleff
 Published   : 2024-03-17
-Revised on  : .
+Revised on  : 2024-03-28
 
 Description
 ---------------------------------------------------------------------
@@ -15,6 +15,7 @@ Contains the generic static variables and methods for a getstreamy app.
 import os
 import dotenv
 import copy
+from typing import Union, List
 import urllib.parse as up
 from pytensils import utils
 
@@ -23,28 +24,28 @@ if 'ENV' not in os.environ:
     dotenv.load_dotenv()
 
 # Developer configuration settings
-ENV = os.environ['ENV']
-VERSION = os.environ['VERSION']
-DEBUG = utils.as_type(
+ENV: str = os.environ['ENV']
+VERSION: str = os.environ['VERSION']
+DEBUG: bool = utils.as_type(
     os.environ['DEBUG'],
     return_dtype='bool'
 )
 
 # Web-app configuration settings
-NAME = os.environ['NAME']
-HOME_PAGE_NAME = os.environ['HOME_PAGE_NAME']
-GITHUB_REPOSITORY_URL = os.environ['GITHUB_REPOSITORY_URL']
-GITHUB_BRANCH_NAME = os.environ['GITHUB_BRANCH_NAME']
-GITHUB_CONTENT_URL = 'https://raw.githubusercontent.com/%s/%s/' % (
+NAME: str = os.environ['NAME']
+HOME_PAGE_NAME: str = os.environ['HOME_PAGE_NAME']
+GITHUB_REPOSITORY_URL: str = os.environ['GITHUB_REPOSITORY_URL']
+GITHUB_BRANCH_NAME: str = os.environ['GITHUB_BRANCH_NAME']
+GITHUB_CONTENT_URL: str = 'https://raw.githubusercontent.com/%s/%s/' % (
     up.urlparse(GITHUB_REPOSITORY_URL).path.lstrip('/'),
     GITHUB_BRANCH_NAME.lstrip('/')
 )
 
 # Database configuration settings
-ROOT_DIR = os.path.abspath(
+ROOT_DIR: Union[str, os.PathLike] = os.path.abspath(
     os.environ['DIR']
 )
-DB_DIR = os.path.abspath(
+DB_DIR: Union[str, os.PathLike] = os.path.abspath(
     os.path.join(
         os.environ['DIR'],
         'db'
@@ -52,23 +53,23 @@ DB_DIR = os.path.abspath(
 )
 
 # Web-page configuration settings
-LAYOUT = 'wide'
-INITIAL_SIDEBAR_STATE = 'expanded'
-HEADER_COLUMNS = [.05, .6375, .15, .15, .0125]
-CONTENT_COLUMNS = [.075, .7625, .1625]
+LAYOUT: str = 'wide'
+INITIAL_SIDEBAR_STATE: str = 'expanded'
+HEADER_COLUMNS: List[Union[int, float]] = [.05, .6375, .15, .15, .0125]
+CONTENT_COLUMNS: List[Union[int, float]] = [.075, .7625, .1625]
 
 # Authentication settings
-AUTH_NAME = 'auth'
-AUTH_QUERY_INDEX = 'authenticated'
-REQUIRE_AUTHENTICATION = utils.as_type(
+AUTH_NAME: str = 'auth'
+AUTH_QUERY_INDEX: str = 'authenticated'
+REQUIRE_AUTHENTICATION: bool = utils.as_type(
     os.environ['REQUIRE_AUTHENTICATION'],
     return_dtype='bool'
 )
 if REQUIRE_AUTHENTICATION:
-    AUTH_QUERY_INDEX_STATE = False
+    AUTH_QUERY_INDEX_STATE: bool = False
 else:
-    AUTH_QUERY_INDEX_STATE = True
-AUTH_DEFAULTS = {
+    AUTH_QUERY_INDEX_STATE: bool = True
+AUTH_DEFAULTS: dict = {
     AUTH_QUERY_INDEX: AUTH_QUERY_INDEX_STATE,
     'sign-up': False,
     'login-error': False,
@@ -76,35 +77,35 @@ AUTH_DEFAULTS = {
 }
 
 # Users db settings
-USERS_DB_NAME = os.environ['USERS_DB_NAME']
-USERS_DB_QUERY_INDEX = os.environ['USERS_DB_QUERY_INDEX']
+USERS_DB_NAME: str = os.environ['USERS_DB_NAME']
+USERS_DB_QUERY_INDEX: str = os.environ['USERS_DB_QUERY_INDEX']
 if REQUIRE_AUTHENTICATION:
-    USERS_DB_QUERY_INDEX_VALUE = None
+    USERS_DB_QUERY_INDEX_VALUE: Union[str, None] = None
 else:
-    USERS_DB_QUERY_INDEX_VALUE = 'default-no-auth-required'
-USERS_DEFAULTS = {
+    USERS_DB_QUERY_INDEX_VALUE: Union[str, None] = 'default-no-auth-required'
+USERS_DEFAULTS: dict = {
     'name': None,
     USERS_DB_QUERY_INDEX: USERS_DB_QUERY_INDEX_VALUE
 }
 
 # Sessions db settings
-SESSIONS_DB_NAME = os.environ['SESSIONS_DB_NAME']
-SESSIONS_DB_QUERY_INDEX = os.environ['SESSIONS_DB_QUERY_INDEX']
-SESSIONS_DEFAULTS = {
+SESSIONS_DB_NAME: str = os.environ['SESSIONS_DB_NAME']
+SESSIONS_DB_QUERY_INDEX: str = os.environ['SESSIONS_DB_QUERY_INDEX']
+SESSIONS_DEFAULTS: dict = {
     'name': None,
     SESSIONS_DB_QUERY_INDEX: None
 }
 
 # Data db settings
-DATA_DB_NAME = os.environ['DATA_DB_NAME']
-DATA_DB_QUERY_INDEX = os.environ['DATA_DB_QUERY_INDEX']
-DATA_DEFAULTS = {
+DATA_DB_NAME: str = os.environ['DATA_DB_NAME']
+DATA_DB_QUERY_INDEX: str = os.environ['DATA_DB_QUERY_INDEX']
+DATA_DEFAULTS: dict = {
     'name': None,
     DATA_DB_QUERY_INDEX: None
 }
 
 # Session state defaults
-SESSION_STATE_DEFAULTS = {
+SESSION_STATE_DEFAULTS: dict = {
     AUTH_NAME: copy.deepcopy(AUTH_DEFAULTS),
     USERS_DB_NAME: copy.deepcopy(USERS_DEFAULTS),
     SESSIONS_DB_NAME: copy.deepcopy(SESSIONS_DEFAULTS),
