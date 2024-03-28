@@ -16,7 +16,7 @@ import os
 import dotenv
 import copy
 import urllib.parse as up
-from pytilities import utils
+from pytensils import utils
 
 # Load environment
 if 'ENV' not in os.environ:

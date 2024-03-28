@@ -1,0 +1,31 @@
+    Run information
+    ---------------
+    
+    A linear regression analysis with a linear regression assumption evaluator, orchestrated by `prefect`.
+    
+        Start time     : 2024-03-27 23:26:35
+        input_path     : T:\Documents\Projects\Getstreamy\examples\linear-regression\analysis\some-md5-key\inputs
+        output_path    : T:\Documents\Projects\Getstreamy\examples\linear-regression\analysis\some-md5-key\outputs
+    
+    --------------------------------------------------------------------------------------------------------------------------------------
+    
+    Workflow validation
+    -------------------
+    
+    The workflow configuration validation completed successfully.
+    
+        y    : y
+        x    : ['x1', 'x2', 'x3']
+    
+    --------------------------------------------------------------------------------------------------------------------------------------
+    
+    Run time
+    --------
+    
+    Run-time performance summary.
+    
+        Start time    : 23:26:35.970579
+        End time      : 23:26:56.409043
+        Run time      : 00:00:20.438464
+
+    --------------------------------------------------------------------------------------------------------------------------------------

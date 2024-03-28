@@ -16,7 +16,7 @@ database.
 import os
 import sqlite3
 from getstreamy import setup
-from pytilities import utils
+from pytensils import utils
 
 
 class Handler():

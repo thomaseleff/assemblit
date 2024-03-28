@@ -8,4 +8,6 @@ __pycache__
 /project
 /planning
 .vscode
+.getstreamy
+.regression
 testing.py

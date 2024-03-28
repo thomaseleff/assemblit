@@ -14,7 +14,7 @@ Contains the generic methods for a key-value pair settings-page.
 
 import streamlit as st
 from getstreamy import setup, db
-from pytilities import utils
+from pytensils import utils
 
 
 # Define core-component key-value pair function(s)

@@ -16,7 +16,7 @@ import hashlib
 import streamlit as st
 from getstreamy import setup, db
 from getstreamy.components import _core, _key_value
-from pytilities import utils
+from pytensils import utils
 
 
 # Define core-component selector function(s)
