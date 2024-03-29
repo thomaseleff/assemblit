@@ -9,7 +9,7 @@ ENV DEBUG False
 # Web-app configuration settings
 ENV NAME "getstreamy"
 ENV HOME_PAGE_NAME "Home"
-ENV GITHUB_REPOSITORY_URL "https://github.com/thomaseleff/Getstreamy"
+ENV GITHUB_REPOSITORY_URL "https://github.com/thomaseleff/assemblit"
 ENV GITHUB_BRANCH_NAME "v0.1.0"
 
 # Network configuration settings

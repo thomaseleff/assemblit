@@ -1,15 +1,15 @@
 version: "3.8"
 
 services:
-  getstreamy:
-    image: thomaseleff/getstreamy:v0.1.0
-    container_name: getstreamy
+  assemblit:
+    image: thomaseleff/assemblit:v0.1.0
+    container_name: assemblit
     ports:
       - 8501:8501
     environment:
 
       # Web-app configuration settings
-      NAME: getstreamy
+      NAME: assemblit
       HOME_PAGE_NAME: Home
 
       # Authentication settings
