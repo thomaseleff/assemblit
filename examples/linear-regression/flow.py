@@ -185,6 +185,20 @@ def linear_regression_flow(
         timezone='America/Chicago'
     )
 
+    # User's custom flow
+    @flow(
+        task_runner=task_runners.SequentialTaskRunner,
+        log_prints=True
+    )
+    @Logging.close_on_exception
+    def fails_on_exception():
+        """ A flow that fails due to a divide by zero error.
+        """
+        return 1 / 0
+
+    # Execute user's custom flow
+    _ = fails_on_exception()
+
     # Validate the workflow-parameters with unhandled-exception reporting
     _ = validate_configuration(Flow=Flow, Logging=Logging)
 
@@ -193,4 +207,9 @@ def linear_regression_flow(
 
 
 if __name__ == "__main__":
-    linear_regression_flow.serve(name='linear-regression-deployment')
+    linear_regression_flow.serve(
+        name='fails-on-exception',
+        tags=['Demo'],
+        version='v0.1.0'
+    )
+    # linear_regression_flow()

@@ -24,7 +24,7 @@ class Content():
     def __init__(
         self,
         header: str = 'Data',
-        tagline: str = 'Upload, review and verify data for the session.',
+        tagline: str = 'Upload, review and finalize the model input data for the session.',
         content_info: str = (
             'Navigate to the **%s** page to load a session.' % (
                 ''.join([
@@ -33,7 +33,6 @@ class Content():
                 ])
             )
         ),
-        table_name: str = 'datasets',
         selector: dict = {
             "sort": 0,
             "type": "selectbox",
@@ -58,8 +57,6 @@ class Content():
             String to display as the web-page tagline.
         content_info : `str`
             String to display as `streamlit.info()` when there is no selected session.
-        table_name : 'str'
-            Name of the table within `db_name` to store the setting parameters & values.
         selector : `list`
             Dictionary object containing the setting parameter & value to populate the
                 drop-down selection options.
@@ -84,20 +81,8 @@ class Content():
 
         # Assign database class variables
         self.db_name = setup.DATA_DB_NAME
-        self.table_name = table_name
+        self.table_name = 'datasets'
         self.query_index = setup.DATA_DB_QUERY_INDEX
-
-        # Assign data-context class variables
-        # self.uploaded_df = pd.DataFrame()
-        # self.data_df = pd.DataFrame()
-        # self.datetime = None
-        # self.dimensions = None
-        # self.metrics = None
-        # self.aggrules = copy.deepcopy(operations.AGGRULES)
-        # self.selected_datetime = []
-        # self.selected_dimensions = []
-        # self.selected_metrics = []
-        # self.selected_aggrules = []
 
         # Assign default session state class variables
         self.selector = copy.deepcopy(selector)
@@ -136,7 +121,8 @@ class Content():
             _core.display_page_header(
                 header=self.header,
                 tagline=self.tagline,
-                headerless=self.headerless
+                headerless=self.headerless,
+                show_context=True
             )
 
             # Manage the active session

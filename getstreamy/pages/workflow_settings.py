@@ -209,21 +209,11 @@ class Content():
                     'settings': copy.deepcopy(self.settings),
                     'form-submission': False
                 }
-            # for index, (key, value) in enumerate(
-            #     setup.SESSIONS_DEFAULTS.items()
-            # ):
-            #     st.session_state[setup.NAME][self.db_name][key] = copy.deepcopy(value)
 
         # Initialize session state status defaults
         _core.initialize_session_state_status_defaults(
             db_name=self.db_name
         )
-
-        # Initialize key-value pair defaults
-        if setup.SESSIONS_DB_NAME not in st.session_state[setup.NAME]:
-            st.session_state[setup.NAME][setup.SESSIONS_DB_NAME] = copy.deepcopy(
-                setup.SESSIONS_DEFAULTS
-            )
 
     def serve(
         self
@@ -238,7 +228,8 @@ class Content():
             _core.display_page_header(
                 header=self.header,
                 tagline=self.tagline,
-                headerless=self.headerless
+                headerless=self.headerless,
+                show_context=True
             )
 
             # Manage the active session

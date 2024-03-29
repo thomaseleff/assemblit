@@ -9,7 +9,7 @@ Revised on  : .
 
 Description
 ---------------------------------------------------------------------
-data-ingestion-page of the getstreamy web-application.
+Data-ingestion-page of the getstreamy web-application.
 """
 
 import os
@@ -19,9 +19,6 @@ from getstreamy.pages import data_ingestion
 
 # Initialize the data-ingestion-page content
 Data = data_ingestion.Content(
-    header='Data',
-    tagline='Upload, review and finalize the model input data for the session.',
-    content_info='Navigate to the **Studies** page to load a session.',
     data_dictionary=pd.read_csv(
         os.path.join(
             setup.ROOT_DIR,

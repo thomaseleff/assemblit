@@ -16,7 +16,6 @@ import getstreamy.pages.workflow_settings as workflow_settings
 
 # Initialize the workflow-settings-page content
 Workflow = workflow_settings.Content(
-    content_info='Navigate to the **Studies** page to load a session.',
     settings=[
         {
             "sort": 0,

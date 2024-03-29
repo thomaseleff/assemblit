@@ -3,19 +3,23 @@
     
     A linear regression analysis with a linear regression assumption evaluator, orchestrated by `prefect`.
     
-        Start time     : 2024-03-27 23:26:35
+        Start time     : 2024-03-29 16:38:05
         input_path     : T:\Documents\Projects\Getstreamy\examples\linear-regression\analysis\some-md5-key\inputs
         output_path    : T:\Documents\Projects\Getstreamy\examples\linear-regression\analysis\some-md5-key\outputs
     
     --------------------------------------------------------------------------------------------------------------------------------------
     
-    Workflow validation
+    Unhandled exception
     -------------------
     
-    The workflow configuration validation completed successfully.
+*** CRITICAL: The process failed due to an unhandled exception.
+
+    >>> ZeroDivisionError: division by zero
     
-        y    : y
-        x    : ['x1', 'x2', 'x3']
+        Filename       : T:\Documents\Projects\Getstreamy\examples\linear-regression\flow.py
+        Line Number    : Line 197
+        Function       : fails_on_exception()
+        Exception      : ZeroDivisionError
     
     --------------------------------------------------------------------------------------------------------------------------------------
     
@@ -24,8 +28,8 @@
     
     Run-time performance summary.
     
-        Start time    : 23:26:35.970579
-        End time      : 23:26:56.409043
-        Run time      : 00:00:20.438464
+        Start time    : 16:38:05.616055
+        End time      : 16:38:06.898157
+        Run time      : 00:00:01.282102
 
     --------------------------------------------------------------------------------------------------------------------------------------

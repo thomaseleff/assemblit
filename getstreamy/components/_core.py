@@ -25,9 +25,10 @@ def initialize_session_state_defaults():
     """
     if setup.NAME not in st.session_state:
         st.session_state[setup.NAME] = {}
-        for index, (key, value) in enumerate(
-            setup.SESSION_STATE_DEFAULTS.items()
-        ):
+    for index, (key, value) in enumerate(
+        setup.SESSION_STATE_DEFAULTS.items()
+    ):
+        if key not in st.session_state[setup.NAME]:
             st.session_state[setup.NAME][key] = copy.deepcopy(value)
 
 
@@ -72,7 +73,8 @@ def initialize_session_state_status_defaults(
 def display_page_header(
     header: str = 'Welcome',
     tagline: str = 'Please login or sign-up.',
-    headerless: bool = False
+    headerless: bool = False,
+    show_context: bool = False
 ):
     """ Displays the standard home-page header.
 
@@ -85,6 +87,9 @@ def display_page_header(
     headerless : 'bool'
         'True' or 'False', determines whether to display the
             header content
+    show_context : `bool`
+        `True` or `False`, determines whether to display the
+            session context information as an `st.popover` object.
     """
 
     # Configure
@@ -128,7 +133,7 @@ def display_page_header(
             )
 
             # Layout columns
-            col1, col2, col3, col4, col5 = st.columns(setup.HEADER_COLUMNS)
+            col1, col2, col3, col4, _ = st.columns(setup.HEADER_COLUMNS)
 
             # Display the header
             col2.markdown('# %s' % header)
@@ -136,26 +141,52 @@ def display_page_header(
             col2.write('')
             col2.write('')
 
-            # Display user name
-            if st.session_state[setup.NAME][setup.USERS_DB_NAME]['name']:
-                col3.write('')
-                col3.markdown(
-                    "<p style='padding: 6px; text-align: right;'>%s %s</p>" % (
-                        '👋',
-                        st.session_state[setup.NAME][setup.USERS_DB_NAME]['name']
-                    ),
-                    unsafe_allow_html=True
-                )
+            # Display context pop-over
+            if show_context and st.session_state[setup.NAME][setup.SESSIONS_DB_NAME]['name']:
+                col3.markdown('# ')
+                with col3.popover(label='🔍', use_container_width=True):
 
-                # Display 'Logout' button
-                col4.write('')
-                col4.button(
-                    label='Logout',
-                    on_click=vault.logout,
-                    type='secondary',
-                    use_container_width=False
-                )
-                col4.write('')
+                    # Display subheader
+                    st.write('##### %s context' % (
+                        ''.join([
+                            setup.SESSIONS_DB_NAME[0].upper(),
+                            setup.SESSIONS_DB_NAME[1:]
+                        ])
+                    ))
+
+                    # Display pop-over content
+                    for parameter in st.session_state[setup.NAME][setup.SESSIONS_DB_NAME][setup.SESSIONS_DB_NAME]['settings']:
+
+                        # Layout columns
+                        col1, col2 = st.columns([.5, .5])
+
+                        # Display context-parameters
+                        col1.write('_%s_' % (parameter['name']))
+                        col2.write('`%s`' % (parameter['value']))
+
+            # # Display user pop-over
+            # if st.session_state[setup.NAME][setup.USERS_DB_NAME]['name']:
+            #     col4.subheader('')
+            #     with col4.popover(label='👋'):
+
+            #         # Display account information
+            #         st.write(
+            #             '##### Hello, %s' % (
+            #                 st.session_state[setup.NAME][setup.USERS_DB_NAME]['name']
+            #             )
+            #         )
+
+            #         # Layout columns
+            #         col1, col2 = st.columns([.5, .5])
+
+            # Display 'Logout' button
+            col4.markdown('# ')
+            col4.button(
+                label='Logout',
+                on_click=vault.logout,
+                type='secondary',
+                use_container_width=True
+            )
 
     # Debug
     if setup.DEBUG:

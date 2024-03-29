@@ -55,8 +55,8 @@ DB_DIR: Union[str, os.PathLike] = os.path.abspath(
 # Web-page configuration settings
 LAYOUT: str = 'wide'
 INITIAL_SIDEBAR_STATE: str = 'expanded'
-HEADER_COLUMNS: List[Union[int, float]] = [.05, .6375, .15, .15, .0125]
-CONTENT_COLUMNS: List[Union[int, float]] = [.075, .7625, .1625]
+HEADER_COLUMNS: List[Union[int, float]] = [.05, .625, .1, .175, .05]
+CONTENT_COLUMNS: List[Union[int, float]] = [.075, .875, .05]
 
 # Authentication settings
 AUTH_NAME: str = 'auth'
@@ -104,12 +104,21 @@ DATA_DEFAULTS: dict = {
     DATA_DB_QUERY_INDEX: None
 }
 
+# Analysis db settings
+ANALYSIS_DB_NAME: str = os.environ['ANALYSIS_DB_NAME']
+ANALYSIS_DB_QUERY_INDEX: str = os.environ['ANALYSIS_DB_QUERY_INDEX']
+ANALYSIS_DEFAULTS: dict = {
+    'name': None,
+    ANALYSIS_DB_QUERY_INDEX: None
+}
+
 # Session state defaults
 SESSION_STATE_DEFAULTS: dict = {
     AUTH_NAME: copy.deepcopy(AUTH_DEFAULTS),
     USERS_DB_NAME: copy.deepcopy(USERS_DEFAULTS),
     SESSIONS_DB_NAME: copy.deepcopy(SESSIONS_DEFAULTS),
     DATA_DB_NAME: copy.deepcopy(DATA_DEFAULTS),
+    ANALYSIS_DB_NAME: copy.deepcopy(ANALYSIS_DEFAULTS),
     'dir': ROOT_DIR,
     'pages': {
         'home': '%s.py' % (HOME_PAGE_NAME)

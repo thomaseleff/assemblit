@@ -223,7 +223,7 @@ class Content():
             ):
                 _key_value.display_key_value_pair_settings_form(
                     header='Parameters',
-                    tagline='Edit the form and click `Save` to modify the currently selected entry.',
+                    tagline='Edit the form then click `Save` to modify the currently selected entry.',
                     db_name=self.db_name,
                     table_name=self.table_name,
                     query_index=self.query_index,
@@ -240,7 +240,7 @@ class Content():
                 # Display
                 _key_value.display_key_value_pair_settings_form(
                     header='Setup',
-                    tagline='Populate each field in the form and click `Save` to create a new entry.',
+                    tagline='Populate each field in the form then click `Save` to create a new entry.',
                     db_name=self.db_name,
                     table_name=self.table_name,
                     query_index=self.query_index,
