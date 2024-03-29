@@ -19,8 +19,8 @@ import argon2
 from argon2 import PasswordHasher
 from email_validator import validate_email, EmailNotValidError
 import streamlit as st
-from getstreamy import setup, db
-from getstreamy.components import _core
+from assemblit import setup, db
+from assemblit._components import _core
 
 
 # Define generic authentication function(s)

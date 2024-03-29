@@ -15,7 +15,7 @@ database.
 
 import os
 import sqlite3
-from getstreamy import setup
+from assemblit import setup
 from pytensils import utils
 
 

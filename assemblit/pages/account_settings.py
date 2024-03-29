@@ -14,8 +14,8 @@ Contains the `Class` for the account-management user-settings-page.
 
 import copy
 import streamlit as st
-from getstreamy import setup, db, vault
-from getstreamy.components import _key_value, _core
+from assemblit import setup, db, vault
+from assemblit._components import _key_value, _core
 
 
 class Content():

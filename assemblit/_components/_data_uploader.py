@@ -20,7 +20,7 @@ import pandas as pd
 import pandera as pa
 from pandera.engines import pandas_engine
 import streamlit as st
-from getstreamy import data_toolkit, setup, db
+from assemblit import data_toolkit, setup, db
 
 
 # Define core-component uploader function(s)

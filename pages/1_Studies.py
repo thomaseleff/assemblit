@@ -12,7 +12,7 @@ Description
 Studies-page of the getstreamy web-application.
 """
 
-import getstreamy.pages.sessions_selector as sessions_selector
+import assemblit.pages.sessions_selector as sessions_selector
 
 # Initialize the session-selector page content
 Sessions = sessions_selector.Content(

@@ -12,7 +12,7 @@ Description
 Run-analysis-page of the getstreamy web-application.
 """
 
-from getstreamy.pages import run_analysis
+from assemblit.pages import run_analysis
 
 # Initialize the run-analysis-page content
 Analysis = run_analysis.Content()

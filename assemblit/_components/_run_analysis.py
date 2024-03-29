@@ -13,8 +13,8 @@ Contains the generic methods for a run-analysis-page.
 """
 
 import streamlit as st
-from getstreamy import setup, db
-from getstreamy.components import _selector
+from assemblit import setup, db
+from assemblit._components import _selector
 from pytensils import utils
 
 

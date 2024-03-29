@@ -15,7 +15,7 @@ Contains the generic methods for a getstreamy web-application.
 import json
 import copy
 import streamlit as st
-from getstreamy import setup, vault
+from assemblit import setup, vault
 
 
 # Define generic initialization function(s)

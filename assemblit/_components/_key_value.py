@@ -13,7 +13,7 @@ Contains the generic methods for a key-value pair settings-page.
 """
 
 import streamlit as st
-from getstreamy import setup, db
+from assemblit import setup, db
 from pytensils import utils
 
 

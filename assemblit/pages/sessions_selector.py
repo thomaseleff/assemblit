@@ -14,8 +14,8 @@ Contains the `Class` for the session-selector-page.
 
 import copy
 import streamlit as st
-from getstreamy import setup, db
-from getstreamy.components import _core, _key_value, _selector
+from assemblit import setup, db
+from assemblit._components import _core, _key_value, _selector
 
 
 class Content():

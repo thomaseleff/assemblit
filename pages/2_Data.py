@@ -14,8 +14,8 @@ Data-ingestion-page of the getstreamy web-application.
 
 import os
 import pandas as pd
-from getstreamy import setup
-from getstreamy.pages import data_ingestion
+from assemblit import setup
+from assemblit.pages import data_ingestion
 
 # Initialize the data-ingestion-page content
 Data = data_ingestion.Content(

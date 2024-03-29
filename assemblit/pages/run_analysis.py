@@ -14,8 +14,8 @@ Contains the `Class` for the run-analysis-page.
 
 import copy
 import streamlit as st
-from getstreamy import setup, db
-from getstreamy.components import _core, _run_analysis
+from assemblit import setup, db
+from assemblit._components import _core, _run_analysis
 
 
 class Content():

@@ -16,8 +16,8 @@ import hashlib
 import json
 import pandas as pd
 import streamlit as st
-from getstreamy import data_toolkit, setup, db
-from getstreamy.components import _core, _selector
+from assemblit import data_toolkit, setup, db
+from assemblit._components import _core, _selector
 
 
 # Define core-component uploader function(s)

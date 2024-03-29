@@ -12,7 +12,7 @@ Description
 Workflow-settings-page of the getstreamy web-application.
 """
 
-import getstreamy.pages.workflow_settings as workflow_settings
+import assemblit.pages.workflow_settings as workflow_settings
 
 # Initialize the workflow-settings-page content
 Workflow = workflow_settings.Content(

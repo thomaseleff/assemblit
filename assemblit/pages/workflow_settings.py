@@ -14,8 +14,8 @@ Contains the `Class` for the session-settings-page.
 
 import copy
 import streamlit as st
-from getstreamy import setup
-from getstreamy.components import _key_value, _core
+from assemblit import setup
+from assemblit._components import _key_value, _core
 
 
 class Content():

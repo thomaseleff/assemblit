@@ -12,7 +12,7 @@ Description
 Account-settings-page of the getstreamy web-application.
 """
 
-import getstreamy.pages.account_settings as account_settings
+import assemblit.pages.account_settings as account_settings
 
 # Initialize the account-settings-page content
 Settings = account_settings.Content()

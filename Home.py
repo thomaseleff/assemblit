@@ -12,8 +12,8 @@ Description
 Home-page of the getstreamy web-application
 """
 
-import getstreamy.setup as setup
-import getstreamy.pages.home as home
+import assemblit.setup as setup
+import assemblit.pages.home as home
 
 # Initialize the home-page content
 Home = home.Content(
