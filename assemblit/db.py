@@ -803,7 +803,7 @@ class Handler():
     def select_multi_table_column_value(
         self,
         table_name: str,
-        cols: str,
+        cols: list,
         filtr: dict
     ) -> dict:
         """ Returns multiple column values from a filtered database table as a `dict`.
@@ -812,7 +812,7 @@ class Handler():
         ----------
         table_name : `str`
             Name of the database table.
-        cols : `str`
+        cols : `list`
             Names of the database table columns.
         filtr : `dict`
             Dictionary object containing the column `col` and value `val` to filter

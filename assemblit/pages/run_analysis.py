@@ -46,9 +46,6 @@ class Content():
             String to display as `streamlit.info()` when there is no active session
         headerless : `bool`
             `True` or `False`, determines whether to display the header & tagline
-        clear_on_submit : `bool`
-            `True` or `False`, determines whether to clear the form-submission responses
-                after submission
         """
 
         # Assign content class variables
@@ -66,32 +63,49 @@ class Content():
         self.table_name = 'listing'
         self.query_index = setup.ANALYSIS_DB_QUERY_INDEX
 
-        # Initialize session state defaults
-        _core.initialize_session_state_defaults()
-
         # Assign default session state class variables
-        self.parameters = [
+        self.settings = [
             {
-                'db_name': setup.DATA_DB_NAME,
-                'table_name': 'datasets',
-                'query_index': setup.DATA_DB_QUERY_INDEX,
-                'scope_db_name': setup.SESSIONS_DB_NAME,
-                'scope_query_index': setup.SESSIONS_DB_QUERY_INDEX
+                "sort": 0,
+                "type": "multiselect",
+                "dtype": "str",
+                "parameter": "dataset",
+                "name": "Dataset",
+                "value": "",
+                "kwargs": False,
+                "description": """
+                    Select a dataset for the model analysis.
+                """
+            },
+            {
+                "sort": 1,
+                "type": "text-input",
+                "dtype": "str",
+                "parameter": "run_information",
+                "name": "Run information",
+                "value": "",
+                "kwargs": False,
+                "description": """
+                    Enter context about the model analysis run.
+                """
             }
         ]
+
+        # Initialize session state defaults
+        _core.initialize_session_state_defaults()
 
         # Assign key-value pair defaults
         if self.db_name not in st.session_state[setup.NAME]:
             st.session_state[setup.NAME][self.db_name] = {
                 self.table_name: {
-                    'parameters': copy.deepcopy(self.parameters),
+                    'settings': copy.deepcopy(self.settings),
                     'form-submission': False
                 },
             }
         else:
             if self.table_name not in st.session_state[setup.NAME][self.db_name]:
                 st.session_state[setup.NAME][self.db_name][self.table_name] = {
-                    'parameters': copy.deepcopy(self.parameters),
+                    'settings': copy.deepcopy(self.settings),
                     'form-submission': False
                 }
 
@@ -126,7 +140,7 @@ class Content():
                     table_name=self.table_name
                 )
 
-                # Update the workflow-settings database
+                # Update the run-analysis-settings database
                 if response:
                     _run_analysis.run_workflow(
                         db_name=self.db_name,

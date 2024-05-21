@@ -23,12 +23,12 @@ from pytensils import config, logging
     name='setup',
     description='Starts the flow-run and returns the flow-parameters as a `pytensils` configuration-object.'
 )
-def setup_flow_run(parameters: dict) -> config.Handler:
-    """ Starts the flow-run and returns the flow-parameters as a `pytensils` configuration-object.
+def setup_flow_run(run_request: dict) -> config.Handler:
+    """ Starts the flow-run and returns the flow-job-request as a `pytensils` configuration-object.
 
     Parameters
     ----------
-    parameters : `dict`
+    run_request : `dict`
         Dictionary object containing the flow-run parameters and values.
     """
 
@@ -47,7 +47,7 @@ def setup_flow_run(parameters: dict) -> config.Handler:
     ):
 
         # Update the flow-configuration
-        Flow.data['parameters'] = parameters
+        Flow.data['run_request'] = run_request
 
         return Flow
 
@@ -82,9 +82,9 @@ def start_logging(
     logging.TIMEZONE = timezone
 
     return logging.Handler(
-        path=Flow.data['parameters']['output_path'],
+        path=Flow.data['run_request']['dir']['outputs'],
         description=Flow.data['linear-regression']['description'],
-        metadata=Flow.data['parameters'],
+        metadata=Flow.data['run_request']['run-information'],
         debug_console=True
     )
 
@@ -109,31 +109,30 @@ def validate_configuration(
 
     # Setup the workflow-configuration
     Workflow = config.Handler(
-        path=os.path.join(
-            Flow.data['parameters']['input_path'],
-            'workflow'
-        ),
-        Logging=Logging
-    )
+        path=Flow.data['run_request']['dir']['inputs'],
+        Logging=Logging,
+        create=True
+    ).from_dict(dict_object={'workflow': Flow.to_dict()['run_request']['workflow']})
+
     time.sleep(20)
 
     # Validate the workflow-configuration
-    if Workflow.validate(
-        dtypes=config.Handler(
-            path=os.path.join(
-                Flow.data['parameters']['input_path'],
-                'workflow'
-            ),
-            file_name='dtypes.json'
-        ).to_dict()
-    ):
+    # if Workflow.validate(
+    #     dtypes=config.Handler(
+    #         path=os.path.join(
+    #             Flow.data['run_request']['dir']['inputs'],
+    #             'workflow'
+    #         ),
+    #         file_name='dtypes.json'
+    #     ).to_dict()
+    # ):
 
-        # Logging
-        Logging.write_header(header='Workflow validation')
-        Logging.write(content="The workflow configuration validation completed successfully.")
-        Logging.write(content=Workflow.data['workflow'])
+    # Logging
+    Logging.write_header(header='Workflow validation')
+    Logging.write(content="The workflow configuration validation completed successfully.")
+    Logging.write(content=Workflow.data['workflow'])
 
-        return Workflow
+    return Workflow
 
 
 @task(
@@ -164,18 +163,14 @@ def end_logging(Logging: logging.Handler):
     log_prints=True
 )
 def linear_regression_flow(
-    input_path: str = os.path.join(os.path.dirname(__file__), 'analysis', 'develop', 'inputs'),
-    output_path: str = os.path.join(os.path.dirname(__file__), 'analysis', 'develop', 'outputs')
+    run_request
 ):
     """ A linear regression analysis with a linear regression assumption evaluator, orchestrated by `prefect`.
     """
 
     # Setup the flow-configuration
     Flow = setup_flow_run(
-        parameters={
-            'input_path': input_path,
-            'output_path': output_path
-        }
+        run_request=run_request
     )
 
     # Initialize user-logging

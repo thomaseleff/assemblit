@@ -386,8 +386,8 @@ def display_data_preview(
                     st.error(
                         body="""
                             Schema validation failed. The dataframe structure does not
-                                comply with the `data contract` requirements. See the dataframe
-                                output below for more information. Please re-upload the datafile.
+                             comply with the `data contract` requirements. See the dataframe
+                             output below for more information. Please re-upload the datafile.
                         """,
                         icon='⛔'
                     )

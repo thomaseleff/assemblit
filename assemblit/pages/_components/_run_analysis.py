@@ -15,6 +15,7 @@ Contains the generic methods for a run-analysis-page.
 import os
 import hashlib
 import datetime
+import pandas as pd
 import streamlit as st
 from assemblit import setup, db
 from assemblit.server import layer
@@ -199,40 +200,39 @@ def display_run_analysis_form(
         clear_on_submit=True
     ):
 
-        # Display table information as key-value pair configuration
-        for parameter in st.session_state[setup.NAME][db_name][table_name]['parameters']:
+        # Retreive run-analysis parameter options
+        options = _selector.select_selector_dropdown_options(
+            db_name=setup.DATA_DB_NAME,
+            table_name='datasets',
+            query_index=setup.DATA_DB_QUERY_INDEX,
+            scope_db_name=setup.SESSIONS_DB_NAME,
+            scope_query_index=setup.SESSIONS_DB_QUERY_INDEX
+        )
 
-            # Retreive run-analysis parameter options
-            options = _selector.select_selector_dropdown_options(
-                db_name=parameter['db_name'],
-                table_name=parameter['table_name'],
-                query_index=parameter['query_index'],
-                scope_db_name=parameter['scope_db_name'],
-                scope_query_index=parameter['scope_query_index']
-            )
+        # Set run-analysis drop-down default query index
+        index = _selector.select_selector_default_value(
+            db_name=setup.DATA_DB_NAME,
+            table_name='datasets',
+            query_index=setup.DATA_DB_QUERY_INDEX,
+            scope_db_name=setup.SESSIONS_DB_NAME,
+            scope_query_index=setup.SESSIONS_DB_QUERY_INDEX,
+            options=options
+        )
 
-            # Set run-analysis drop-down default query index
-            index = _selector.select_selector_default_value(
-                db_name=parameter['db_name'],
-                table_name=parameter['table_name'],
-                query_index=parameter['query_index'],
-                scope_db_name=parameter['scope_db_name'],
-                scope_query_index=parameter['scope_query_index'],
-                options=options
-            )
-
-            # Display the run-analysis drop-down
-            st.selectbox(
-                label='Dataset',
-                options=options,
-                index=index,
-                placeholder='Select a dataset for the model analysis',
-                disabled=False,
-                label_visibility='visible'
-            )
+        # Display the run-analysis drop-down
+        st.selectbox(
+            key='dataset',
+            label='Dataset',
+            options=options,
+            index=index,
+            placeholder='Select a dataset for the model analysis.',
+            disabled=False,
+            label_visibility='visible'
+        )
 
         # Display run-information
         st.text_area(
+            key='run_information',
             label='Run information',
             placeholder='Enter context about the model analysis run.',
             disabled=False,
@@ -612,6 +612,96 @@ def run_workflow(
     # Apply form response to the database & run
     if response:
 
+        # Generate a run-id
+        run_id = hashlib.md5((str(datetime.datetime.now())).encode('utf-8')).hexdigest()
+
+        # Make directories
+        if not os.path.isdir(os.path.join(setup.ROOT_DIR, db_name)):
+            os.mkdir(os.path.join(setup.ROOT_DIR, db_name))
+
+        if not os.path.isdir(os.path.join(setup.ROOT_DIR, db_name, run_id)):
+            os.mkdir(os.path.join(setup.ROOT_DIR, db_name, run_id))
+
+            if not os.path.isdir(os.path.join(setup.ROOT_DIR, db_name, run_id, 'inputs')):
+                os.mkdir(os.path.join(setup.ROOT_DIR, db_name, run_id, 'inputs'))
+
+                if not os.path.isdir(os.path.join(setup.ROOT_DIR, db_name, run_id, 'inputs', setup.DATA_DB_NAME)):
+                    os.mkdir(os.path.join(setup.ROOT_DIR, db_name, run_id, 'inputs', setup.DATA_DB_NAME))
+
+            if not os.path.isdir(os.path.join(setup.ROOT_DIR, db_name, run_id, 'outputs')):
+                os.mkdir(os.path.join(setup.ROOT_DIR, db_name, run_id, 'outputs'))
+
+        # Initialize the connection to the data-database
+        Data = db.Handler(
+            db_name=setup.DATA_DB_NAME
+        )
+
+        # Unload the data
+        df = pd.read_sql(
+            sql="SELECT * FROM '%s'" % (st.session_state[setup.NAME][setup.DATA_DB_NAME][setup.DATA_DB_QUERY_INDEX]),
+            con=Data.connection
+        )
+        df.to_csv(
+            os.path.join(
+                setup.ROOT_DIR,
+                db_name,
+                run_id,
+                'inputs',
+                setup.DATA_DB_NAME,
+                st.session_state[setup.NAME][setup.DATA_DB_NAME]['name']
+            ),
+            sep=',',
+            index=False
+        )
+
+        # Initialize the connection to the workflow-settings-database
+        Session = db.Handler(
+            db_name=setup.SESSIONS_DB_NAME
+        )
+
+        # Unload the data
+        parameters = Session.select_multi_table_column_value(
+            table_name='workflow',
+            cols=Session.select_table_column_names_as_list(table_name='workflow'),
+            filtr={
+                'col': setup.SESSIONS_DB_QUERY_INDEX,
+                'val': st.session_state[setup.NAME][setup.SESSIONS_DB_NAME][setup.SESSIONS_DB_QUERY_INDEX]
+            }
+        )
+
+        # Build the run-request
+        run_request = {
+            'run-information': {
+                'run-id': run_id,
+                'start-date': str(datetime.datetime.now()),
+                'version': server_setup.SERVER_DEPLOYMENT_VERSION,
+                'session-name': st.session_state[setup.NAME][setup.SESSIONS_DB_NAME]['name'],
+                'session-id': st.session_state[setup.NAME][setup.SESSIONS_DB_NAME][setup.SESSIONS_DB_QUERY_INDEX],
+                'dataset-name': st.session_state[setup.NAME][setup.DATA_DB_NAME]['name'],
+                'dataset-id': st.session_state[setup.NAME][setup.DATA_DB_NAME][setup.DATA_DB_QUERY_INDEX],
+                'inputs': os.path.join(setup.ROOT_DIR, db_name, run_id, 'inputs'),
+                'outputs': os.path.join(setup.ROOT_DIR, db_name, run_id, 'outputs'),
+            },
+            'dir': {
+                'inputs': os.path.join(setup.ROOT_DIR, db_name, run_id, 'inputs'),
+                'outputs': os.path.join(setup.ROOT_DIR, db_name, run_id, 'outputs')
+            },
+            'workflow': parameters
+        }
+
+        # Run workflow
+        details = layer.run_workflow(
+            server_name=server_setup.SERVER_NAME,
+            server_type=server_setup.SERVER_TYPE,
+            server_port=server_setup.SERVER_PORT,
+            root_dir=setup.DB_DIR,
+            workflow_id=run_id,
+            deployment_id=server_setup.SERVER_DEPLOYMENT_ID,
+            deployment_version=server_setup.SERVER_DEPLOYMENT_VERSION,
+            run_request=run_request
+        )
+
+        print(response)
         # # Initialize connection to the database
         # Db = db.Handler(
         #     db_name=db_name
@@ -668,40 +758,11 @@ def run_workflow(
         #             ]
         #         )
 
-        # Generate a run-id
-        run_id = hashlib.md5((str(datetime.datetime.now())).encode('utf-8')).hexdigest()
-
-        # Make directories
-        if not os.path.isdir(os.path.join(setup.ROOT_DIR, db_name)):
-            os.mkdir(os.path.join(setup.ROOT_DIR, db_name))
-
-        if not os.path.isdir(os.path.join(setup.ROOT_DIR, db_name, run_id)):
-            os.mkdir(os.path.join(setup.ROOT_DIR, db_name, run_id))
-
-            if not os.path.isdir(os.path.join(setup.ROOT_DIR, db_name, run_id, 'inputs')):
-                os.mkdir(os.path.join(setup.ROOT_DIR, db_name, run_id, 'inputs'))
-
-            if not os.path.isdir(os.path.join(setup.ROOT_DIR, db_name, run_id, 'outputs')):
-                os.mkdir(os.path.join(setup.ROOT_DIR, db_name, run_id, 'outputs'))
-
-        # Run workflow
-        details = layer.run_workflow(
-            server_name=server_setup.SERVER_NAME,
-            server_type=server_setup.SERVER_TYPE,
-            server_port=server_setup.SERVER_PORT,
-            root_dir=setup.DB_DIR,
-            workflow_id=run_id,
-            deployment_id=server_setup.SERVER_DEPLOYMENT_ID,
-            deployment_version=server_setup.SERVER_DEPLOYMENT_VERSION,
-            input_path=os.path.join(setup.ROOT_DIR, db_name, run_id, 'inputs'),
-            output_path=os.path.join(setup.ROOT_DIR, db_name, run_id, 'outputs'),
-        )
-
         # Log success
         st.session_state[setup.NAME][db_name]['successes'] = (
             st.session_state[setup.NAME][db_name]['successes'] + [
                 """
-                    Workflow-run {%s} successfully created.
+                    Analysis-run {%s} successfully created.
                 """ % (
                     details['id']
                 )
