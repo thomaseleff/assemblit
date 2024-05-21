@@ -12,9 +12,14 @@ Description
 Contains the generic methods for a run-analysis-page.
 """
 
+import os
+import hashlib
+import datetime
 import streamlit as st
 from assemblit import setup, db
-from assemblit._components import _selector
+from assemblit.server import layer
+from assemblit.server import setup as server_setup
+from assemblit.pages._components import _selector
 from pytensils import utils
 
 
@@ -105,57 +110,57 @@ def initialize_key_value_pair_table(
             )
 
 
-def display_run_analysis_context(
-    header: str = None,
-    tagline: str = None
-):
-    """ Displays the context about the session.
-    """
+# def display_run_analysis_context(
+#     header: str = None,
+#     tagline: str = None
+# ):
+#     """ Displays the context about the session.
+#     """
 
-    # Layout columns
-    _, col2, _ = st.columns(setup.CONTENT_COLUMNS)
+#     # Layout columns
+#     _, col2, _ = st.columns(setup.CONTENT_COLUMNS)
 
-    # # Display the context header
-    # with col2:
-    #     if header and tagline:
-    #         st.write('### %s' % header)
-    #         st.write('%s' % tagline)
-    #         # st.write('')
-    #         # st.write('')
+#     # # Display the context header
+#     # with col2:
+#     #     if header and tagline:
+#     #         st.write('### %s' % header)
+#     #         st.write('%s' % tagline)
+#     #         # st.write('')
+#     #         # st.write('')
 
-    # Display the run-analysis context container
-    with col2.container():
+#     # Display the run-analysis context container
+#     with col2.container():
 
-        # Retain context
-        context = st.session_state[setup.NAME][setup.SESSIONS_DB_NAME][setup.SESSIONS_DB_NAME]['settings']
-        num_cols = 4
+#         # Retain context
+#         context = st.session_state[setup.NAME][setup.SESSIONS_DB_NAME][setup.SESSIONS_DB_NAME]['settings']
+#         num_cols = 4
 
-        # Layout columns
-        cols = st.columns(num_cols)
+#         # Layout columns
+#         cols = st.columns(num_cols)
 
-        # Set style
-        st.markdown(
-            """
-                <style>
-                    .context {
-                        font-size:36px;
-                    }
-                </style>
-            """,
-            unsafe_allow_html=True
-        )
+#         # Set style
+#         st.markdown(
+#             """
+#                 <style>
+#                     .context {
+#                         font-size:36px;
+#                     }
+#                 </style>
+#             """,
+#             unsafe_allow_html=True
+#         )
 
-        # Display context parameters
-        for i in range(min(num_cols, len(context))):
-            with cols[i]:
-                with st.container(border=True):
-                    st.write(context[i]['name'])
-                    st.markdown(
-                        """
-                        <p class="context">%s</p>
-                        """ % context[i]['value'],
-                        unsafe_allow_html=True
-                    )
+#         # Display context parameters
+#         for i in range(min(num_cols, len(context))):
+#             with cols[i]:
+#                 with st.container(border=True):
+#                     st.write(context[i]['name'])
+#                     st.markdown(
+#                         """
+#                         <p class="context">%s</p>
+#                         """ % context[i]['value'],
+#                         unsafe_allow_html=True
+#                     )
 
 
 def display_run_analysis_form(
@@ -255,7 +260,7 @@ def display_run_analysis_form(
         col3.form_submit_button(
             label='Run',
             type='primary',
-            on_click=save,
+            on_click=run,
             kwargs={
                 'db_name': db_name,
                 'table_name': table_name
@@ -289,7 +294,7 @@ def parse_form_response(
                 db_name=db_name,
                 table_name=table_name
             ),
-            'Save'
+            'Run'
         ) in st.session_state)
     ):
 
@@ -309,7 +314,7 @@ def parse_form_response(
                 db_name=db_name,
                 table_name=table_name
             ),
-            'Save'
+            'Run'
         )]
 
     else:
@@ -393,11 +398,11 @@ def generate_form_key(
 
 
 # Define function(s) for handling key-value pair form call-backs
-def save(
+def run(
     db_name: str,
     table_name: str
 ):
-    """ Dummy function that triggers the form-submission.
+    """ Dummy function that triggers the workflow-run.
 
     Parameters
     ----------
@@ -415,7 +420,7 @@ def clear(
     db_name: str,
     table_name: str
 ):
-    """ Dummy function that triggers the form-submission.
+    """ Dummy function that triggers the workflow-run.
 
     Parameters
     ----------
@@ -430,161 +435,161 @@ def clear(
 
 
 # Define function(s) for displaying key-value pair setting(s)
-def display_key_value_pair_setting(
-    db_name: str,
-    table_name: str,
-    query_index: str,
-    apply_db_values: bool,
-    d: dict
-):
-    """ Displays a dictionary object as key-value pair configuration.
+# def display_key_value_pair_setting(
+#     db_name: str,
+#     table_name: str,
+#     query_index: str,
+#     apply_db_values: bool,
+#     d: dict
+# ):
+#     """ Displays a dictionary object as key-value pair configuration.
 
-    Parameters
-    ----------
-    db_name : 'str'
-        Name of the database to store the setting(s) parameters & values
-    table_name : 'str'
-        Name of the table within `db_name` to store the setting(s) parameters & values.
-    query_index : 'str'
-        Name of the index within `db_name` & `table_name`. May only be one column.
-    apply_db_values: `bool`
-        `True` or `False`, determines whether to apply the current database table
-            value as the placeholder value in the form component.
-    d : `dict`
-        Dictionary object
-    """
+#     Parameters
+#     ----------
+#     db_name : 'str'
+#         Name of the database to store the setting(s) parameters & values
+#     table_name : 'str'
+#         Name of the table within `db_name` to store the setting(s) parameters & values.
+#     query_index : 'str'
+#         Name of the index within `db_name` & `table_name`. May only be one column.
+#     apply_db_values: `bool`
+#         `True` or `False`, determines whether to apply the current database table
+#             value as the placeholder value in the form component.
+#     d : `dict`
+#         Dictionary object
+#     """
 
-    # Layout columns
-    col1, col2, col3 = st.columns([.25, .25, .5])
+#     # Layout columns
+#     col1, col2, col3 = st.columns([.25, .25, .5])
 
-    # Display parameter name
-    col1.markdown('_%s_' % (d['name']))
+#     # Display parameter name
+#     col1.markdown('_%s_' % (d['name']))
 
-    # Update values based on query settings
-    if (
-        (apply_db_values)
-        and (st.session_state[setup.NAME][db_name][query_index])
-    ):
-        try:
-            d['value'] = select_setting_table_column_value(
-                db_name=db_name,
-                query="""
-                    SELECT %s FROM %s WHERE %s = '%s';
-                """ % (
-                    d['parameter'],
-                    table_name,
-                    query_index,
-                    st.session_state[setup.NAME][db_name][query_index]
-                ),
-                return_dtype=d['dtype']
-            )
-        except db.NullReturnValue:
-            d['value'] = ''
+#     # Update values based on query settings
+#     if (
+#         (apply_db_values)
+#         and (st.session_state[setup.NAME][db_name][query_index])
+#     ):
+#         try:
+#             d['value'] = select_setting_table_column_value(
+#                 db_name=db_name,
+#                 query="""
+#                     SELECT %s FROM %s WHERE %s = '%s';
+#                 """ % (
+#                     d['parameter'],
+#                     table_name,
+#                     query_index,
+#                     st.session_state[setup.NAME][db_name][query_index]
+#                 ),
+#                 return_dtype=d['dtype']
+#             )
+#         except db.NullReturnValue:
+#             d['value'] = ''
 
-    # Display parameter input-object
-    if str(d['type']).strip().upper() == 'TEXT-INPUT':
-        if d['kwargs']:
-            col2.text_input(
-                key=d['parameter'],
-                label=d['name'],
-                value=d['value'],
-                label_visibility='collapsed',
-                **d['kwargs']
-            )
-        else:
-            col2.text_input(
-                key=d['parameter'],
-                label=d['name'],
-                value=d['value'],
-                label_visibility='collapsed'
-            )
-    elif str(d['type']).strip().upper() == 'TOGGLE':
-        if d['kwargs']:
-            col2.toggle(
-                key=d['parameter'],
-                label='Enable',
-                value=d['value'],
-                label_visibility='collapsed',
-                **d['kwargs']
-            )
-        else:
-            col2.toggle(
-                key=d['parameter'],
-                label='Enable',
-                value=d['value'],
-                label_visibility='collapsed',
-            )
-    elif str(d['type']).strip().upper() == 'SLIDER':
-        if d['kwargs']:
-            col2.slider(
-                key=d['parameter'],
-                label=d['name'],
-                value=d['value'],
-                label_visibility='collapsed',
-                **d['kwargs']
-            )
-        else:
-            raise KeyError(
-                "st.slider() cannot be built without 'kwargs'."
-            )
-    elif str(d['type']).strip().upper() == 'MULTISELECT':
-        if d['kwargs']:
-            col2.multiselect(
-                key=d['parameter'],
-                label=d['name'],
-                default=d['value'],
-                label_visibility='collapsed',
-                **d['kwargs']
-            )
-        else:
-            raise KeyError(
-                "st.multiselect() cannot be built without 'kwargs'."
-            )
-    else:
-        raise NameError(
-            "st.%s() is currently not supported." % (d['type'])
-        )
+#     # Display parameter input-object
+#     if str(d['type']).strip().upper() == 'TEXT-INPUT':
+#         if d['kwargs']:
+#             col2.text_input(
+#                 key=d['parameter'],
+#                 label=d['name'],
+#                 value=d['value'],
+#                 label_visibility='collapsed',
+#                 **d['kwargs']
+#             )
+#         else:
+#             col2.text_input(
+#                 key=d['parameter'],
+#                 label=d['name'],
+#                 value=d['value'],
+#                 label_visibility='collapsed'
+#             )
+#     elif str(d['type']).strip().upper() == 'TOGGLE':
+#         if d['kwargs']:
+#             col2.toggle(
+#                 key=d['parameter'],
+#                 label='Enable',
+#                 value=d['value'],
+#                 label_visibility='collapsed',
+#                 **d['kwargs']
+#             )
+#         else:
+#             col2.toggle(
+#                 key=d['parameter'],
+#                 label='Enable',
+#                 value=d['value'],
+#                 label_visibility='collapsed',
+#             )
+#     elif str(d['type']).strip().upper() == 'SLIDER':
+#         if d['kwargs']:
+#             col2.slider(
+#                 key=d['parameter'],
+#                 label=d['name'],
+#                 value=d['value'],
+#                 label_visibility='collapsed',
+#                 **d['kwargs']
+#             )
+#         else:
+#             raise KeyError(
+#                 "st.slider() cannot be built without 'kwargs'."
+#             )
+#     elif str(d['type']).strip().upper() == 'MULTISELECT':
+#         if d['kwargs']:
+#             col2.multiselect(
+#                 key=d['parameter'],
+#                 label=d['name'],
+#                 default=d['value'],
+#                 label_visibility='collapsed',
+#                 **d['kwargs']
+#             )
+#         else:
+#             raise KeyError(
+#                 "st.multiselect() cannot be built without 'kwargs'."
+#             )
+#     else:
+#         raise NameError(
+#             "st.%s() is currently not supported." % (d['type'])
+#         )
 
-    # Display parameter description
-    if d['description']:
-        col3.write(d['description'])
+#     # Display parameter description
+#     if d['description']:
+#         col3.write(d['description'])
 
 
 # Define function(s) for standard key-value pair database queries
-def select_setting_table_column_value(
-    db_name: str,
-    query: str,
-    return_dtype: str
-) -> str | int | float | bool | list | dict:
-    """ Submits {query} to {db_name} and returns the value in the
-    {return_dtype}.
+# def select_setting_table_column_value(
+#     db_name: str,
+#     query: str,
+#     return_dtype: str
+# ) -> str | int | float | bool | list | dict:
+#     """ Submits {query} to {db_name} and returns the value in the
+#     {return_dtype}.
 
-    Parameters
-    ----------
-    db_name : `str`
-        Database name
-    query : `str`
-        SQL query as a string
-    return_dtype : `str`
-        Data-type of the returned value
-    """
+#     Parameters
+#     ----------
+#     db_name : `str`
+#         Database name
+#     query : `str`
+#         SQL query as a string
+#     return_dtype : `str`
+#         Data-type of the returned value
+#     """
 
-    # Initialize the connection to the Database
-    Db = db.Handler(
-        db_name=db_name
-    )
+#     # Initialize the connection to the Database
+#     Db = db.Handler(
+#         db_name=db_name
+#     )
 
-    # Return the table column value
-    return (
-        Db.select_generic_query(
-            query=query,
-            return_dtype=return_dtype
-        )
-    )
+#     # Return the table column value
+#     return (
+#         Db.select_generic_query(
+#             query=query,
+#             return_dtype=return_dtype
+#         )
+#     )
 
 
 # Define function(s) for managing key-value pair database setting(s)
-def update_settings(
+def run_workflow(
     db_name: str,
     table_name: str,
     query_index: str,
@@ -604,61 +609,101 @@ def update_settings(
         Dictionary object containing the form responses.
     """
 
-    # Apply form response to the database
+    # Apply form response to the database & run
     if response:
 
-        # Initialize connection to the database
-        Db = db.Handler(
-            db_name=db_name
+        # # Initialize connection to the database
+        # Db = db.Handler(
+        #     db_name=db_name
+        # )
+
+        # # Update database settings
+        # for parameter in list(response.keys()):
+
+        #     if Db.table_record_exists(
+        #         table_name=table_name,
+        #         filtr={
+        #             'col': query_index,
+        #             'val': st.session_state[setup.NAME][db_name][query_index]
+        #         }
+        #     ):
+        #         try:
+        #             Db.update(
+        #                 table_name=table_name,
+        #                 values={
+        #                     'col': parameter,
+        #                     'val': str(response[parameter]).strip()
+        #                 },
+        #                 filtr={
+        #                     'col': query_index,
+        #                     'val': st.session_state[setup.NAME][db_name][query_index]
+        #                 }
+        #             )
+
+        #             # Log success
+        #             st.session_state[setup.NAME][db_name]['successes'] = (
+        #                 st.session_state[setup.NAME][db_name]['successes'] + [
+        #                     """
+        #                         {%s} successfully changed to %s.
+        #                     """ % (
+        #                         parameter,
+        #                         response[parameter]
+        #                     )
+        #                 ]
+        #             )
+
+        #         except ValueError as e:
+
+        #             # Log error
+        #             st.session_state[setup.NAME][db_name]['errors'] = (
+        #                 st.session_state[setup.NAME][db_name]['errors'] + [str(e)]
+        #             )
+
+        #     else:
+
+        #         # Log error
+        #         st.session_state[setup.NAME][db_name]['errors'] = (
+        #             st.session_state[setup.NAME][db_name]['errors'] + [
+        #                 'No table record found.'
+        #             ]
+        #         )
+
+        # Generate a run-id
+        run_id = hashlib.md5((str(datetime.datetime.now())).encode('utf-8')).hexdigest()
+
+        # Make directories
+        if not os.path.isdir(os.path.join(setup.ROOT_DIR, db_name)):
+            os.mkdir(os.path.join(setup.ROOT_DIR, db_name))
+
+        if not os.path.isdir(os.path.join(setup.ROOT_DIR, db_name, run_id)):
+            os.mkdir(os.path.join(setup.ROOT_DIR, db_name, run_id))
+
+            if not os.path.isdir(os.path.join(setup.ROOT_DIR, db_name, run_id, 'inputs')):
+                os.mkdir(os.path.join(setup.ROOT_DIR, db_name, run_id, 'inputs'))
+
+            if not os.path.isdir(os.path.join(setup.ROOT_DIR, db_name, run_id, 'outputs')):
+                os.mkdir(os.path.join(setup.ROOT_DIR, db_name, run_id, 'outputs'))
+
+        # Run workflow
+        details = layer.run_workflow(
+            server_name=server_setup.SERVER_NAME,
+            server_type=server_setup.SERVER_TYPE,
+            server_port=server_setup.SERVER_PORT,
+            root_dir=setup.DB_DIR,
+            workflow_id=run_id,
+            deployment_id=server_setup.SERVER_DEPLOYMENT_ID,
+            deployment_version=server_setup.SERVER_DEPLOYMENT_VERSION,
+            input_path=os.path.join(setup.ROOT_DIR, db_name, run_id, 'inputs'),
+            output_path=os.path.join(setup.ROOT_DIR, db_name, run_id, 'outputs'),
         )
 
-        # Update database settings
-        for parameter in list(response.keys()):
-
-            if Db.table_record_exists(
-                table_name=table_name,
-                filtr={
-                    'col': query_index,
-                    'val': st.session_state[setup.NAME][db_name][query_index]
-                }
-            ):
-                try:
-                    Db.update(
-                        table_name=table_name,
-                        values={
-                            'col': parameter,
-                            'val': str(response[parameter]).strip()
-                        },
-                        filtr={
-                            'col': query_index,
-                            'val': st.session_state[setup.NAME][db_name][query_index]
-                        }
-                    )
-
-                    # Log success
-                    st.session_state[setup.NAME][db_name]['successes'] = (
-                        st.session_state[setup.NAME][db_name]['successes'] + [
-                            """
-                                {%s} successfully changed to %s.
-                            """ % (
-                                parameter,
-                                response[parameter]
-                            )
-                        ]
-                    )
-
-                except ValueError as e:
-
-                    # Log error
-                    st.session_state[setup.NAME][db_name]['errors'] = (
-                        st.session_state[setup.NAME][db_name]['errors'] + [str(e)]
-                    )
-
-            else:
-
-                # Log error
-                st.session_state[setup.NAME][db_name]['errors'] = (
-                    st.session_state[setup.NAME][db_name]['errors'] + [
-                        'No table record found.'
-                    ]
+        # Log success
+        st.session_state[setup.NAME][db_name]['successes'] = (
+            st.session_state[setup.NAME][db_name]['successes'] + [
+                """
+                    Workflow-run {%s} successfully created.
+                """ % (
+                    details['id']
                 )
+            ]
+        )

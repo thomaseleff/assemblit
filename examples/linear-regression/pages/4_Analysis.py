@@ -1,7 +1,7 @@
 """
 Information
 ---------------------------------------------------------------------
-Name        : 999_Settings.py
+Name        : 4_Run analysis.py
 Location    : ~/pages
 Author      : Tom Eleff
 Published   : 2024-02-21
@@ -9,13 +9,13 @@ Revised on  : .
 
 Description
 ---------------------------------------------------------------------
-Account-settings-page of the getstreamy web-application.
+Run-analysis-page of the 'linny' web-application.
 """
 
-import assemblit.pages.account_settings as account_settings
+from assemblit.pages import run_analysis
 
-# Initialize the account-settings-page content
-Settings = account_settings.Content()
+# Initialize the run-analysis-page content
+Analysis = run_analysis.Content()
 
 # Serve content
-Settings.serve()
+Analysis.serve()

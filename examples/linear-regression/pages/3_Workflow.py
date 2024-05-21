@@ -9,10 +9,10 @@ Revised on  : .
 
 Description
 ---------------------------------------------------------------------
-Workflow-settings-page of the getstreamy web-application.
+Workflow-settings-page of the 'linny' web-application.
 """
 
-import assemblit.pages.workflow_settings as workflow_settings
+from assemblit.pages import workflow_settings
 
 # Initialize the workflow-settings-page content
 Workflow = workflow_settings.Content(

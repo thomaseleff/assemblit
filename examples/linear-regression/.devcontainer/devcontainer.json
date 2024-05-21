@@ -1,0 +1,19 @@
+{
+	"name": "linny",
+    "build": {
+        "context": ".../..",
+        "dockerfile": "Dockerfile"
+    },
+	"customizations": {
+		"vscode": {
+			"settings": {
+                "terminal.integrated.shell.linux": "/bin/bash"
+            },
+			"extensions": [
+                "ms-python.python",
+                "ms-python.vscode-flake8"
+			]
+		}
+	},
+    "postCreateCommand": "cp -r /workspaces/Assemblit/examples/linear-regression/contract/ /linny/contract && pip3 install /workspaces/Assemblit && pip3 install -r /workspaces/Assemblit/examples/linear-regression/requirements.txt"
+}

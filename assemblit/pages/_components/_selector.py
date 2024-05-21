@@ -15,7 +15,7 @@ Contains the generic methods for a session-selector.
 import hashlib
 import streamlit as st
 from assemblit import setup, db
-from assemblit._components import _core, _key_value
+from assemblit.pages._components import _core, _key_value
 from pytensils import utils
 
 

@@ -5,7 +5,6 @@ A linear regression analysis with a linear regression assumption evaluator, orch
 ``` bash
 prefect config set PREFECT_LOGGING_LEVEL="DEBUG"
 prefect config set PREFECT_API_URL="http://127.0.0.1:4200/api"
-prefect config set PREFECT_HOME='~/.prefect'  # Specifies the local Prefect directory for configuration files, profiles, and the location of the default Prefect SQLite database
 prefect server start
 prefect deployment run 'linear-regression-flow/linear-regression-deployment' --params '{"user": "Marvin", "answer": 42}'
 ```

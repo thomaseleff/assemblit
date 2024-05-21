@@ -14,7 +14,7 @@ Contains the `Class` for the home-page.
 
 import streamlit as st
 from assemblit import setup, vault, web
-from assemblit._components import _core
+from assemblit.pages._components import _core
 
 
 class Content():

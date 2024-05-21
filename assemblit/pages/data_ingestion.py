@@ -16,7 +16,7 @@ import copy
 import streamlit as st
 import pandas as pd
 from assemblit import setup, db
-from assemblit._components import _core, _data_uploader, _data_review
+from assemblit.pages._components import _core, _data_uploader, _data_review
 
 
 class Content():

@@ -9,10 +9,10 @@ Revised on  : .
 
 Description
 ---------------------------------------------------------------------
-Studies-page of the getstreamy web-application.
+Studies-page of the 'linny' web-application.
 """
 
-import assemblit.pages.sessions_selector as sessions_selector
+from assemblit.pages import sessions_selector
 
 # Initialize the session-selector page content
 Sessions = sessions_selector.Content(

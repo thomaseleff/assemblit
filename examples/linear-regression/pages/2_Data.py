@@ -9,7 +9,7 @@ Revised on  : .
 
 Description
 ---------------------------------------------------------------------
-Data-ingestion-page of the getstreamy web-application.
+Data-ingestion-page of the 'linny' web-application.
 """
 
 import os

@@ -15,7 +15,7 @@ Contains the `Class` for the run-analysis-page.
 import copy
 import streamlit as st
 from assemblit import setup, db
-from assemblit._components import _core, _run_analysis
+from assemblit.pages._components import _core, _run_analysis
 
 
 class Content():
@@ -119,6 +119,23 @@ class Content():
 
             # Manage the active session
             if st.session_state[setup.NAME][setup.SESSIONS_DB_NAME][setup.SESSIONS_DB_QUERY_INDEX]:
+
+                # Parse the form response
+                response = _run_analysis.parse_form_response(
+                    db_name=self.db_name,
+                    table_name=self.table_name
+                )
+
+                # Update the workflow-settings database
+                if response:
+                    _run_analysis.run_workflow(
+                        db_name=self.db_name,
+                        table_name=self.table_name,
+                        query_index=self.query_index,
+                        # scope_db_name=self.scope_db_name,
+                        # scope_query_index=self.scope_query_index,
+                        response=response
+                    )
 
                 # Initialize the scope-database table
                 _ = db.initialize_table(

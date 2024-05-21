@@ -19,9 +19,14 @@ from typing import Union, List
 import urllib.parse as up
 from pytensils import utils
 
+# Assign private variable(s) for development
+_ROOT_DIR = r'T:\Documents\Projects\Assemblit\examples\linear-regression\.env'
+
 # Load environment
 if 'ENV' not in os.environ:
-    dotenv.load_dotenv()
+    dotenv.load_dotenv(
+        dotenv_path=_ROOT_DIR
+    )
 
 # Developer configuration settings
 ENV: str = os.environ['ENV']

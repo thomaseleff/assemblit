@@ -1,0 +1,1 @@
+orchestrator start -N "linny" -T "prefect" -P "4200" -D "/linny/db" -W "/workspaces/Assemblit/examples/linear-regression/flow.py"

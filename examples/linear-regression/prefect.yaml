@@ -1,0 +1,18 @@
+name: linear-regression
+prefect-version: 2.16.9
+deployments:
+- name: main-deployment
+  entrypoint: flow.py:linear_regression_flow
+  parameters: {}
+  work_pool:
+    name: main-worker-pool
+    work_queue_name: main-worker-queue
+    job_variables: {}
+  version: 'main'
+  tags: ['main']
+  description: "A linear regression analysis with a linear regression assumption evaluator,
+    orchestrated by `prefect`."
+  schedules: []
+  pull:
+  - prefect.deployments.steps.set_working_directory:
+      directory: T:\Documents\Projects\Assemblit\examples\linear-regression

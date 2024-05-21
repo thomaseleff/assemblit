@@ -4,7 +4,7 @@ Information
 Name        : flow.py
 Location    : ~/examples/linear-regression
 Author      : Tom Eleff
-Published   : 2024-03-26
+Published   : 2024-04-05
 Revised on  : .
 
 Description
@@ -13,10 +13,10 @@ The main linear-regression `prefect` workflow executable.
 """
 
 import os
+import time
 from prefect import flow, task, task_runners
 from prefect.artifacts import create_markdown_artifact
 from pytensils import config, logging
-import time
 
 
 @task(
@@ -148,6 +148,7 @@ def end_logging(Logging: logging.Handler):
     Logging : `logging.Handler`
         The user-logging object.
     """
+
     Logging.close()
 
     # Persist logging artifact
@@ -163,9 +164,8 @@ def end_logging(Logging: logging.Handler):
     log_prints=True
 )
 def linear_regression_flow(
-    path: str = os.path.dirname(__file__),
-    analysis_db_name: str = 'analysis',
-    run_id: str = 'some-md5-key'
+    input_path: str = os.path.join(os.path.dirname(__file__), 'analysis', 'develop', 'inputs'),
+    output_path: str = os.path.join(os.path.dirname(__file__), 'analysis', 'develop', 'outputs')
 ):
     """ A linear regression analysis with a linear regression assumption evaluator, orchestrated by `prefect`.
     """
@@ -173,8 +173,8 @@ def linear_regression_flow(
     # Setup the flow-configuration
     Flow = setup_flow_run(
         parameters={
-            'input_path': os.path.join(path, analysis_db_name, run_id, 'inputs'),
-            'output_path': os.path.join(path, analysis_db_name, run_id, 'outputs')
+            'input_path': input_path,
+            'output_path': output_path
         }
     )
 
@@ -185,19 +185,19 @@ def linear_regression_flow(
         timezone='America/Chicago'
     )
 
-    # User's custom flow
-    @flow(
-        task_runner=task_runners.SequentialTaskRunner,
-        log_prints=True
-    )
-    @Logging.close_on_exception
-    def fails_on_exception():
-        """ A flow that fails due to a divide by zero error.
-        """
-        return 1 / 0
+    # # User's custom flow
+    # @flow(
+    #     task_runner=task_runners.SequentialTaskRunner,
+    #     log_prints=True
+    # )
+    # @Logging.close_on_exception
+    # def fails_on_exception():
+    #     """ A flow that fails due to a divide by zero error.
+    #     """
+    #     return 1 / 0
 
-    # Execute user's custom flow
-    _ = fails_on_exception()
+    # # Execute user's custom flow
+    # _ = fails_on_exception()
 
     # Validate the workflow-parameters with unhandled-exception reporting
     _ = validate_configuration(Flow=Flow, Logging=Logging)
@@ -208,8 +208,10 @@ def linear_regression_flow(
 
 if __name__ == "__main__":
     linear_regression_flow.serve(
-        name='fails-on-exception',
-        tags=['Demo'],
-        version='v0.1.0'
+        name='production',
+        description="A linear regression analysis with a linear regression assumption evaluator, orchestrated by `prefect`.",
+        tags=['v0.1.0'],
+        version='v0.1.0',
+        enforce_parameter_schema=True,
+        print_starting_message=True
     )
-    # linear_regression_flow()
