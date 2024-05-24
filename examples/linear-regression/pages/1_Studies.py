@@ -12,10 +12,10 @@ Description
 Studies-page of the 'linny' web-application.
 """
 
-from assemblit.pages import sessions_selector
+from assemblit.pages import session_selector
 
 # Initialize the session-selector page content
-Sessions = sessions_selector.Content(
+Sessions = session_selector.Content(
     header='Studies',
     tagline='Select a study for the session.',
     selector={

@@ -1,7 +1,7 @@
 """
 Information
 ---------------------------------------------------------------------
-Name        : sessions_selector.py
+Name        : session_selector.py
 Location    : ~/pages
 Author      : Tom Eleff
 Published   : 2024-03-16

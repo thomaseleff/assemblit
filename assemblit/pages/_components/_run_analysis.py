@@ -273,7 +273,7 @@ def parse_form_response(
     db_name: str,
     table_name: str,
 ) -> dict:
-    """ Parses the form responses and returns the values that changed as
+    """ Parses the form response and returns the values that changed as
     a dictionary to be handled outside the callback.
 
     Parameters
@@ -284,8 +284,8 @@ def parse_form_response(
         Name of the table within `db_name` to store the setting(s) parameters & values.
     """
 
-    # Initialize responses
-    responses = {}
+    # Initialize response
+    response = {}
 
     if (
         (st.session_state[setup.NAME][db_name][table_name]['form-submission'])
@@ -302,10 +302,13 @@ def parse_form_response(
         for field in st.session_state[setup.NAME][db_name][table_name]['settings']:
             if field['parameter'] in st.session_state:
                 if field['value'] != st.session_state[field['parameter']]:
-                    responses[field['parameter']] = st.session_state[field['parameter']]
+                    response[field['parameter']] = st.session_state[field['parameter']]
 
                 # Reset session state variables
                 del st.session_state[field['parameter']]
+
+            else:
+                response[field['parameter']] = field['value']
 
         # Reset session state variables
         st.session_state[setup.NAME][db_name][table_name]['form-submission'] = False
@@ -322,7 +325,8 @@ def parse_form_response(
         # Pass to clear the form values
         pass
 
-    return responses
+    print(response)
+    return response
 
 
 # Define function(s) for managing key-value pair setting(s) parameters
@@ -606,7 +610,7 @@ def run_workflow(
     query_index : 'str'
         Name of the index within `db_name` & `table_name`. May only be one column.
     response : `dict`
-        Dictionary object containing the form responses.
+        Dictionary object containing the form response.
     """
 
     # Apply form response to the database & run

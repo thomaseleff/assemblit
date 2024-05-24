@@ -597,7 +597,7 @@ def promote_data_to_database(
     ).hexdigest()
 
     # Check if the file name already exists
-    if Data.table_exists(table_name=id) == 0:
+    if not Data.table_exists(table_name=id):
 
         # Update the scope database
         Scope.insert(
@@ -614,9 +614,7 @@ def promote_data_to_database(
         Data.insert(
             table_name=table_name,
             values={
-                query_index: (
-                    id
-                ),
+                query_index: id,
                 'uploaded_by': st.session_state[setup.NAME][setup.USERS_DB_NAME]['name'],
                 'created_on': dt.datetime.now(),
                 'final': False,

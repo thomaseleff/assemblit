@@ -34,7 +34,7 @@ class Content():
         ),
         headerless: bool = False,
         clear_on_submit: bool = False,
-        table_name: str = 'workflow',
+        # table_name: str = 'workflow',
         settings: list = [
             {
                 "sort": 0,
@@ -186,7 +186,7 @@ class Content():
 
         # Assign database class variables
         self.db_name = setup.SESSIONS_DB_NAME
-        self.table_name = table_name
+        self.table_name = 'workflow'
         self.query_index = setup.SESSIONS_DB_QUERY_INDEX
 
         # Assign default session state class variables
