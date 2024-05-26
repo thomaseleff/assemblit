@@ -20,7 +20,7 @@ ENV SERVER_TYPE "prefect"
 ENV SERVER_PORT 4200
 ENV SERVER_WORKFLOW_ENTRYPOINT "T:\Documents\Projects\Assemblit\examples\linear-regression\flow.py"
 ENV SERVER_WORKFLOW_NAME "linear-regression-flow"
-ENV SERVER_DEPLOYMENT_NAME "production"
+ENV SERVER_DEPLOYMENT_NAME "v0_1_0"
 
 # Database configuration settings
 ENV DIR "/$NAME"

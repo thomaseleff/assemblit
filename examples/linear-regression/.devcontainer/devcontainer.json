@@ -4,14 +4,19 @@
         "context": ".../..",
         "dockerfile": "Dockerfile"
     },
+    "mounts": [
+        "source=T:/Documents/Projects/Assemblit/examples/linear-regression/analysis,target=/linny/analysis,type=bind,consistency=cached",
+        "source=T:/Documents/Projects/Assemblit/examples/linear-regression/db,target=/linny/db,type=bind,consistency=cached"
+    ],
 	"customizations": {
 		"vscode": {
 			"settings": {
                 "terminal.integrated.shell.linux": "/bin/bash"
             },
 			"extensions": [
-                "ms-python.python",
-                "ms-python.vscode-flake8"
+				"ms-python.python",
+				"ms-python.vscode-flake8",
+				"yy0931.vscode-sqlite3-editor"
 			]
 		}
 	},

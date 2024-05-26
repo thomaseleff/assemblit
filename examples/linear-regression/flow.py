@@ -108,11 +108,7 @@ def validate_configuration(
     """
 
     # Setup the workflow-configuration
-    Workflow = config.Handler(
-        path=Flow.data['run_request']['dir']['inputs'],
-        Logging=Logging,
-        create=True
-    ).from_dict(dict_object={'workflow': Flow.to_dict()['run_request']['workflow']})
+    Workflow = Flow.data['run_request']['workflow']
 
     time.sleep(20)
 
@@ -130,7 +126,7 @@ def validate_configuration(
     # Logging
     Logging.write_header(header='Workflow validation')
     Logging.write(content="The workflow configuration validation completed successfully.")
-    Logging.write(content=Workflow.data['workflow'])
+    Logging.write(content=Workflow)
 
     return Workflow
 
@@ -203,7 +199,7 @@ def linear_regression_flow(
 
 if __name__ == "__main__":
     linear_regression_flow.serve(
-        name='production',
+        name='v0_1_0',
         description="A linear regression analysis with a linear regression assumption evaluator, orchestrated by `prefect`.",
         tags=['v0.1.0'],
         version='v0.1.0',

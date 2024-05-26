@@ -1,0 +1,14 @@
+{
+    "workflow": {
+        "study_id": "f73c46a8aeff9588f710fd8153825466",
+        "Y": "Sales",
+        "tune_this_time": "True",
+        "saved_hypers_filename": "",
+        "search_seasonality": "False",
+        "fft_terms": "4",
+        "interaction_fft": "",
+        "search_randoms": "False",
+        "list_rand_ints": "",
+        "list_rand_slopes": ""
+    }
+}

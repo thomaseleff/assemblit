@@ -101,6 +101,7 @@ class Prefect():
     def deployment_id_endpoint(self, flow_name: str, deployment_name: str):
         """ Returns the `prefect` server deployment-id REST API endpoint.
         """
+        print('/'.join([self.api_endpoint(), 'deployments', 'name', flow_name, deployment_name]))
         return '/'.join([self.api_endpoint(), 'deployments', 'name', flow_name, deployment_name])
 
     def run_workflow_endpoint(self, deployment_id: str):

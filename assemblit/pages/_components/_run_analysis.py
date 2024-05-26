@@ -15,6 +15,7 @@ Contains the generic methods for a run-analysis-page.
 import os
 import hashlib
 import datetime
+import json
 import pandas as pd
 import streamlit as st
 from assemblit import setup, db
@@ -301,14 +302,12 @@ def parse_form_response(
         # Parse the form values into a dictionary
         for field in st.session_state[setup.NAME][db_name][table_name]['settings']:
             if field['parameter'] in st.session_state:
-                if field['value'] != st.session_state[field['parameter']]:
-                    response[field['parameter']] = st.session_state[field['parameter']]
+
+                # Preserve all response values
+                response[field['parameter']] = st.session_state[field['parameter']]
 
                 # Reset session state variables
                 del st.session_state[field['parameter']]
-
-            else:
-                response[field['parameter']] = field['value']
 
         # Reset session state variables
         st.session_state[setup.NAME][db_name][table_name]['form-submission'] = False
@@ -325,7 +324,6 @@ def parse_form_response(
         # Pass to clear the form values
         pass
 
-    print(response)
     return response
 
 
@@ -597,6 +595,8 @@ def run_workflow(
     db_name: str,
     table_name: str,
     query_index: str,
+    scope_db_name: str,
+    scope_query_index: str,
     response: dict
 ):
     """ Updates the settings database table with the settings parameters & values within the form `response`.
@@ -609,6 +609,10 @@ def run_workflow(
         Name of the table within `db_name` to store the setting(s) parameters & values.
     query_index : 'str'
         Name of the index within `db_name` & `table_name`. May only be one column.
+    scope_db_name : `str`
+        Name of the database that contains the associated scope for the workflow.
+    scope_query_index : `str`
+        Name of the index within `scope_db_name` & `table_name`. May only be one column.
     response : `dict`
         Dictionary object containing the form response.
     """
@@ -616,10 +620,25 @@ def run_workflow(
     # Apply form response to the database & run
     if response:
 
+        # Initialize the connection to the scope database
+        Session = db.Handler(
+            db_name=setup.SESSIONS_DB_NAME
+        )
+
+        # Initialize connection to the data-ingestion database
+        Data = db.Handler(
+            db_name=setup.DATA_DB_NAME
+        )
+
+        # Initialize connection to the analysis database
+        # Analysis = db.Handler(
+        #     db_name=db_name
+        # )
+
         # Generate a run-id
         run_id = hashlib.md5((str(datetime.datetime.now())).encode('utf-8')).hexdigest()
 
-        # Make directories
+        # Make workflow-run directories
         if not os.path.isdir(os.path.join(setup.ROOT_DIR, db_name)):
             os.mkdir(os.path.join(setup.ROOT_DIR, db_name))
 
@@ -635,43 +654,94 @@ def run_workflow(
             if not os.path.isdir(os.path.join(setup.ROOT_DIR, db_name, run_id, 'outputs')):
                 os.mkdir(os.path.join(setup.ROOT_DIR, db_name, run_id, 'outputs'))
 
-        # Initialize the connection to the data-database
-        Data = db.Handler(
-            db_name=setup.DATA_DB_NAME
+        # Get dataset id
+        dataset_id = Data.select_generic_query(
+            query="""
+                SELECT %s FROM (
+                    SELECT file_name, %s, dbms
+                        FROM %s
+                            WHERE %s IN (%s)
+                )
+                    WHERE file_name = '%s';
+            """ % (
+                'dataset_id',
+                'dataset_id',
+                'datasets',
+                'dataset_id',
+                ', '.join(["'%s'" % (i) for i in Session.select_table_column_value(
+                    table_name='datasets',
+                    col='dataset_id',
+                    filtr={
+                        'col': scope_query_index,
+                        'val': st.session_state[setup.NAME][scope_db_name][scope_query_index]
+                    },
+                    multi=True
+                )]),
+                response['dataset']
+            ),
+            return_dtype='str'
+        )
+
+        # Get dataset dbms
+        dataset_dbms = Data.select_generic_query(
+            query="""
+                SELECT %s FROM (
+                    SELECT file_name, %s, dbms
+                        FROM %s
+                            WHERE %s IN (%s)
+                )
+                    WHERE file_name = '%s';
+            """ % (
+                'dbms',
+                'dataset_id',
+                'datasets',
+                'dataset_id',
+                ', '.join(["'%s'" % (i) for i in Session.select_table_column_value(
+                    table_name='datasets',
+                    col='dataset_id',
+                    filtr={
+                        'col': scope_query_index,
+                        'val': st.session_state[setup.NAME][scope_db_name][scope_query_index]
+                    },
+                    multi=True
+                )]),
+                response['dataset']
+            ),
+            return_dtype='str'
         )
 
         # Unload the data
         df = pd.read_sql(
-            sql="SELECT * FROM '%s'" % (st.session_state[setup.NAME][setup.DATA_DB_NAME][setup.DATA_DB_QUERY_INDEX]),
+            sql="SELECT * FROM '%s'" % (dataset_id),
             con=Data.connection
         )
-        df.to_csv(
-            os.path.join(
-                setup.ROOT_DIR,
-                db_name,
-                run_id,
-                'inputs',
-                setup.DATA_DB_NAME,
-                st.session_state[setup.NAME][setup.DATA_DB_NAME]['name']
-            ),
-            sep=',',
-            index=False
-        )
 
-        # Initialize the connection to the workflow-settings-database
-        Session = db.Handler(
-            db_name=setup.SESSIONS_DB_NAME
-        )
-
-        # Unload the data
-        parameters = Session.select_multi_table_column_value(
-            table_name='workflow',
-            cols=Session.select_table_column_names_as_list(table_name='workflow'),
-            filtr={
-                'col': setup.SESSIONS_DB_QUERY_INDEX,
-                'val': st.session_state[setup.NAME][setup.SESSIONS_DB_NAME][setup.SESSIONS_DB_QUERY_INDEX]
-            }
-        )
+        if dataset_dbms == '.CSV':
+            df.to_csv(
+                os.path.join(
+                    setup.ROOT_DIR,
+                    db_name,
+                    run_id,
+                    'inputs',
+                    setup.DATA_DB_NAME,
+                    response['dataset']
+                ),
+                sep=',',
+                index=False
+            )
+        elif dataset_dbms == '.PARQUET':
+            df.to_csv(
+                os.path.join(
+                    setup.ROOT_DIR,
+                    db_name,
+                    run_id,
+                    'inputs',
+                    setup.DATA_DB_NAME,
+                    response['dataset']
+                ),
+                sep=',',
+                index=False
+            )
 
         # Build the run-request
         run_request = {
@@ -679,10 +749,10 @@ def run_workflow(
                 'run-id': run_id,
                 'start-date': str(datetime.datetime.now()),
                 'version': server_setup.SERVER_DEPLOYMENT_VERSION,
-                'session-name': st.session_state[setup.NAME][setup.SESSIONS_DB_NAME]['name'],
-                'session-id': st.session_state[setup.NAME][setup.SESSIONS_DB_NAME][setup.SESSIONS_DB_QUERY_INDEX],
-                'dataset-name': st.session_state[setup.NAME][setup.DATA_DB_NAME]['name'],
-                'dataset-id': st.session_state[setup.NAME][setup.DATA_DB_NAME][setup.DATA_DB_QUERY_INDEX],
+                'session-name': st.session_state[setup.NAME][scope_db_name]['name'],
+                'session-id': st.session_state[setup.NAME][scope_db_name][scope_query_index],
+                'dataset-name': response['dataset'],
+                'dataset-id': dataset_id,
                 'inputs': os.path.join(setup.ROOT_DIR, db_name, run_id, 'inputs'),
                 'outputs': os.path.join(setup.ROOT_DIR, db_name, run_id, 'outputs'),
             },
@@ -690,8 +760,32 @@ def run_workflow(
                 'inputs': os.path.join(setup.ROOT_DIR, db_name, run_id, 'inputs'),
                 'outputs': os.path.join(setup.ROOT_DIR, db_name, run_id, 'outputs')
             },
-            'workflow': parameters
+            'workflow': Session.select_multi_table_column_value(
+                table_name='workflow',
+                cols=Session.select_table_column_names_as_list(table_name='workflow'),
+                filtr={
+                    'col': scope_query_index,
+                    'val': st.session_state[setup.NAME][scope_db_name][scope_query_index]
+                }
+            )
         }
+
+        # Unload the run-request parameters
+        with open(
+            os.path.join(
+                setup.ROOT_DIR,
+                db_name,
+                run_id,
+                'inputs',
+                'run_request.json'
+            ),
+            mode='w+'
+        ) as file:
+            json.dump(
+                run_request,
+                file,
+                indent=4
+            )
 
         # Run workflow
         details = layer.run_workflow(

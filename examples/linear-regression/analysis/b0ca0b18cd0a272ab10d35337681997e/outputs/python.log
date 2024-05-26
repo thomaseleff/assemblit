@@ -1,0 +1,46 @@
+    Run information
+    ---------------
+    
+    A linear regression analysis with a linear regression assumption evaluator, orchestrated by `prefect`.
+    
+        Start time      : 2024-05-24 13:36:42
+        run-id          : b0ca0b18cd0a272ab10d35337681997e
+        start-date      : 2024-05-24 18:36:33.929220
+        version         : v0.1.0
+        session-name    : 2024
+        session-id      : f73c46a8aeff9588f710fd8153825466
+        dataset-name    : input_csv.csv
+        dataset-id      : 43c29fa4ef7badb4247c02cad3308ee0
+        inputs          : /linny/analysis/b0ca0b18cd0a272ab10d35337681997e/inputs
+        outputs         : /linny/analysis/b0ca0b18cd0a272ab10d35337681997e/outputs
+    
+    --------------------------------------------------------------------------------------------------------------------------------------
+    
+    Workflow validation
+    -------------------
+    
+    The workflow configuration validation completed successfully.
+    
+        study_id                 : f73c46a8aeff9588f710fd8153825466
+        Y                        : Sales
+        tune_this_time           : True
+        saved_hypers_filename    : 
+        search_seasonality       : False
+        fft_terms                : 4
+        interaction_fft          : 
+        search_randoms           : False
+        list_rand_ints           : 
+        list_rand_slopes         : 
+    
+    --------------------------------------------------------------------------------------------------------------------------------------
+    
+    Run time
+    --------
+    
+    Run-time performance summary.
+    
+        Start time    : 13:36:42.313187
+        End time      : 13:37:04.838642
+        Run time      : 00:00:22.525455
+
+    --------------------------------------------------------------------------------------------------------------------------------------

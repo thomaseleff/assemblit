@@ -747,7 +747,7 @@ class Handler():
         """
 
         if type(filtr['val']) is list:
-            query = "SELECT %s FROM %s WHERE %s in (%s) ORDER BY %s %s;" % (
+            query = "SELECT %s FROM %s WHERE %s IN (%s) ORDER BY %s %s;" % (
                 str(col),
                 table_name,
                 str(filtr['col']),
@@ -825,21 +825,28 @@ class Handler():
                     'val' : '1'
                 }
         """
-
-        query = """
-            SELECT %s
-                FROM %s
-                    WHERE %s = '%s';
-        """ % (
-            ', '.join(
-                [
-                    str(i) for i in cols
-                ]
-            ),
-            table_name,
-            filtr['col'],
-            normalize(string=filtr['val'])
-        )
+        if type(filtr['val']) is list:
+            query = """
+                SELECT %s
+                    FROM %s
+                        WHERE %s IN (%s);
+            """ % (
+                ', '.join([str(i) for i in cols]),
+                table_name,
+                str(filtr['col']),
+                ', '.join(["'%s'" % normalize(string=i) for i in filtr['val']])
+            )
+        else:
+            query = """
+                SELECT %s
+                    FROM %s
+                        WHERE %s = '%s';
+            """ % (
+                ', '.join([str(i) for i in cols]),
+                table_name,
+                str(filtr['col']),
+                normalize(string=filtr['val'])
+            )
         values = self.cursor.execute(query).fetchall()[0]
 
         if values:
