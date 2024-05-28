@@ -285,7 +285,7 @@ def run_workflow(
     server_type: str,
     server_port: str,
     root_dir: str,
-    workflow_id: str,
+    run_id: str,
     deployment_id: str,
     deployment_version: str,
     **kwargs: dict
@@ -302,7 +302,7 @@ def run_workflow(
         The registered port address of the orchestration server.
     root_dir : `str`
         Local directory path of the orchestration server.
-    workflow_id : `str`
+    run_id : `str`
         The id of the workflow run.
     deployment_id : `str`
         The id of the deployment.
@@ -323,7 +323,7 @@ def run_workflow(
         )
 
         return Prefect.run_workflow(
-            workflow_id=workflow_id,
+            run_id=run_id,
             deployment_id=deployment_id,
             deployment_version=deployment_version,
             **kwargs

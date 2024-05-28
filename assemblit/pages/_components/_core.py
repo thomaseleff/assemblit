@@ -25,7 +25,7 @@ def initialize_session_state_defaults():
     """
     if setup.NAME not in st.session_state:
         st.session_state[setup.NAME] = {}
-    for index, (key, value) in enumerate(
+    for _, (key, value) in enumerate(
         setup.SESSION_STATE_DEFAULTS.items()
     ):
         if key not in st.session_state[setup.NAME]:

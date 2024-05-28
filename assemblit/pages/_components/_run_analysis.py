@@ -631,9 +631,9 @@ def run_workflow(
         )
 
         # Initialize connection to the analysis database
-        # Analysis = db.Handler(
-        #     db_name=db_name
-        # )
+        Analysis = db.Handler(
+            db_name=db_name
+        )
 
         # Generate a run-id
         run_id = hashlib.md5((str(datetime.datetime.now())).encode('utf-8')).hexdigest()
@@ -788,7 +788,7 @@ def run_workflow(
             )
 
         # Run workflow
-        details = layer.run_workflow(
+        workflow_run = layer.run_workflow(
             server_name=server_setup.SERVER_NAME,
             server_type=server_setup.SERVER_TYPE,
             server_port=server_setup.SERVER_PORT,
@@ -799,62 +799,42 @@ def run_workflow(
             run_request=run_request
         )
 
-        print(response)
-        # # Initialize connection to the database
-        # Db = db.Handler(
-        #     db_name=db_name
-        # )
+        # Update the scope database
+        Session.insert(
+            table_name=table_name,
+            values={
+                scope_query_index: (
+                    st.session_state[setup.NAME][scope_db_name][scope_query_index]
+                ),
+                query_index: run_id
+            }
+        )
 
-        # # Update database settings
-        # for parameter in list(response.keys()):
-
-        #     if Db.table_record_exists(
-        #         table_name=table_name,
-        #         filtr={
-        #             'col': query_index,
-        #             'val': st.session_state[setup.NAME][db_name][query_index]
-        #         }
-        #     ):
-        #         try:
-        #             Db.update(
-        #                 table_name=table_name,
-        #                 values={
-        #                     'col': parameter,
-        #                     'val': str(response[parameter]).strip()
-        #                 },
-        #                 filtr={
-        #                     'col': query_index,
-        #                     'val': st.session_state[setup.NAME][db_name][query_index]
-        #                 }
-        #             )
-
-        #             # Log success
-        #             st.session_state[setup.NAME][db_name]['successes'] = (
-        #                 st.session_state[setup.NAME][db_name]['successes'] + [
-        #                     """
-        #                         {%s} successfully changed to %s.
-        #                     """ % (
-        #                         parameter,
-        #                         response[parameter]
-        #                     )
-        #                 ]
-        #             )
-
-        #         except ValueError as e:
-
-        #             # Log error
-        #             st.session_state[setup.NAME][db_name]['errors'] = (
-        #                 st.session_state[setup.NAME][db_name]['errors'] + [str(e)]
-        #             )
-
-        #     else:
-
-        #         # Log error
-        #         st.session_state[setup.NAME][db_name]['errors'] = (
-        #             st.session_state[setup.NAME][db_name]['errors'] + [
-        #                 'No table record found.'
-        #             ]
-        #         )
+        # Update the analysis database
+        Analysis.insert(
+            table_name=table_name,
+            values={
+                query_index: run_id,
+                'server_type': server_setup.SERVER_TYPE,
+                'server_id': workflow_run['id'],
+                'submitted_by': st.session_state[setup.NAME][setup.USERS_DB_NAME]['name'],
+                'created_on': run_request['run-information']['start-date'],
+                'state': workflow_run['state'],
+                'start_time': run_request['run-information']['start-date'],
+                'end_time': workflow_run['end_time'],
+                'run_time': workflow_run['run_time'],
+                'inputs': run_request['dir']['inputs'],
+                'outputs': run_request['dir']['outputs'],
+                'run_information': response['run_information'],
+                'parameters': workflow_run['parameters'],
+                'tags': workflow_run['tags'],
+                'url': workflow_run['url']
+            },
+            validate={
+                'col': query_index,
+                'val': run_id
+            }
+        )
 
         # Log success
         st.session_state[setup.NAME][db_name]['successes'] = (
@@ -862,7 +842,7 @@ def run_workflow(
                 """
                     Analysis-run {%s} successfully created.
                 """ % (
-                    details['id']
+                    run_id
                 )
             ]
         )

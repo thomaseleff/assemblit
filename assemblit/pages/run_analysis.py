@@ -90,11 +90,21 @@ class Content():
                 """
             }
         ]
+        self.selector = {
+            "sort": 0,
+            "type": "selectbox",
+            "dtype": "str",
+            "parameter": "file_name",
+            "name": "Datafile name",
+            "value": "",
+            "kwargs": None,
+            "description": "Select a datafile to review."
+        }
 
         # Initialize session state defaults
         _core.initialize_session_state_defaults()
 
-        # Assign key-value pair defaults
+        # Assign key-value pair defaults for the analysis
         if self.db_name not in st.session_state[setup.NAME]:
             st.session_state[setup.NAME][self.db_name] = {
                 self.table_name: {
@@ -107,6 +117,21 @@ class Content():
                 st.session_state[setup.NAME][self.db_name][self.table_name] = {
                     'settings': copy.deepcopy(self.settings),
                     'form-submission': False
+                }
+
+        # Assign key-value pair defaults for the selector
+        if self.db_name not in st.session_state[setup.NAME]:
+            st.session_state[setup.NAME][setup.DATA_DB_NAME] = {
+                'datasets': {
+                    'selector': copy.deepcopy(self.selector),
+                    'set-up': False
+                }
+            }
+        else:
+            if 'datasets' not in st.session_state[setup.NAME][self.db_name]:
+                st.session_state[setup.NAME][setup.DATA_DB_NAME]['datasets'] = {
+                    'selector': copy.deepcopy(self.selector),
+                    'set-up': False
                 }
 
         # Initialize session state status defaults
@@ -167,32 +192,23 @@ class Content():
                     cols=(
                         [
                             self.query_index,
-                            'created',
+                            'server_type',
+                            'server_id',
+                            'submitted_by',
+                            'created_on',
+                            'state',
+                            'start_time',
+                            'end_time',
+                            'run_time',
                             'inputs',
                             'outputs',
-                            'run_request',
-                            'state',
-                            'run_information'
+                            'run_information',
+                            'parameters',
+                            'tags',
+                            'url'
                         ]
                     )
                 )
-
-                # Submit run
-                # _run_analysis.submit_run(
-                #     db_name=self.db_name,
-                #     table_name=self.table_name,
-                #     query_index=self.query_index,
-                #     response=_key_value.parse_form_response(
-                #         db_name=self.db_name,
-                #         table_name=self.table_name
-                #     )
-                # )
-
-                # Display the run-analysis context
-                # _run_analysis.display_run_analysis_context(
-                #     header='Context',
-                #     tagline='Parameter information about the session.'
-                # )
 
                 # Display the run-analysis submission form
                 _run_analysis.display_run_analysis_form(

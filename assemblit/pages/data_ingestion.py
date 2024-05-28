@@ -33,16 +33,6 @@ class Content():
                 ])
             )
         ),
-        selector: dict = {
-            "sort": 0,
-            "type": "selectbox",
-            "dtype": "str",
-            "parameter": "file_name",
-            "name": "Datafile name",
-            "value": "",
-            "kwargs": None,
-            "description": "Select a datafile to review."
-        },
         headerless: bool = False,
         data_dictionary: pd.DataFrame = pd.DataFrame(),
         data_example: pd.DataFrame = pd.DataFrame()
@@ -57,9 +47,6 @@ class Content():
             String to display as the web-page tagline.
         content_info : `str`
             String to display as `streamlit.info()` when there is no selected session.
-        selector : `list`
-            Dictionary object containing the setting parameter & value to populate the
-                drop-down selection options.
         data_dictionary : `pd.DataFrame`
             An optional data dictionary that describes the structure and format of the
                 expected datafile.
@@ -85,7 +72,16 @@ class Content():
         self.query_index = setup.DATA_DB_QUERY_INDEX
 
         # Assign default session state class variables
-        self.selector = copy.deepcopy(selector)
+        self.selector = {
+            "sort": 0,
+            "type": "selectbox",
+            "dtype": "str",
+            "parameter": "file_name",
+            "name": "Datafile name",
+            "value": "",
+            "kwargs": None,
+            "description": "Select a datafile to review."
+        }
 
         # Initialize session state defaults
         _core.initialize_session_state_defaults()
@@ -94,14 +90,14 @@ class Content():
         if self.db_name not in st.session_state[setup.NAME]:
             st.session_state[setup.NAME][self.db_name] = {
                 self.table_name: {
-                    'selector': copy.deepcopy(selector),
+                    'selector': copy.deepcopy(self.selector),
                     'set-up': False
                 }
             }
         else:
             if self.table_name not in st.session_state[setup.NAME][self.db_name]:
                 st.session_state[setup.NAME][self.db_name][self.table_name] = {
-                    'selector': copy.deepcopy(selector),
+                    'selector': copy.deepcopy(self.selector),
                     'set-up': False
                 }
 

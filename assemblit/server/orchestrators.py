@@ -193,20 +193,20 @@ class Prefect():
             )
         ).json()['id']
 
-    def run_workflow(self, workflow_id: str, deployment_id: str, deployment_version: str, **kwargs: dict) -> dict:
+    def run_workflow(self, run_id: str, deployment_id: str, deployment_version: str, **kwargs: dict) -> dict:
         """ Creates a `prefect` orchestration server flow-run from a deployment.
 
         Parameters
         ----------
-        workflow_id : `str`
+        run_id : `str`
             The id of the workflow run.
         deployment_id : `str`
             The id of the deployment.
         """
-        return requests.post(
+        workflow_run = requests.post(
             self.run_workflow_endpoint(deployment_id=deployment_id),
             json={
-                'name': workflow_id,
+                'name': run_id,
                 'tags': [self.SERVER_NAME, deployment_version],
                 'parameters': kwargs
             },
@@ -215,6 +215,21 @@ class Prefect():
                 'prefect-csrf-client': self.SERVER_NAME,
             }
         ).json()
+
+        return {
+            'id': workflow_run['id'],
+            'state': workflow_run['state']['name'],
+            'start_time': workflow_run['start_time'],
+            'end_time': workflow_run['end_time'],
+            'run_time': workflow_run['total_run_time'],
+            'parameters': workflow_run['parameters'],
+            'tags': workflow_run['tags'],
+            'url': 'http://%s:%s/flow-runs/flow-run/%s' % (
+                self.SERVER_HOST,
+                self.SERVER_PORT,
+                workflow_run['id']
+            ),
+        }
 
     def poll_workflow(self, run_id: str) -> dict:
         """ Polls the status of a `prefect` orchestration server flow-run.
