@@ -450,7 +450,9 @@ def run_job(
             },
             'workflow': Session.select_multi_table_column_value(
                 table_name='workflow',
-                cols=Session.select_table_column_names_as_list(table_name='workflow'),
+                cols=[col for col in Session.select_table_column_names_as_list(
+                    table_name='workflow'
+                ) if col != scope_query_index],
                 filtr={
                     'col': scope_query_index,
                     'val': st.session_state[setup.NAME][scope_db_name][scope_query_index]
