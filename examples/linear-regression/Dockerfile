@@ -18,8 +18,8 @@ ENV CLIENT_PORT 8501
 # Orchestration server configuration settings
 ENV SERVER_TYPE "prefect"
 ENV SERVER_PORT 4200
-ENV SERVER_WORKFLOW_ENTRYPOINT "T:\Documents\Projects\Assemblit\examples\linear-regression\flow.py"
-ENV SERVER_WORKFLOW_NAME "linear-regression-flow"
+ENV SERVER_JOB_NAME "linear-regression-flow"
+ENV SERVER_JOB_ENTRYPOINT "T:\Documents\Projects\Assemblit\examples\linear-regression\flow.py"
 ENV SERVER_DEPLOYMENT_NAME "v0_1_0"
 
 # Database configuration settings
@@ -68,4 +68,4 @@ EXPOSE $CLIENT_PORT
 EXPOSE $SERVER_PORT
 
 # Run
-CMD streamlit run $HOME_PAGE_NAME.py --server.port=$CLIENT_PORT --server.headless=true && orchestrator start -N "linny" -T "prefect" -P "4200" -D "/linny/db" -W "/workspaces/Assemblit/examples/linear-regression/flow.py"
+CMD streamlit run $HOME_PAGE_NAME.py --server.port=$CLIENT_PORT --server.headless=true && orchestrator start -N "linny" -T "prefect" -P "4200" -D "/linny/db" -E "/workspaces/Assemblit/examples/linear-regression/flow.py"

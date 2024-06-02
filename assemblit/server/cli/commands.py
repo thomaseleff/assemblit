@@ -4,12 +4,12 @@ Information
 Name        : commands.py
 Location    : ~/server/cli
 Author      : Tom Eleff
-Published   : 2024-04-04
+Published   : 2024-06-02
 Revised on  : .
 
 Description
 ---------------------------------------------------------------------
-The commands available via the `orchestrator` CLI application.
+The sub-commands available via the `orchestrator` CLI application.
 """
 
 from assemblit.server import layer
@@ -21,7 +21,7 @@ def start(
     server_type: str,
     server_port: str,
     root_dir: str,
-    workflow_entrypoint: str
+    job_entrypoint: str
 ):
     """ Starts the orchestration server.
 
@@ -35,8 +35,8 @@ def start(
         The registered port address of the orchestration server.
     root_dir : `str`
         Local directory path of the orchestration server.
-    workflow_entrypoint : `str`
-        The `python` program containing the workflow definition and deploy proceedure.
+    job_entrypoint : `str`
+        The `python` program containing the job definition and deploy proceedure.
     """
 
     # Start the orchestration server
@@ -45,5 +45,5 @@ def start(
         server_type=server_type,
         server_port=server_port,
         root_dir=root_dir,
-        workflow_entrypoint=workflow_entrypoint
+        job_entrypoint=job_entrypoint
     )

@@ -2,7 +2,7 @@
 Information
 ---------------------------------------------------------------------
 Name        : _data_upload.py
-Location    : ~/components
+Location    : ~/_components
 Author      : Tom Eleff
 Published   : 2024-03-17
 Revised on  : .

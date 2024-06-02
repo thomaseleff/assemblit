@@ -18,8 +18,8 @@ ENV CLIENT_PORT 8501
 # Orchestration server configuration settings
 ENV SERVER_TYPE "prefect"
 ENV SERVER_PORT 4200
-ENV SERVER_WORKFLOW_ENTRYPOINT "/workspaces/Assemblit/examples/linear-regression/flow.py"
-ENV SERVER_WORKFLOW_NAME "linear-regression-flow"
+ENV SERVER_JOB_NAME "linear-regression-flow"
+ENV SERVER_JOB_ENTRYPOINT "/workspaces/Assemblit/examples/linear-regression/flow.py"
 ENV SERVER_DEPLOYMENT_NAME "v0_1_0"
 
 # Database configuration settings

@@ -4,7 +4,7 @@ Information
 Name        : layer.py
 Location    : ~/server
 Author      : Tom Eleff
-Published   : 2024-05-01
+Published   : 2024-06-02
 Revised on  : .
 
 Description
@@ -13,6 +13,7 @@ The orchestration server abstraction layer for starting, managing
 and interacting with the orchestration server.
 """
 
+import requests
 from typing import List, Tuple
 from pytensils import utils
 from assemblit.server import orchestrators
@@ -23,7 +24,7 @@ _SERVER_TYPES: List[str] = [
 ]
 
 
-# Define argument parsing function(s)
+# Define parsing function(s)
 def parse_server_type(
     server_type: str
 ) -> str:
@@ -102,27 +103,29 @@ def parse_server_port(
     return str(server_port_int).strip().lower()
 
 
-# Define environment function(s)
-def load_environment(
+# Define abstracted orchestration server function(s)
+def load_orchestrator_environment(
     server_name: str,
     server_type: str,
     server_port: str,
     client_port: str,
-    flow_name: str,
-    flow_entrypoint: str,
+    job_name: str,
+    job_entrypoint: str,
     deployment_name: str,
     deployment_version: str,
     root_dir: str
 ) -> Tuple[str, str, str, str]:
-    """ Loads and validates the environment variables and returns the values in the following order,
+    """ Loads and validates the orchestration server environment variables and returns the values in the following order,
            - `SERVER_NAME`
            - `SERVER_TYPE`
            - `SERVER_HOST`
            - `SERVER_PORT`
            - `SERVER_API_URL`
            - `SERVER_API_DOCS`
-           - `SERVER_DEPLOYMENT_ID`
+           - `SERVER_JOB_NAME`
+           - `SERVER_JOB_ENTRYPOINT`
            - `SERVER_DEPLOYMENT_NAME`
+           - `SERVER_DEPLOYMENT_VERSION`
 
     Parameters
     ----------
@@ -134,23 +137,23 @@ def load_environment(
         The registered port address of the orchestration server.
     client_port : `str`
         The registered port address of the `streamlit` client server.
-    flow_name : `str`
-        The name of the flow.
-    flow_entrypoint : `str`
-        The Python entrypoint of the flow.
+    job_name : `str`
+        The name of the job.
+    job_entrypoint : `str`
+        The Python entrypoint of the job.
     deployment_name: `str`
-        The name of the flow-deployment.
+        The name of the job-deployment.
     deployment_version : `str`
-        The version of flow-deployment.
+        The version of job-deployment.
     root_dir : `str`
         Local directory path of the orchestration server.
     """
 
-    # Parse command arguments
+    # Parse
     server_type = parse_server_type(server_type=server_type)
     server_port = parse_server_port(server_port=server_port, client_port=client_port)
 
-    if server_type.strip().lower() == 'prefect':
+    if server_type == 'prefect':
 
         # Initialize the `prefect` orchestration server
         Prefect = orchestrators.Prefect(
@@ -167,7 +170,9 @@ def load_environment(
             server_port,
             Prefect.api_endpoint(),
             Prefect.docs_endpoint(),
-            Prefect.set_deployment_id(flow_name=flow_name, deployment_name=deployment_name),
+            job_name,
+            job_entrypoint,
+            deployment_name,
             deployment_version
         )
 
@@ -182,13 +187,12 @@ def load_environment(
         )
 
 
-# Define abstracted orchestration server function(s)
 def start(
     server_name: str,
     server_type: str,
     server_port: str,
     root_dir: str,
-    workflow_entrypoint: str
+    job_entrypoint: str
 ):
     """ Starts the orchestration server.
 
@@ -202,11 +206,14 @@ def start(
         The registered port address of the orchestration server.
     root_dir : `str`
         Local directory path of the orchestration server.
-    workflow_entrypoint : `str`
-        The `python` program containing the workflow definition and deploy proceedure.
+    job_entrypoint : `str`
+        The `python` program containing the job definition and deploy proceedure.
     """
 
-    if server_type.strip().lower() == 'prefect':
+    # Parse
+    server_type = parse_server_type(server_type=server_type)
+
+    if server_type == 'prefect':
 
         # Initialize the `prefect` orchestration server
         Prefect = orchestrators.Prefect(
@@ -221,8 +228,8 @@ def start(
         # Start the `prefect` server
         Prefect.start()
 
-        # Deploy the `prefect` server workflow
-        Prefect.deploy(workflow_entrypoint=workflow_entrypoint)
+        # Deploy the `prefect` server job
+        Prefect.deploy(job_entrypoint=job_entrypoint)
 
     else:
         raise NotImplementedError(
@@ -240,8 +247,9 @@ def health_check(
     server_type: str,
     server_port: str,
     root_dir: str
-):
-    """ Checks the health of the orchestration server.
+) -> requests.Response | bool:
+    """ Checks the health of the orchestration server and returns `True` when
+    the orchestration server is available.
 
     Parameters
     ----------
@@ -255,10 +263,10 @@ def health_check(
         Local directory path of the orchestration server.
     """
 
-    # Parse command arguments
+    # Parse
     server_type = parse_server_type(server_type=server_type)
 
-    if server_type.strip().lower() == 'prefect':
+    if server_type == 'prefect':
 
         # Initialize the `prefect` orchestration server
         Prefect = orchestrators.Prefect(
@@ -267,8 +275,8 @@ def health_check(
             root_dir=root_dir
         )
 
-        if not Prefect.health_check():
-            raise ServerHealthCheckError('Server health-check failed.')
+        return Prefect.health_check()
+
     else:
         raise NotImplementedError(
             ''.join([
@@ -280,17 +288,18 @@ def health_check(
         )
 
 
-def run_workflow(
+def run_job(
     server_name: str,
     server_type: str,
     server_port: str,
     root_dir: str,
-    run_id: str,
-    deployment_id: str,
+    name: str,
+    job_name: str,
+    deployment_name: str,
     deployment_version: str,
     **kwargs: dict
-):
-    """ Runs the model-workflow.
+) -> dict | None:
+    """ Runs the model-job.
 
     Parameters
     ----------
@@ -302,18 +311,22 @@ def run_workflow(
         The registered port address of the orchestration server.
     root_dir : `str`
         Local directory path of the orchestration server.
-    run_id : `str`
-        The id of the workflow run.
-    deployment_id : `str`
-        The id of the deployment.
+    name : `str`
+        The name of the job-run.
+    job_name : `str`
+        The name of the job.
+    deployment_name : `str`
+        The name of the deployment.
     deployment_version : `str`
         The version of the deployment.
+    **kwargs : `dict`
+        The job-run parameters.
     """
 
-    # Parse command arguments
+    # Parse
     server_type = parse_server_type(server_type=server_type)
 
-    if server_type.strip().lower() == 'prefect':
+    if server_type == 'prefect':
 
         # Initialize the `prefect` orchestration server
         Prefect = orchestrators.Prefect(
@@ -322,9 +335,10 @@ def run_workflow(
             root_dir=root_dir
         )
 
-        return Prefect.run_workflow(
-            run_id=run_id,
-            deployment_id=deployment_id,
+        return Prefect.run_job(
+            name=name,
+            job_name=job_name,
+            deployment_name=deployment_name,
             deployment_version=deployment_version,
             **kwargs
         )
@@ -338,8 +352,3 @@ def run_workflow(
                 )
             ])
         )
-
-
-# Define custom exception(s)
-class ServerHealthCheckError(Exception):
-    pass

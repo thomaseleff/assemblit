@@ -5,7 +5,7 @@ Information
 Name        : setup.py
 Location    : ~/server
 Author      : Tom Eleff
-Published   : 2024-05-07
+Published   : 2024-06-02
 Revised on  : .
 
 Description
@@ -27,15 +27,17 @@ from assemblit.server import layer
     SERVER_PORT,
     SERVER_API_URL,
     SERVER_API_DOCS,
-    SERVER_DEPLOYMENT_ID,
+    SERVER_JOB_NAME,
+    SERVER_JOB_ENTRYPOINT,
+    SERVER_DEPLOYMENT_NAME,
     SERVER_DEPLOYMENT_VERSION
-) = layer.load_environment(
+) = layer.load_orchestrator_environment(
     server_name=os.environ['NAME'],
     server_type=os.environ['SERVER_TYPE'],
     server_port=os.environ['SERVER_PORT'],
     client_port=os.environ['CLIENT_PORT'],
-    flow_name=os.environ['SERVER_WORKFLOW_NAME'],
-    flow_entrypoint=os.environ['SERVER_WORKFLOW_ENTRYPOINT'],
+    job_name=os.environ['SERVER_JOB_NAME'],
+    job_entrypoint=os.environ['SERVER_JOB_ENTRYPOINT'],
     deployment_name=os.environ['SERVER_DEPLOYMENT_NAME'],
     deployment_version=os.environ['VERSION'],
     root_dir=os.path.abspath(

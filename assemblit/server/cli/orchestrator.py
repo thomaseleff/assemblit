@@ -4,14 +4,15 @@ Information
 Name        : orchestrator.py
 Location    : ~/server/cli
 Author      : Tom Eleff
-Published   : 2024-04-03
+Published   : 2024-06-02
 Revised on  : .
 
 Description
 ---------------------------------------------------------------------
 usage: orchestrator [-h] {start} ...
 
-CLI application for starting, mnanaging and interacting with the orchestration server.
+CLI application for starting, mnanaging and interacting with the
+orchestration server.
 
 options:
   -h, --help  Show this help message and exit
@@ -87,9 +88,9 @@ def main():
         required=True
     )
     _START_ARG_PARSER.add_argument(
-        '-W',
-        '--workflow_entrypoint',
-        help="The `python` program containing the workflow definition and deploy proceedure.",
+        '-E',
+        '--job_entrypoint',
+        help="The `python` program containing the job definition and deploy proceedure.",
         type=str,
         required=True
     )

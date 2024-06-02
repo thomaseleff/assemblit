@@ -4,7 +4,7 @@ Information
 Name        : run_analysis.py
 Location    : ~/pages
 Author      : Tom Eleff
-Published   : 2024-03-28
+Published   : 2024-06-02
 Revised on  : .
 
 Description
@@ -39,13 +39,13 @@ class Content():
         Parameters
         ----------
         header : `str`
-            String to display as the web-page header
+            String to display as the web-page header.
         tagline : `str`
-            String to display as the web-page tagline
+            String to display as the web-page tagline.
         content_info : `str`
-            String to display as `streamlit.info()` when there is no active session
+            String to display as `streamlit.info()` when there is no active session.
         headerless : `bool`
-            `True` or `False`, determines whether to display the header & tagline
+            `True` or `False`, determines whether to display the header & tagline.
         """
 
         # Assign content class variables
@@ -54,7 +54,7 @@ class Content():
         self.content_info = content_info
         self.headerless = headerless
 
-        # Assign database class variables to set the scope for data-ingestion
+        # Assign database class variables to set the scope for run-analysis
         self.scope_db_name = setup.SESSIONS_DB_NAME
         self.scope_query_index = setup.SESSIONS_DB_QUERY_INDEX
 
@@ -165,9 +165,9 @@ class Content():
                     table_name=self.table_name
                 )
 
-                # Update the run-analysis-settings database
+                # Run an analysis and update the run-analysis-settings database
                 if response:
-                    _run_analysis.run_workflow(
+                    _run_analysis.run_job(
                         db_name=self.db_name,
                         table_name=self.table_name,
                         query_index=self.query_index,
@@ -192,8 +192,8 @@ class Content():
                     cols=(
                         [
                             self.query_index,
+                            'name',
                             'server_type',
-                            'server_id',
                             'submitted_by',
                             'created_on',
                             'state',
