@@ -1,0 +1,8 @@
+{
+    "linear-regression": {
+        "name": "linear-regression",
+        "version": "v0.1.0",
+        "description": "A linear regression analysis with a linear regression assumption evaluator, orchestrated by `prefect`.",
+        "retries": 0
+    }
+}

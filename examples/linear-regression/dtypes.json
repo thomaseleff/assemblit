@@ -1,0 +1,8 @@
+{
+    "linear-regression": {
+        "name": "str",
+        "version": "str",
+        "description": "str",
+        "retries": "int"
+    }
+}
