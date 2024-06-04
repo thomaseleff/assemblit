@@ -1,21 +1,21 @@
 """
 Information
 ---------------------------------------------------------------------
-Name        : 4_Analysis.py
+Name        : 4_Listing.py
 Location    : ~/pages
 Author      : Tom Eleff
-Published   : 2024-02-21
+Published   : 2024-06-04
 Revised on  : .
 
 Description
 ---------------------------------------------------------------------
-Run-analysis-page of the 'linny' web-application.
+Run-listing-page of the 'linny' web-application.
 """
 
-from assemblit.pages import run_analysis
+from assemblit.pages import run_listing
 
 # Initialize the run-analysis-page content
-Analysis = run_analysis.Content()
+Listing = run_listing.Content()
 
 # Serve content
-Analysis.serve()
+Listing.serve()
