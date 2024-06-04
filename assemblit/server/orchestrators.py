@@ -308,7 +308,7 @@ class Prefect():
     def poll_job_run(
         self,
         run_id: str
-    ) -> requests.Response | None:
+    ) -> dict | None:
         """ Polls the status of a `prefect` orchestration server flow-run.
 
         Parameters
@@ -317,6 +317,12 @@ class Prefect():
             The id of a `prefect` `flow` run.
         """
         try:
-            return requests.get(self.poll_job_run_endpoint(run_id=run_id)).json()
+            flow_run = requests.get(self.poll_job_run_endpoint(run_id=run_id)).json()
+
+            return {
+                'state': flow_run['state']['name'],
+                'end_time': flow_run['end_time'],
+                'run_time': flow_run['total_run_time']
+            }
         except requests.exceptions.ConnectionError:
             return None

@@ -22,7 +22,6 @@ from assemblit import setup, db
 from assemblit.server import layer
 from assemblit.server import setup as server_setup
 from assemblit.pages._components import _selector
-# from pytensils import utils
 
 
 # Define core-component key-value pair function(s)
@@ -511,7 +510,7 @@ def run_job(
                 'submitted_by': st.session_state[setup.NAME][setup.USERS_DB_NAME]['name'],
                 'created_on': run_request['run-information']['start-date'],
                 'state': job_run['state'],
-                'start_time': run_request['run-information']['start-date'],
+                'start_time': job_run['start_time'],
                 'end_time': job_run['end_time'],
                 'run_time': job_run['run_time'],
                 'inputs': run_request['dir']['inputs'],

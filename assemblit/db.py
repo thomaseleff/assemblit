@@ -873,7 +873,7 @@ class Handler():
         Parameters
         ----------
         query : `str`
-            SQL-query string. If multiple records are returned, a 'ValueError` is raised.
+            SQL-query string. If multiple records are returned, a `ValueError` is raised.
             If no records are returned, a `NullReturnValue` is raised.
         return_dtype : `str`
             Name of the datatype (`str`, `int`, `float`, `bool`, `list`, `dict`) of
