@@ -290,7 +290,7 @@ class Prefect():
 
             return {
                 'id': flow_run['id'],
-                'state': flow_run['state']['name'],
+                'state': str(flow_run['state']['name']).upper(),
                 'start_time': flow_run['start_time'],
                 'end_time': flow_run['end_time'],
                 'run_time': flow_run['total_run_time'],
@@ -320,7 +320,8 @@ class Prefect():
             flow_run = requests.get(self.poll_job_run_endpoint(run_id=run_id)).json()
 
             return {
-                'state': flow_run['state']['name'],
+                'state': str(flow_run['state']['name']).upper(),
+                'start_time': flow_run['start_time'],
                 'end_time': flow_run['end_time'],
                 'run_time': flow_run['total_run_time']
             }

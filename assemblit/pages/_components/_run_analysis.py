@@ -513,6 +513,7 @@ def run_job(
                 'start_time': job_run['start_time'],
                 'end_time': job_run['end_time'],
                 'run_time': job_run['run_time'],
+                'file_name': response['dataset'],
                 'inputs': run_request['dir']['inputs'],
                 'outputs': run_request['dir']['outputs'],
                 'run_information': response['run_information'],

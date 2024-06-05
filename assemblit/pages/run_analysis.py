@@ -200,6 +200,7 @@ class Content():
                             'start_time',
                             'end_time',
                             'run_time',
+                            'file_name',
                             'inputs',
                             'outputs',
                             'run_information',

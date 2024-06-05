@@ -714,7 +714,8 @@ class Handler():
         filtr: dict,
         return_dtype: str = 'str',
         multi: bool = False,
-        order: str = 'ASC'
+        order: str = 'ASC',
+        contains: bool = True
     ) -> str | int | float | bool | list | dict:
         """ Returns a single column value from a filtered database table as `return_dtype`.
 
@@ -744,9 +745,16 @@ class Handler():
                 If the number of returned records is inconsistent, a `ValueError` is raised.
         order : `order`
             The sorting method (`ASC`, `DESC`) for the returned values.
+        contains : `bool`
+            `True` or `False`, whether to filter where the filter column values are in
+                or not in the filter value(s).
         """
 
-        if type(filtr['val']) is list:
+        # Parse filter value
+        if type(filtr['val']) is not list:
+            filtr['val'] = [filtr['val']]
+
+        if contains:
             query = "SELECT %s FROM %s WHERE %s IN (%s) ORDER BY %s %s;" % (
                 str(col),
                 table_name,
@@ -756,11 +764,11 @@ class Handler():
                 str(order)
             )
         else:
-            query = "SELECT %s FROM %s WHERE %s = '%s' ORDER BY %s %s;" % (
+            query = "SELECT %s FROM %s WHERE %s NOT IN (%s) ORDER BY %s %s;" % (
                 str(col),
                 table_name,
                 str(filtr['col']),
-                normalize(string=filtr['val']),
+                ', '.join(["'%s'" % normalize(string=i) for i in filtr['val']]),
                 str(col),
                 str(order)
             )

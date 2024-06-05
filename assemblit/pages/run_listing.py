@@ -21,7 +21,7 @@ class Content():
 
     def __init__(
         self,
-        header: str = 'Analysis runs',
+        header: str = 'Listing',
         tagline: str = 'Browse submitted analysis runs, review status and navigate to outputs.',
         content_info: str = (
             'Navigate to the **%s** page to load a session.' % (
@@ -114,6 +114,7 @@ class Content():
                             'start_time',
                             'end_time',
                             'run_time',
+                            'file_name',
                             'inputs',
                             'outputs',
                             'run_information',
@@ -125,13 +126,11 @@ class Content():
                 )
 
                 # Refresh the run-listing table
-                # _run_listing.refresh_run_listing_table(
-                #     db_name=self.db_name,
-                #     table_name=self.table_name,
-                #     query_index=self.query_index,
-                #     scope_db_name=self.scope_db_name,
-                #     scope_query_index=self.scope_query_index,
-                # )
+                _run_listing.refresh_run_listing_table(
+                    db_name=self.db_name,
+                    table_name=self.table_name,
+                    query_index=self.query_index,
+                )
 
                 # Display the run-listing table
                 _run_listing.display_run_listing_table(
