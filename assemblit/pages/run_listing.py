@@ -135,10 +135,7 @@ class Content():
                 # Display the run-listing table
                 _run_listing.display_run_listing_table(
                     db_name=self.db_name,
-                    table_name=self.table_name,
-                    query_index=self.query_index,
-                    scope_db_name=self.scope_db_name,
-                    scope_query_index=self.scope_query_index,
+                    table_name=self.table_name
                 )
 
                 # Display page status

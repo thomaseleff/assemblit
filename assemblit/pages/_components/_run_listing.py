@@ -27,10 +27,7 @@ from assemblit.pages._components import _selector
 # Define core-component run-listing function(s)
 def display_run_listing_table(
     db_name: str,
-    table_name: str,
-    query_index: str,
-    scope_db_name: str,
-    scope_query_index: str
+    table_name: str
 ):
     ''' Displays the run-listing table.
 
@@ -40,12 +37,6 @@ def display_run_listing_table(
         Name of the database to store the setting(s) parameters & values
     table_name : 'str'
         Name of the table within `db_name` to store the setting(s) parameters & values.
-    query_index : 'str'
-        Name of the index within `db_name` & `table_name`. May only be one column.
-    scope_db_name : `str`
-        Name of the database that contains the associated scope for the job.
-    scope_query_index : `str`
-        Name of the index within `scope_db_name` & `table_name`. May only be one column.
     '''
 
     # Initialize connection to the analysis database
@@ -309,41 +300,45 @@ def refresh_run_listing_table(
         )
 
         # Get all run-ids with non-terminal states
-        run_ids = Analysis.select_table_column_value(
-            table_name=table_name,
-            col=query_index,
-            filtr={
-                'col': 'state',
-                'val': ['CANCELLED', 'COMPLETED', 'FAILED', 'CRASHED']
-            },
-            return_dtype='str',
-            multi=True,
-            order='DESC',
-            contains=False
-        )
+        try:
+            run_ids = Analysis.select_table_column_value(
+                table_name=table_name,
+                col=query_index,
+                filtr={
+                    'col': 'state',
+                    'val': ['CANCELLED', 'COMPLETED', 'FAILED', 'CRASHED']
+                },
+                return_dtype='str',
+                multi=True,
+                order='DESC',
+                contains=False
+            )
+        except db.NullReturnValue:
+            run_ids = []
 
         # Poll the status of each run-id
-        for run_id in run_ids:
-            status = layer.poll_job_run(
-                server_name=server_setup.SERVER_NAME,
-                server_type=server_setup.SERVER_TYPE,
-                server_port=server_setup.SERVER_PORT,
-                root_dir=setup.DB_DIR,
-                run_id=run_id
-            )
+        if run_ids:
+            for run_id in run_ids:
+                status = layer.poll_job_run(
+                    server_name=server_setup.SERVER_NAME,
+                    server_type=server_setup.SERVER_TYPE,
+                    server_port=server_setup.SERVER_PORT,
+                    root_dir=setup.DB_DIR,
+                    run_id=run_id
+                )
 
-            # Update
-            if status:
-                for key, value in status.items():
+                # Update
+                if status:
+                    for key, value in status.items():
 
-                    Analysis.update(
-                        table_name=table_name,
-                        values={
-                            'col': key,
-                            'val': value,
-                        },
-                        filtr={
-                            'col': query_index,
-                            'val': run_id
-                        }
-                    )
+                        Analysis.update(
+                            table_name=table_name,
+                            values={
+                                'col': key,
+                                'val': value,
+                            },
+                            filtr={
+                                'col': query_index,
+                                'val': run_id
+                            }
+                        )
