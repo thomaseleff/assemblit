@@ -14,7 +14,7 @@ Contains the generic methods for a run-listing-page.
 
 # import os
 # import hashlib
-# import datetime
+import datetime
 # import json
 import pandas as pd
 import streamlit as st
@@ -27,7 +27,10 @@ from assemblit.pages._components import _selector
 # Define core-component run-listing function(s)
 def display_run_listing_table(
     db_name: str,
-    table_name: str
+    table_name: str,
+    query_index: str,
+    scope_db_name: str,
+    scope_query_index: str,
 ):
     ''' Displays the run-listing table.
 
@@ -37,7 +40,18 @@ def display_run_listing_table(
         Name of the database to store the setting(s) parameters & values
     table_name : 'str'
         Name of the table within `db_name` to store the setting(s) parameters & values.
+    query_index : 'str'
+        Name of the index within `db_name` & `table_name`. May only be one column.
+    scope_db_name : `str`
+        Name of the database that contains the associated scope for the job.
+    scope_query_index : `str`
+        Name of the index within `scope_db_name` & `table_name`. May only be one column.
     '''
+
+    # Initialize the connection to the scope database
+    Session = db.Handler(
+        db_name=scope_db_name
+    )
 
     # Initialize connection to the analysis database
     Analysis = db.Handler(
@@ -54,11 +68,24 @@ def display_run_listing_table(
 
     # Get analysis-runs
     df = pd.read_sql(
-        sql="SELECT * FROM '%s'" % (table_name),
+        sql="SELECT * FROM %s WHERE %s IN (%s)" % (
+            table_name,
+            query_index,
+            ', '.join(["'%s'" % (i) for i in Session.select_table_column_value(
+                table_name='datasets',
+                col=query_index,
+                filtr={
+                    'col': scope_query_index,
+                    'val': st.session_state[setup.NAME][scope_db_name][scope_query_index]
+                },
+                multi=True
+            )])
+        ),
         con=Analysis.connection
     )
     df = df[[
         'created_on',
+        'file_name',
         'name',
         'submitted_by',
         'state',
@@ -70,34 +97,8 @@ def display_run_listing_table(
     ]].merge(
         right=pd.DataFrame(
             {
-                'state': [
-                    'SCHEDULED',
-                    'LATE',
-                    'AWAITINGRETRY',
-                    'PENDING',
-                    'RUNNING',
-                    'RETRYING',
-                    'PAUSED',
-                    'CANCELLING',
-                    'CANCELLED',
-                    'COMPLETED',
-                    'FAILED',
-                    'CRASHED'
-                ],
-                'status': [
-                    '🆕 Scheduled',
-                    '⚠️ Late',
-                    '⚠️ Awaiting retry',
-                    '🔜 Pending',
-                    '⏳ Running',
-                    '⚠️ Retrying',
-                    '⏸️ Paused',
-                    '⚪ Cancelling',
-                    '⚪ Cancelled',
-                    '✅ Succeeded',
-                    '⛔ Failed',
-                    '⚠️ Crashed'
-                ]
+                'state': layer.all_job_states(server_type=server_setup.SERVER_TYPE),
+                'status': layer.all_job_statuses(server_type=server_setup.SERVER_TYPE)
             }
         ),
         how='left',
@@ -105,26 +106,56 @@ def display_run_listing_table(
         right_on=['state'],
         validate='m:1'
     )
-    # --TODO Add session-scope details
-    # --TODO Get status from orchestrator library
+    df['created_on'] = pd.to_datetime(df['created_on'])
 
     # Layout form columns
-    _, col2, col3, col4, _, col6, _ = st.columns([.075, .175, .175, .175, .175, .175, .05])
+    _, col2, col3, col4, col5, col6, _ = st.columns([.075, .175, .175, .175, .175, .175, .05])
 
-    created_on_filter = col2.multiselect(
+    # Filter date-range
+    created_on_filter = col2.date_input(
+        key='DateInput:%s' % _selector.generate_selector_key(
+            db_name=db_name,
+            table_name=table_name,
+            parameter='File name'
+        ),
+        label='Date range',
+        value=(
+            max(
+                datetime.datetime.now() - datetime.timedelta(30),
+                min(list(df['created_on']))
+            ),
+            datetime.datetime.now()
+        ),
+        min_value=min(list(df['created_on'])),
+        max_value=max(list(df['created_on'])),
+        format='MM/DD/YYYY'
+    )
+
+    if len(created_on_filter) == 2:
+        df = df[
+            (df['created_on'] >= pd.Timestamp(created_on_filter[0]))
+            & (
+                df['created_on'] <= datetime.datetime.combine(
+                    pd.Timestamp(created_on_filter[1]),
+                    datetime.time.max
+                )
+            )
+        ]
+
+    file_name_filter = col3.multiselect(
         key='MultiSelect:%s' % _selector.generate_selector_key(
             db_name=db_name,
             table_name=table_name,
-            parameter='Created on'
+            parameter='File name'
         ),
-        label='Created on',
-        options=sorted(list(df['created_on'].unique()), reverse=True),
+        label='File name',
+        options=sorted(list(df['file_name'].unique())),
         max_selections=1,
         placeholder="""
-            Select a date
+            Select a file name
         """
     )
-    name_filter = col3.multiselect(
+    name_filter = col4.multiselect(
         key='MultiSelect:%s' % _selector.generate_selector_key(
             db_name=db_name,
             table_name=table_name,
@@ -137,21 +168,36 @@ def display_run_listing_table(
             Select an analysis
         """
     )
-    submitted_by_filter = col4.multiselect(
-        key='MultiSelect:%s' % _selector.generate_selector_key(
-            db_name=db_name,
-            table_name=table_name,
-            parameter='Submitted by'
-        ),
-        label='Submitted by',
-        options=sorted(list(df['submitted_by'].unique())),
-        default=st.session_state[setup.NAME][setup.USERS_DB_NAME]['name'],
-        placeholder="""
-            Select a submitter
-        """
-    )
+    if st.session_state[setup.NAME][setup.USERS_DB_NAME]['name'] in sorted(list(df['submitted_by'].unique())):
+        submitted_by_filter = col5.multiselect(
+            key='MultiSelect:%s' % _selector.generate_selector_key(
+                db_name=db_name,
+                table_name=table_name,
+                parameter='Submitted by'
+            ),
+            label='Submitted by',
+            options=sorted(list(df['submitted_by'].unique())),
+            default=st.session_state[setup.NAME][setup.USERS_DB_NAME]['name'],
+            placeholder="""
+                Select a submitter
+            """
+        )
+    else:
+        submitted_by_filter = col5.multiselect(
+            key='MultiSelect:%s' % _selector.generate_selector_key(
+                db_name=db_name,
+                table_name=table_name,
+                parameter='Submitted by'
+            ),
+            label='Submitted by',
+            options=sorted(list(df['submitted_by'].unique())),
+            placeholder="""
+                Select a submitter
+            """
+        )
 
     # Display the 'Refresh' button
+    col6.write('')
     col6.button(
         label='Refresh',
         type='primary',
@@ -163,9 +209,8 @@ def display_run_listing_table(
     # Layout columns
     _, col2, _ = st.columns(setup.CONTENT_COLUMNS)
 
-    # Filter
-    if created_on_filter:
-        df = df[df['created_on'].isin(created_on_filter)]
+    if file_name_filter:
+        df = df[df['file_name'].isin(file_name_filter)]
     if name_filter:
         df = df[df['name'].isin(name_filter)]
     if submitted_by_filter:
@@ -179,6 +224,7 @@ def display_run_listing_table(
         st.dataframe(
             data=df[[
                 'created_on',
+                'file_name',
                 'name',
                 'submitted_by',
                 'status',
@@ -194,6 +240,9 @@ def display_run_listing_table(
                 'created_on': st.column_config.DateColumn(
                     label='Created on',
                     format='MMM D, YYYY, h:mm:ss a'
+                ),
+                'file_name': st.column_config.TextColumn(
+                    label='File name'
                 ),
                 'name': st.column_config.TextColumn(
                     label='Analysis'
@@ -306,7 +355,7 @@ def refresh_run_listing_table(
                 col=query_index,
                 filtr={
                     'col': 'state',
-                    'val': ['CANCELLED', 'COMPLETED', 'FAILED', 'CRASHED']
+                    'val': layer.terminal_job_states(server_type=server_setup.SERVER_TYPE)
                 },
                 return_dtype='str',
                 multi=True,

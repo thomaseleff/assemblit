@@ -361,7 +361,7 @@ def poll_job_run(
     root_dir: str,
     run_id: str
 ) -> dict | None:
-    """ Polls the status of an analysis-job run.
+    """ Polls the attributes of an analysis-job run.
 
     Parameters
     ----------
@@ -390,6 +390,90 @@ def poll_job_run(
         )
 
         return Prefect.poll_job_run(run_id=run_id)
+
+    else:
+        raise NotImplementedError(
+            ''.join([
+                'Invalid orchestration server type {%s}.' % server_type,
+                ' Currently, `assemblit` supports the following orchestration server types, [%s].' % (
+                    ', '.join(["'%s'" % (i.strip().lower()) for i in _SERVER_TYPES])
+                )
+            ])
+        )
+
+
+def all_job_states(
+    server_type: str
+) -> List[str]:
+    """ Returns all orchestration job-run states as a `list`.
+
+    Parameters
+    ----------
+    server_type : `str`
+        The type of orchestration server.
+    """
+
+    # Parse
+    server_type = parse_server_type(server_type=server_type)
+
+    if server_type == 'prefect':
+        return [str(state).upper() for state in list(orchestrators.Prefect.STATES.keys())]
+
+    else:
+        raise NotImplementedError(
+            ''.join([
+                'Invalid orchestration server type {%s}.' % server_type,
+                ' Currently, `assemblit` supports the following orchestration server types, [%s].' % (
+                    ', '.join(["'%s'" % (i.strip().lower()) for i in _SERVER_TYPES])
+                )
+            ])
+        )
+
+
+def all_job_statuses(
+    server_type: str
+) -> List[str]:
+    """ Returns all orchestration job-run statuses as a `list`.
+
+    Parameters
+    ----------
+    server_type : `str`
+        The type of orchestration server.
+    """
+
+    # Parse
+    server_type = parse_server_type(server_type=server_type)
+
+    if server_type == 'prefect':
+        return [str(status) for status in list(orchestrators.Prefect.STATES.values())]
+
+    else:
+        raise NotImplementedError(
+            ''.join([
+                'Invalid orchestration server type {%s}.' % server_type,
+                ' Currently, `assemblit` supports the following orchestration server types, [%s].' % (
+                    ', '.join(["'%s'" % (i.strip().lower()) for i in _SERVER_TYPES])
+                )
+            ])
+        )
+
+
+def terminal_job_states(
+    server_type: str
+) -> List[str]:
+    """ Returns the terminal orchestration job-run states as a `list`.
+
+    Parameters
+    ----------
+    server_type : `str`
+        The type of orchestration server.
+    """
+
+    # Parse
+    server_type = parse_server_type(server_type=server_type)
+
+    if server_type == 'prefect':
+        return [str(state) for state in orchestrators.Prefect.TERMINAL_STATES]
 
     else:
         raise NotImplementedError(

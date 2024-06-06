@@ -17,9 +17,28 @@ import sys
 import time
 import subprocess
 import requests
+from typing import List
+from assemblit.server import status
 
 
 class Prefect():
+
+    # Assign static class variables
+    STATES: dict = {
+        'SCHEDULED': status.SCHEDULED,
+        'LATE': status.LATE,
+        'AWAITINGRETRY': status.RETRYING,
+        'PENDING': status.PENDING,
+        'RUNNING': status.RUNNING,
+        'RETRYING': status.RETRYING,
+        'PAUSED': status.PAUSED,
+        'CANCELLING': status.CANCELLED,
+        'CANCELLED': status.CANCELLED,
+        'COMPLETED': status.SUCCEEDED,
+        'FAILED': status.FAILED,
+        'CRASHED': status.CRASHED
+    }
+    TERMINAL_STATES: List[str] = ['CANCELLED', 'COMPLETED', 'FAILED', 'CRASHED']
 
     def __init__(
         self,
