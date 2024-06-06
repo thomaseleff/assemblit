@@ -125,6 +125,7 @@ def display_run_listing_table(
             )
 
         if not df.empty:
+
             # Layout form columns
             _, col2, col3, col4, col5, col6, _ = st.columns([.075, .175, .175, .175, .175, .175, .05])
 
