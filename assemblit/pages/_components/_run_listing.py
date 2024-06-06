@@ -72,7 +72,7 @@ def display_run_listing_table(
             table_name,
             query_index,
             ', '.join(["'%s'" % (i) for i in Session.select_table_column_value(
-                table_name='datasets',
+                table_name=table_name,
                 col=query_index,
                 filtr={
                     'col': scope_query_index,
