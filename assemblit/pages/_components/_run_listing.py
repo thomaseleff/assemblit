@@ -12,16 +12,13 @@ Description
 Contains the generic methods for a run-listing-page.
 '''
 
-# import os
-# import hashlib
 import datetime
-# import json
 import pandas as pd
 import streamlit as st
 from assemblit import setup, db
 from assemblit.server import layer
 from assemblit.server import setup as server_setup
-from assemblit.pages._components import _selector
+from assemblit.pages._components import _core, _selector
 
 
 # Define core-component run-listing function(s)
@@ -66,214 +63,240 @@ def display_run_listing_table(
         root_dir=setup.DB_DIR
     )
 
-    # Get analysis-runs
-    df = pd.read_sql(
-        sql="SELECT * FROM %s WHERE %s IN (%s)" % (
-            table_name,
-            query_index,
-            ', '.join(["'%s'" % (i) for i in Session.select_table_column_value(
-                table_name=table_name,
-                col=query_index,
-                filtr={
-                    'col': scope_query_index,
-                    'val': st.session_state[setup.NAME][scope_db_name][scope_query_index]
-                },
-                multi=True
-            )])
-        ),
-        con=Analysis.connection
-    )
-    df = df[[
-        'created_on',
-        'file_name',
-        'name',
-        'submitted_by',
-        'state',
-        'start_time',
-        'end_time',
-        'run_time',
-        'outputs',
-        'url'
-    ]].merge(
-        right=pd.DataFrame(
-            {
-                'state': layer.all_job_states(server_type=server_setup.SERVER_TYPE),
-                'status': layer.all_job_statuses(server_type=server_setup.SERVER_TYPE)
-            }
-        ),
-        how='left',
-        left_on=['state'],
-        right_on=['state'],
-        validate='m:1'
-    )
-    df['created_on'] = pd.to_datetime(df['created_on'])
+    if server_health:
 
-    # Layout form columns
-    _, col2, col3, col4, col5, col6, _ = st.columns([.075, .175, .175, .175, .175, .175, .05])
-
-    # Filter date-range
-    created_on_filter = col2.date_input(
-        key='DateInput:%s' % _selector.generate_selector_key(
-            db_name=db_name,
-            table_name=table_name,
-            parameter='File name'
-        ),
-        label='Date range',
-        value=(
-            max(
-                datetime.datetime.now() - datetime.timedelta(30),
-                min(list(df['created_on']))
-            ),
-            datetime.datetime.now()
-        ),
-        min_value=min(list(df['created_on'])),
-        max_value=max(list(df['created_on'])),
-        format='MM/DD/YYYY'
-    )
-
-    if len(created_on_filter) == 2:
-        df = df[
-            (df['created_on'] >= pd.Timestamp(created_on_filter[0]))
-            & (
-                df['created_on'] <= datetime.datetime.combine(
-                    pd.Timestamp(created_on_filter[1]),
-                    datetime.time.max
-                )
+        # Get analysis-runs
+        try:
+            df = pd.read_sql(
+                sql="SELECT * FROM %s WHERE %s IN (%s)" % (
+                    table_name,
+                    query_index,
+                    ', '.join(["'%s'" % (i) for i in Session.select_table_column_value(
+                        table_name=table_name,
+                        col=query_index,
+                        filtr={
+                            'col': scope_query_index,
+                            'val': st.session_state[setup.NAME][scope_db_name][scope_query_index]
+                        },
+                        multi=True
+                    )])
+                ),
+                con=Analysis.connection
             )
-        ]
-
-    file_name_filter = col3.multiselect(
-        key='MultiSelect:%s' % _selector.generate_selector_key(
-            db_name=db_name,
-            table_name=table_name,
-            parameter='File name'
-        ),
-        label='File name',
-        options=sorted(list(df['file_name'].unique())),
-        max_selections=1,
-        placeholder="""
-            Select a file name
-        """
-    )
-    name_filter = col4.multiselect(
-        key='MultiSelect:%s' % _selector.generate_selector_key(
-            db_name=db_name,
-            table_name=table_name,
-            parameter='Analysis'
-        ),
-        label='Analysis',
-        options=sorted(list(df['name'].unique())),
-        max_selections=1,
-        placeholder="""
-            Select an analysis
-        """
-    )
-    if st.session_state[setup.NAME][setup.USERS_DB_NAME]['name'] in sorted(list(df['submitted_by'].unique())):
-        submitted_by_filter = col5.multiselect(
-            key='MultiSelect:%s' % _selector.generate_selector_key(
-                db_name=db_name,
-                table_name=table_name,
-                parameter='Submitted by'
-            ),
-            label='Submitted by',
-            options=sorted(list(df['submitted_by'].unique())),
-            default=st.session_state[setup.NAME][setup.USERS_DB_NAME]['name'],
-            placeholder="""
-                Select a submitter
-            """
-        )
-    else:
-        submitted_by_filter = col5.multiselect(
-            key='MultiSelect:%s' % _selector.generate_selector_key(
-                db_name=db_name,
-                table_name=table_name,
-                parameter='Submitted by'
-            ),
-            label='Submitted by',
-            options=sorted(list(df['submitted_by'].unique())),
-            placeholder="""
-                Select a submitter
-            """
-        )
-
-    # Display the 'Refresh' button
-    col6.write('')
-    col6.button(
-        label='Refresh',
-        type='primary',
-        on_click=refresh,
-        use_container_width=True,
-        disabled=not server_health
-    )
-
-    # Layout columns
-    _, col2, _ = st.columns(setup.CONTENT_COLUMNS)
-
-    if file_name_filter:
-        df = df[df['file_name'].isin(file_name_filter)]
-    if name_filter:
-        df = df[df['name'].isin(name_filter)]
-    if submitted_by_filter:
-        df = df[df['submitted_by'].isin(submitted_by_filter)]
-
-    # Sort
-    df = df.sort_values(by='created_on', ascending=False)
-
-    # Display the run-listing table
-    with col2:
-        st.dataframe(
-            data=df[[
+            df = df[[
                 'created_on',
                 'file_name',
                 'name',
                 'submitted_by',
-                'status',
+                'state',
                 'start_time',
                 'end_time',
                 'run_time',
+                'outputs',
                 'url'
-            ]],
-            height=475,
-            use_container_width=True,
-            hide_index=True,
-            column_config={
-                'created_on': st.column_config.DateColumn(
-                    label='Created on',
-                    format='MMM D, YYYY, h:mm:ss a'
+            ]].merge(
+                right=pd.DataFrame(
+                    {
+                        'state': layer.all_job_states(server_type=server_setup.SERVER_TYPE),
+                        'status': layer.all_job_statuses(server_type=server_setup.SERVER_TYPE)
+                    }
                 ),
-                'file_name': st.column_config.TextColumn(
-                    label='File name'
+                how='left',
+                left_on=['state'],
+                right_on=['state'],
+                validate='m:1'
+            )
+            df['created_on'] = pd.to_datetime(df['created_on'])
+        except db.NullReturnValue:
+            df = pd.DataFrame(
+                columns=[
+                    'created_on',
+                    'file_name',
+                    'name',
+                    'submitted_by',
+                    'state',
+                    'start_time',
+                    'end_time',
+                    'run_time',
+                    'outputs',
+                    'url',
+                    'status'
+                ]
+            )
+
+        if not df.empty:
+            # Layout form columns
+            _, col2, col3, col4, col5, col6, _ = st.columns([.075, .175, .175, .175, .175, .175, .05])
+
+            # Filter date-range
+            created_on_filter = col2.date_input(
+                key='DateInput:%s' % _selector.generate_selector_key(
+                    db_name=db_name,
+                    table_name=table_name,
+                    parameter='File name'
                 ),
-                'name': st.column_config.TextColumn(
-                    label='Analysis'
+                label='Date range',
+                value=(
+                    max(
+                        datetime.datetime.now() - datetime.timedelta(30),
+                        min(list(df['created_on']))
+                    ),
+                    datetime.datetime.now()
                 ),
-                'submitted_by': st.column_config.TextColumn(
-                    label='Submitted by'
+                min_value=min(list(df['created_on'])),
+                max_value=datetime.datetime.now(),
+                format='MM/DD/YYYY'
+            )
+
+            if len(created_on_filter) == 2:
+                df = df[
+                    (df['created_on'] >= pd.Timestamp(created_on_filter[0]))
+                    & (
+                        df['created_on'] <= datetime.datetime.combine(
+                            pd.Timestamp(created_on_filter[1]),
+                            datetime.time.max
+                        )
+                    )
+                ]
+
+            file_name_filter = col3.multiselect(
+                key='MultiSelect:%s' % _selector.generate_selector_key(
+                    db_name=db_name,
+                    table_name=table_name,
+                    parameter='File name'
                 ),
-                'status': st.column_config.TextColumn(
-                    label='Status'
+                label='File name',
+                options=sorted(list(df['file_name'].unique())),
+                max_selections=1,
+                placeholder="""
+                    Select a file name
+                """
+            )
+            name_filter = col4.multiselect(
+                key='MultiSelect:%s' % _selector.generate_selector_key(
+                    db_name=db_name,
+                    table_name=table_name,
+                    parameter='Analysis'
                 ),
-                'start_time': st.column_config.TimeColumn(
-                    label='Run start',
-                    format='h:mm:ss a'
-                ),
-                'end_time': st.column_config.TimeColumn(
-                    label='Run end',
-                    format='h:mm:ss a'
-                ),
-                'run_time': st.column_config.TimeColumn(
-                    label='Run time',
-                    format='H [hr.] m [min.] s [sec.]'
-                ),
-                'url': st.column_config.LinkColumn(
-                    label='Direct link',
-                    display_text='Link'
+                label='Analysis',
+                options=sorted(list(df['name'].unique())),
+                max_selections=1,
+                placeholder="""
+                    Select an analysis
+                """
+            )
+            if st.session_state[setup.NAME][setup.USERS_DB_NAME]['name'] in sorted(list(df['submitted_by'].unique())):
+                submitted_by_filter = col5.multiselect(
+                    key='MultiSelect:%s' % _selector.generate_selector_key(
+                        db_name=db_name,
+                        table_name=table_name,
+                        parameter='Submitted by'
+                    ),
+                    label='Submitted by',
+                    options=sorted(list(df['submitted_by'].unique())),
+                    default=st.session_state[setup.NAME][setup.USERS_DB_NAME]['name'],
+                    placeholder="""
+                        Select a submitter
+                    """
                 )
-            }
-        )
+            else:
+                submitted_by_filter = col5.multiselect(
+                    key='MultiSelect:%s' % _selector.generate_selector_key(
+                        db_name=db_name,
+                        table_name=table_name,
+                        parameter='Submitted by'
+                    ),
+                    label='Submitted by',
+                    options=sorted(list(df['submitted_by'].unique())),
+                    placeholder="""
+                        Select a submitter
+                    """
+                )
+
+            # Display the 'Refresh' button
+            col6.write('')
+            col6.button(
+                label='Refresh',
+                type='primary',
+                on_click=refresh,
+                use_container_width=True,
+                disabled=(not server_health or df.empty)
+            )
+
+            # Layout columns
+            _, col2, _ = st.columns(setup.CONTENT_COLUMNS)
+
+            if file_name_filter:
+                df = df[df['file_name'].isin(file_name_filter)]
+            if name_filter:
+                df = df[df['name'].isin(name_filter)]
+            if submitted_by_filter:
+                df = df[df['submitted_by'].isin(submitted_by_filter)]
+
+            # Sort
+            df = df.sort_values(by='created_on', ascending=False)
+
+            # Display the run-listing table
+            with col2:
+                st.dataframe(
+                    data=df[[
+                        'created_on',
+                        'file_name',
+                        'name',
+                        'submitted_by',
+                        'status',
+                        'start_time',
+                        'end_time',
+                        'run_time',
+                        'url'
+                    ]],
+                    height=475,
+                    use_container_width=True,
+                    hide_index=True,
+                    column_config={
+                        'created_on': st.column_config.DateColumn(
+                            label='Created on',
+                            format='MMM D, YYYY, h:mm:ss a'
+                        ),
+                        'file_name': st.column_config.TextColumn(
+                            label='File name'
+                        ),
+                        'name': st.column_config.TextColumn(
+                            label='Analysis'
+                        ),
+                        'submitted_by': st.column_config.TextColumn(
+                            label='Submitted by'
+                        ),
+                        'status': st.column_config.TextColumn(
+                            label='Status'
+                        ),
+                        'start_time': st.column_config.TimeColumn(
+                            label='Run start',
+                            format='h:mm:ss a'
+                        ),
+                        'end_time': st.column_config.TimeColumn(
+                            label='Run end',
+                            format='h:mm:ss a'
+                        ),
+                        'run_time': st.column_config.TimeColumn(
+                            label='Run time',
+                            format='H [hr.] m [min.] s [sec.]'
+                        ),
+                        'url': st.column_config.LinkColumn(
+                            label='Direct link',
+                            display_text='Link'
+                        )
+                    }
+                )
+
+        # Display content information
+        else:
+            _core.display_page_content_info(
+                content_info="Run an analysis to browse the listing report."
+            )
 
     # Log errors
-    if not server_health:
+    else:
         st.session_state[setup.NAME][db_name]['errors'] = (
             st.session_state[setup.NAME][db_name]['errors'] + [
                 '''

@@ -21,13 +21,15 @@ import streamlit as st
 from assemblit import setup, db
 from assemblit.server import layer
 from assemblit.server import setup as server_setup
-from assemblit.pages._components import _selector
+from assemblit.pages._components import _core, _selector
 
 
 # Define core-component key-value pair function(s)
 def display_run_analysis_form(
     db_name: str,
     table_name: str,
+    scope_db_name: str,
+    scope_query_index: str,
     header: str = None,
     tagline: str = None
 ):
@@ -39,6 +41,10 @@ def display_run_analysis_form(
         Name of the database to store the setting(s) parameters & values
     table_name : 'str'
         Name of the table within `db_name` to store the setting(s) parameters & values.
+    scope_db_name : `str`
+        Name of the database that contains the associated scope for the job.
+    scope_query_index : `str`
+        Name of the index within `scope_db_name` & `table_name`. May only be one column.
     header : `str`
         String to display as the form header.
     tagline : `str`
@@ -72,23 +78,29 @@ def display_run_analysis_form(
     ):
 
         # Retreive run-analysis parameter options
-        options = _selector.select_selector_dropdown_options(
-            db_name=setup.DATA_DB_NAME,
-            table_name='datasets',
-            query_index=setup.DATA_DB_QUERY_INDEX,
-            scope_db_name=setup.SESSIONS_DB_NAME,
-            scope_query_index=setup.SESSIONS_DB_QUERY_INDEX
-        )
+        try:
+            options = _selector.select_selector_dropdown_options(
+                db_name=setup.DATA_DB_NAME,
+                table_name='datasets',
+                query_index=setup.DATA_DB_QUERY_INDEX,
+                scope_db_name=scope_db_name,
+                scope_query_index=scope_query_index
+            )
+        except db.NullReturnValue:
+            options = []
 
         # Set run-analysis drop-down default query index
-        index = _selector.select_selector_default_value(
-            db_name=setup.DATA_DB_NAME,
-            table_name='datasets',
-            query_index=setup.DATA_DB_QUERY_INDEX,
-            scope_db_name=setup.SESSIONS_DB_NAME,
-            scope_query_index=setup.SESSIONS_DB_QUERY_INDEX,
-            options=options
-        )
+        try:
+            index = _selector.select_selector_default_value(
+                db_name=setup.DATA_DB_NAME,
+                table_name='datasets',
+                query_index=setup.DATA_DB_QUERY_INDEX,
+                scope_db_name=scope_db_name,
+                scope_query_index=scope_query_index,
+                options=options
+            )
+        except db.NullReturnValue:
+            index = None
 
         # Display the run-analysis drop-down
         st.selectbox(
@@ -97,7 +109,7 @@ def display_run_analysis_form(
             options=options,
             index=index,
             placeholder='Select a dataset for the model analysis.',
-            disabled=not server_health,
+            disabled=(not server_health or not options),
             label_visibility='visible'
         )
 
@@ -106,7 +118,7 @@ def display_run_analysis_form(
             key='run_information',
             label='Run information',
             placeholder='Enter context about the model analysis run.',
-            disabled=not server_health,
+            disabled=(not server_health or not options),
             label_visibility='visible'
         )
 
@@ -124,7 +136,7 @@ def display_run_analysis_form(
                 'table_name': table_name
             },
             use_container_width=True,
-            disabled=not server_health
+            disabled=(not server_health or not options)
         )
 
         # Display the 'Save' button
@@ -138,11 +150,17 @@ def display_run_analysis_form(
                 'table_name': table_name
             },
             use_container_width=True,
-            disabled=not server_health
+            disabled=(not server_health or not options)
+        )
+
+    # Display content information
+    if not options:
+        _core.display_page_content_info(
+            content_info="Upload a datafile to run an analysis."
         )
 
     # Log errors
-    if not server_health:
+    elif not server_health:
         st.session_state[setup.NAME][db_name]['errors'] = (
             st.session_state[setup.NAME][db_name]['errors'] + [
                 """

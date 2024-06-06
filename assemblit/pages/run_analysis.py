@@ -215,6 +215,8 @@ class Content():
                 _run_analysis.display_run_analysis_form(
                     db_name=self.db_name,
                     table_name=self.table_name,
+                    scope_db_name=self.scope_db_name,
+                    scope_query_index=self.scope_query_index,
                     header='Run',
                     tagline='Populate each field in the form then click `Run` to submit the analysis.'
                 )
