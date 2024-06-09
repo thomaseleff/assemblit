@@ -17,9 +17,28 @@ import sys
 import time
 import subprocess
 import requests
+from typing import List
+from assemblit.server import status
 
 
 class Prefect():
+
+    # Assign static class variables
+    STATES: dict = {
+        'SCHEDULED': status.SCHEDULED,
+        'LATE': status.LATE,
+        'AWAITINGRETRY': status.RETRYING,
+        'PENDING': status.PENDING,
+        'RUNNING': status.RUNNING,
+        'RETRYING': status.RETRYING,
+        'PAUSED': status.PAUSED,
+        'CANCELLING': status.CANCELLED,
+        'CANCELLED': status.CANCELLED,
+        'COMPLETED': status.SUCCEEDED,
+        'FAILED': status.FAILED,
+        'CRASHED': status.CRASHED
+    }
+    TERMINAL_STATES: List[str] = ['CANCELLED', 'COMPLETED', 'FAILED', 'CRASHED']
 
     def __init__(
         self,
@@ -290,7 +309,7 @@ class Prefect():
 
             return {
                 'id': flow_run['id'],
-                'state': flow_run['state']['name'],
+                'state': str(flow_run['state']['name']).upper(),
                 'start_time': flow_run['start_time'],
                 'end_time': flow_run['end_time'],
                 'run_time': flow_run['total_run_time'],
@@ -308,7 +327,7 @@ class Prefect():
     def poll_job_run(
         self,
         run_id: str
-    ) -> requests.Response | None:
+    ) -> dict | None:
         """ Polls the status of a `prefect` orchestration server flow-run.
 
         Parameters
@@ -317,6 +336,13 @@ class Prefect():
             The id of a `prefect` `flow` run.
         """
         try:
-            return requests.get(self.poll_job_run_endpoint(run_id=run_id)).json()
+            flow_run = requests.get(self.poll_job_run_endpoint(run_id=run_id)).json()
+
+            return {
+                'state': str(flow_run['state']['name']).upper(),
+                'start_time': flow_run['start_time'],
+                'end_time': flow_run['end_time'],
+                'run_time': flow_run['total_run_time']
+            }
         except requests.exceptions.ConnectionError:
             return None
