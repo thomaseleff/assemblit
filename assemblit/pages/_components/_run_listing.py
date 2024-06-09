@@ -106,7 +106,10 @@ def display_run_listing_table(
                 right_on=['state'],
                 validate='m:1'
             )
-            df['created_on'] = pd.to_datetime(df['created_on'])
+            df['created_on'] = pd.to_datetime(df['created_on'], errors='coerce')
+            df['start_time'] = pd.to_datetime(df['start_time'], errors='coerce')
+            df['end_time'] = pd.to_datetime(df['end_time'], errors='coerce')
+            df['run_time'] = pd.to_datetime(df['run_time'], unit='s', errors='coerce')
         except db.NullReturnValue:
             df = pd.DataFrame(
                 columns=[
@@ -115,6 +118,7 @@ def display_run_listing_table(
                     'name',
                     'submitted_by',
                     'state',
+                    'status',
                     'start_time',
                     'end_time',
                     'run_time',
@@ -127,168 +131,326 @@ def display_run_listing_table(
         if not df.empty:
 
             # Layout form columns
-            _, col2, col3, col4, col5, col6, _ = st.columns([.075, .175, .175, .175, .175, .175, .05])
-
-            # Filter date-range
-            created_on_filter = col2.date_input(
-                key='DateInput:%s' % _selector.generate_selector_key(
-                    db_name=db_name,
-                    table_name=table_name,
-                    parameter='File name'
-                ),
-                label='Date range',
-                value=(
-                    max(
-                        datetime.datetime.now() - datetime.timedelta(30),
-                        min(list(df['created_on']))
-                    ),
-                    datetime.datetime.now()
-                ),
-                min_value=min(list(df['created_on'])),
-                max_value=datetime.datetime.now(),
-                format='MM/DD/YYYY'
-            )
-
-            if len(created_on_filter) == 2:
-                df = df[
-                    (df['created_on'] >= pd.Timestamp(created_on_filter[0]))
-                    & (
-                        df['created_on'] <= datetime.datetime.combine(
-                            pd.Timestamp(created_on_filter[1]),
-                            datetime.time.max
-                        )
-                    )
-                ]
-
-            file_name_filter = col3.multiselect(
-                key='MultiSelect:%s' % _selector.generate_selector_key(
-                    db_name=db_name,
-                    table_name=table_name,
-                    parameter='File name'
-                ),
-                label='File name',
-                options=sorted(list(df['file_name'].unique())),
-                max_selections=1,
-                placeholder="""
-                    Select a file name
-                """
-            )
-            name_filter = col4.multiselect(
-                key='MultiSelect:%s' % _selector.generate_selector_key(
-                    db_name=db_name,
-                    table_name=table_name,
-                    parameter='Analysis'
-                ),
-                label='Analysis',
-                options=sorted(list(df['name'].unique())),
-                max_selections=1,
-                placeholder="""
-                    Select an analysis
-                """
-            )
-            if st.session_state[setup.NAME][setup.USERS_DB_NAME]['name'] in sorted(list(df['submitted_by'].unique())):
-                submitted_by_filter = col5.multiselect(
-                    key='MultiSelect:%s' % _selector.generate_selector_key(
-                        db_name=db_name,
-                        table_name=table_name,
-                        parameter='Submitted by'
-                    ),
-                    label='Submitted by',
-                    options=sorted(list(df['submitted_by'].unique())),
-                    default=st.session_state[setup.NAME][setup.USERS_DB_NAME]['name'],
-                    placeholder="""
-                        Select a submitter
-                    """
-                )
-            else:
-                submitted_by_filter = col5.multiselect(
-                    key='MultiSelect:%s' % _selector.generate_selector_key(
-                        db_name=db_name,
-                        table_name=table_name,
-                        parameter='Submitted by'
-                    ),
-                    label='Submitted by',
-                    options=sorted(list(df['submitted_by'].unique())),
-                    placeholder="""
-                        Select a submitter
-                    """
-                )
+            _, _, _, col4, _ = st.columns([.05, .625, .1, .175, .05])
 
             # Display the 'Refresh' button
-            col6.write('')
-            col6.button(
+            col4.button(
                 label='Refresh',
                 type='primary',
-                on_click=refresh,
-                use_container_width=True,
-                disabled=(not server_health or df.empty)
+                use_container_width=True
             )
 
             # Layout columns
             _, col2, _ = st.columns(setup.CONTENT_COLUMNS)
 
-            if file_name_filter:
-                df = df[df['file_name'].isin(file_name_filter)]
-            if name_filter:
-                df = df[df['name'].isin(name_filter)]
-            if submitted_by_filter:
-                df = df[df['submitted_by'].isin(submitted_by_filter)]
-
-            # Sort
-            df = df.sort_values(by='created_on', ascending=False)
-
             # Display the run-listing table
             with col2:
-                st.dataframe(
-                    data=df[[
-                        'created_on',
-                        'file_name',
-                        'name',
-                        'submitted_by',
-                        'status',
-                        'start_time',
-                        'end_time',
-                        'run_time',
-                        'url'
-                    ]],
-                    height=475,
-                    use_container_width=True,
-                    hide_index=True,
-                    column_config={
-                        'created_on': st.column_config.DateColumn(
-                            label='Created on',
-                            format='MMM D, YYYY, h:mm:ss a'
-                        ),
-                        'file_name': st.column_config.TextColumn(
-                            label='File name'
-                        ),
-                        'name': st.column_config.TextColumn(
-                            label='Analysis'
-                        ),
-                        'submitted_by': st.column_config.TextColumn(
-                            label='Submitted by'
-                        ),
-                        'status': st.column_config.TextColumn(
-                            label='Status'
-                        ),
-                        'start_time': st.column_config.TimeColumn(
-                            label='Run start',
-                            format='h:mm:ss a'
-                        ),
-                        'end_time': st.column_config.TimeColumn(
-                            label='Run end',
-                            format='h:mm:ss a'
-                        ),
-                        'run_time': st.column_config.TimeColumn(
-                            label='Run time',
-                            format='H [hr.] m [min.] s [sec.]'
-                        ),
-                        'url': st.column_config.LinkColumn(
-                            label='Direct link',
-                            display_text='Link'
-                        )
-                    }
+
+                # Create CSS-style for small-font size
+                st.markdown(
+                    """
+                        <style>
+                            .table-font {
+                                word-break: break-word;
+                                white-space: nowrap;
+                                font-size: 14px;
+                                overflow: hidden;
+                                text-overflow: ellipsis;
+                                min-width: 0;
+                                display: block;
+                            }
+                        </style>
+                    """,
+                    unsafe_allow_html=True
                 )
+
+                TABLE_COLUMNS = [
+                    1.1,
+                    1.1,
+                    1.5,
+                    1.1,
+                    0.6,
+                    0.55,
+                    0.55,
+                    0.85
+                ]
+
+                # Layout container
+                with st.container(border=True):
+                    col1, col2, col3, col4, col5, col6, col7, col8 = st.columns(TABLE_COLUMNS)
+
+                    col1.write('**Created on**')
+                    created_on_filter = col1.date_input(
+                        key='DateInput:%s' % _selector.generate_selector_key(
+                            db_name=db_name,
+                            table_name=table_name,
+                            parameter='created_on'
+                        ),
+                        label='Created on',
+                        value=(
+                            max(
+                                datetime.datetime.now() - datetime.timedelta(30),
+                                min(list(df['created_on']))
+                            ),
+                            datetime.datetime.now()
+                        ),
+                        min_value=min(list(df['created_on'])),
+                        max_value=datetime.datetime.now(),
+                        format='MM/DD/YYYY',
+                        label_visibility='collapsed'
+                    )
+                    col2.write('**File name**')
+                    file_name_filter = col2.multiselect(
+                        key='MultiSelect:%s' % _selector.generate_selector_key(
+                            db_name=db_name,
+                            table_name=table_name,
+                            parameter='File name'
+                        ),
+                        label='File name',
+                        options=sorted(list(df['file_name'].unique())),
+                        max_selections=1,
+                        placeholder="""
+                            Select a file name
+                        """,
+                        label_visibility='collapsed'
+                    )
+                    col3.write('**Analysis**')
+                    name_filter = col3.multiselect(
+                        key='MultiSelect:%s' % _selector.generate_selector_key(
+                            db_name=db_name,
+                            table_name=table_name,
+                            parameter='Analysis'
+                        ),
+                        label='Analysis',
+                        options=sorted(list(df['name'].unique())),
+                        max_selections=1,
+                        placeholder="""
+                            Select an analysis
+                        """,
+                        label_visibility='collapsed'
+                    )
+                    col4.write('**Submitted by**')
+                    if st.session_state[setup.NAME][setup.USERS_DB_NAME]['name'] in sorted(list(df['submitted_by'].unique())):
+                        submitted_by_filter = col4.multiselect(
+                            key='MultiSelect:%s' % _selector.generate_selector_key(
+                                db_name=db_name,
+                                table_name=table_name,
+                                parameter='Submitted by'
+                            ),
+                            label='Submitted by',
+                            options=sorted(list(df['submitted_by'].unique())),
+                            default=st.session_state[setup.NAME][setup.USERS_DB_NAME]['name'],
+                            placeholder="""
+                                Select a submitter
+                            """,
+                            label_visibility='collapsed'
+                        )
+                    else:
+                        submitted_by_filter = col4.multiselect(
+                            key='MultiSelect:%s' % _selector.generate_selector_key(
+                                db_name=db_name,
+                                table_name=table_name,
+                                parameter='Submitted by'
+                            ),
+                            label='Submitted by',
+                            options=sorted(list(df['submitted_by'].unique())),
+                            placeholder="""
+                                Select a submitter
+                            """,
+                            label_visibility='collapsed'
+                        )
+
+                    col5.write('**Status**')
+                    # col5.markdown(
+                    #     '<p class="table-font">%s</p>' % (
+                    #         'Status'
+                    #     ),
+                    #     unsafe_allow_html=True
+                    # )
+                    col6.write('**Run start**')
+                    # col6.markdown(
+                    #     '<p class="table-font">%s</p>' % (
+                    #         'Run start'
+                    #     ),
+                    #     unsafe_allow_html=True
+                    # )
+                    col7.write('**Run end**')
+                    # col7.markdown(
+                    #     '<p class="table-font">%s</p>' % (
+                    #         'Run end'
+                    #     ),
+                    #     unsafe_allow_html=True
+                    # )
+                    col8.write('**Run time**')
+                    # col8.markdown(
+                    #     '<p class="table-font">%s</p>' % (
+                    #         'Run time'
+                    #     ),
+                    #     unsafe_allow_html=True
+                    # )
+
+                # Layout container
+                with st.container(height=400, border=True):
+                    def write_row(row):
+                        col1, col2, col3, col4, col5, col6, col7, col8 = st.columns(TABLE_COLUMNS)
+
+                        with col1:
+                            st.markdown(
+                                '<p class="table-font">%s</p>' % (
+                                    row['created_on'].strftime('%b %d, %Y, %I:%M:%S %p')
+                                ),
+                                unsafe_allow_html=True
+                            )
+                            # st.markdown(row['created_on'].strftime('%b %d, %Y, %I:%M:%S %p'))
+                        with col2:
+                            st.markdown(
+                                '<p class="table-font">%s</p>' % (
+                                    row['file_name']
+                                ),
+                                unsafe_allow_html=True
+                            )
+                            # st.write(row['file_name'])
+                        with col3:
+                            st.markdown(
+                                "<a class='table-font' target='_blank' href='%s'>%s</a>" % (
+                                    row['url'],
+                                    row['name']
+                                ),
+                                unsafe_allow_html=True
+                            )
+                            # st.write('[%s](%s)' % (row['name'], row['url']))
+                        with col4:
+                            st.markdown(
+                                '<p class="table-font">%s</p>' % (
+                                    row['submitted_by']
+                                ),
+                                unsafe_allow_html=True
+                            )
+                            # st.write(row['submitted_by'])
+                        with col5:
+                            st.markdown(
+                                '<p class="table-font">%s</p>' % (
+                                    row['status']
+                                ),
+                                unsafe_allow_html=True
+                            )
+                            # st.write(row['status'])
+                        with col6:
+                            try:
+                                st.markdown(
+                                    '<p class="table-font">%s</p>' % (
+                                        row['start_time'].strftime('%I:%M:%S %p')
+                                    ),
+                                    unsafe_allow_html=True
+                                )
+                                # st.write(row['start_time'].strftime('%I:%M:%S %p'))
+                            except ValueError:
+                                st.write(None)
+                        with col7:
+                            try:
+                                st.markdown(
+                                    '<p class="table-font">%s</p>' % (
+                                        row['end_time'].strftime('%I:%M:%S %p')
+                                    ),
+                                    unsafe_allow_html=True
+                                )
+                                # st.write(row['end_time'].strftime('%I:%M:%S %p'))
+                            except ValueError:
+                                st.write(None)
+                        with col8:
+                            try:
+                                st.markdown(
+                                    '<p class="table-font">%s</p>' % (
+                                        row['run_time'].strftime('%H hr. %M min. %S sec.')
+                                    ),
+                                    unsafe_allow_html=True
+                                )
+                                # st.write(row['run_time'].strftime('%H hr. %M min. %S sec.'))
+                            except ValueError:
+                                st.write(None)
+                        # with col5:
+                        #     st.download_button(
+                        #         "Download details (.csv)",
+                        #         df[df['Car'] == row['Car']].to_csv(),
+                        #         f"details_{row['Car']}.csv",
+                        #         "text/csv"
+                        #     )
+
+                    if len(created_on_filter) == 2:
+                        df = df[
+                            (df['created_on'] >= pd.Timestamp(created_on_filter[0]))
+                            & (
+                                df['created_on'] <= datetime.datetime.combine(
+                                    pd.Timestamp(created_on_filter[1]),
+                                    datetime.time.max
+                                )
+                            )
+                        ]
+
+                    if file_name_filter:
+                        df = df[df['file_name'].isin(file_name_filter)]
+                    if name_filter:
+                        df = df[df['name'].isin(name_filter)]
+                    if submitted_by_filter:
+                        df = df[df['submitted_by'].isin(submitted_by_filter)]
+
+                    # Sort
+                    df = df.sort_values(by='created_on', ascending=False)
+
+                    # Display
+                    df.apply(write_row, axis=1)
+
+        #     Display the run-listing table
+        #         st.dataframe(
+        #             data=df[[
+        #                 'created_on',
+        #                 'file_name',
+        #                 'name',
+        #                 'submitted_by',
+        #                 'status',
+        #                 'start_time',
+        #                 'end_time',
+        #                 'run_time',
+        #                 'url'
+        #             ]],
+        #             height=475,
+        #             use_container_width=True,
+        #             hide_index=True,
+        #             column_config={
+        #                 'created_on': st.column_config.DateColumn(
+        #                     label='Created on',
+        #                     format='MMM D, YYYY, h:mm:ss a'
+        #                 ),
+        #                 'file_name': st.column_config.TextColumn(
+        #                     label='File name'
+        #                 ),
+        #                 'name': st.column_config.TextColumn(
+        #                     label='Analysis'
+        #                 ),
+        #                 'submitted_by': st.column_config.TextColumn(
+        #                     label='Submitted by'
+        #                 ),
+        #                 'status': st.column_config.TextColumn(
+        #                     label='Status'
+        #                 ),
+        #                 'start_time': st.column_config.TimeColumn(
+        #                     label='Run start',
+        #                     format='h:mm:ss a'
+        #                 ),
+        #                 'end_time': st.column_config.TimeColumn(
+        #                     label='Run end',
+        #                     format='h:mm:ss a'
+        #                 ),
+        #                 'run_time': st.column_config.TimeColumn(
+        #                     label='Run time',
+        #                     format='H [hr.] m [min.] s [sec.]'
+        #                 ),
+        #                 'url': st.column_config.LinkColumn(
+        #                     label='Direct link',
+        #                     display_text='Link'
+        #                 )
+        #             }
+        #         )
 
         # Display content information
         else:
