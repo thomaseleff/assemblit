@@ -554,85 +554,94 @@ def login():
     """ Handles login requests.
     """
 
-    # Authenticate
-    try:
-        st.session_state[setup.NAME][setup.USERS_DB_NAME] = authenticate(
-            username=st.session_state['username'],
-            password=st.session_state['password']
-        )
+    # Wait for authentication
+    with st.spinner():
 
-    except IncorrectPassword:
-        st.session_state[setup.NAME][setup.AUTH_NAME]['login-error'] = (
-            'Incorrect username and/or password.'
-        )
+        # Authenticate
+        try:
+            st.session_state[setup.NAME][setup.USERS_DB_NAME] = authenticate(
+                username=st.session_state['username'],
+                password=st.session_state['password']
+            )
 
-    except UserNotFound:
-        st.session_state[setup.NAME][setup.AUTH_NAME]['login-error'] = (
-            'Incorrect username and/or password.'
-        )
+        except IncorrectPassword:
+            st.session_state[setup.NAME][setup.AUTH_NAME]['login-error'] = (
+                'Incorrect username and/or password.'
+            )
 
-    except InvalidEmail as e:
-        st.session_state[setup.NAME][setup.AUTH_NAME]['login-error'] = str(e)
+        except UserNotFound:
+            st.session_state[setup.NAME][setup.AUTH_NAME]['login-error'] = (
+                'Incorrect username and/or password.'
+            )
 
-    # Set authentication status
-    if not st.session_state[setup.NAME][setup.AUTH_NAME]['login-error']:
-        st.session_state[setup.NAME][setup.AUTH_NAME][setup.AUTH_QUERY_INDEX] = True
-    else:
-        st.session_state[setup.NAME][setup.AUTH_NAME][setup.AUTH_QUERY_INDEX] = False
+        except InvalidEmail as e:
+            st.session_state[setup.NAME][setup.AUTH_NAME]['login-error'] = str(e)
 
-    # Reset log-in session state variables
-    del st.session_state['username']
-    del st.session_state['password']
+        # Set authentication status
+        if not st.session_state[setup.NAME][setup.AUTH_NAME]['login-error']:
+            st.session_state[setup.NAME][setup.AUTH_NAME][setup.AUTH_QUERY_INDEX] = True
+        else:
+            st.session_state[setup.NAME][setup.AUTH_NAME][setup.AUTH_QUERY_INDEX] = False
+
+        # Reset log-in session state variables
+        del st.session_state['username']
+        del st.session_state['password']
 
 
 def sign_up():
     """ Handles sign-up requests.
     """
 
-    # Authenticate
-    try:
-        st.session_state[setup.NAME][setup.USERS_DB_NAME] = add_credentials(
-            first_name=st.session_state['name'],
-            username=st.session_state['username'],
-            password0=st.session_state['password0'],
-            password1=st.session_state['password1']
-        )
+    # Wait for sign-up
+    with st.spinner():
 
-    except UserAlreadyExists:
-        st.session_state[setup.NAME][setup.AUTH_NAME]['sign-up-error'] = (
-            'User already exists. Please login instead.'
-        )
+        # Authenticate
+        try:
+            st.session_state[setup.NAME][setup.USERS_DB_NAME] = add_credentials(
+                first_name=st.session_state['name'],
+                username=st.session_state['username'],
+                password0=st.session_state['password0'],
+                password1=st.session_state['password1']
+            )
 
-    except PasswordsDoNotMatch:
-        st.session_state[setup.NAME][setup.AUTH_NAME]['sign-up-error'] = (
-            'Passwords do not match.'
-        )
+        except UserAlreadyExists:
+            st.session_state[setup.NAME][setup.AUTH_NAME]['sign-up-error'] = (
+                'User already exists. Please login instead.'
+            )
 
-    except InvalidEmail as e:
-        st.session_state[setup.NAME][setup.AUTH_NAME]['sign-up-error'] = str(e)
+        except PasswordsDoNotMatch:
+            st.session_state[setup.NAME][setup.AUTH_NAME]['sign-up-error'] = (
+                'Passwords do not match.'
+            )
 
-    # Set authentication status
-    if not st.session_state[setup.NAME][setup.AUTH_NAME]['sign-up-error']:
-        st.session_state[setup.NAME][setup.AUTH_NAME][setup.AUTH_QUERY_INDEX] = True
-    else:
-        st.session_state[setup.NAME][setup.AUTH_NAME][setup.AUTH_QUERY_INDEX] = False
+        except InvalidEmail as e:
+            st.session_state[setup.NAME][setup.AUTH_NAME]['sign-up-error'] = str(e)
 
-    # Reset sign-up session state variables
-    del st.session_state['name']
-    del st.session_state['username']
-    del st.session_state['password0']
-    del st.session_state['password1']
+        # Set authentication status
+        if not st.session_state[setup.NAME][setup.AUTH_NAME]['sign-up-error']:
+            st.session_state[setup.NAME][setup.AUTH_NAME][setup.AUTH_QUERY_INDEX] = True
+        else:
+            st.session_state[setup.NAME][setup.AUTH_NAME][setup.AUTH_QUERY_INDEX] = False
+
+        # Reset sign-up session state variables
+        del st.session_state['name']
+        del st.session_state['username']
+        del st.session_state['password0']
+        del st.session_state['password1']
 
 
 def logout():
     """ Handles logout requests.
     """
 
-    # Reset the session state
-    del st.session_state[setup.NAME]
+    # Wait for sign-up
+    with st.spinner():
 
-    # Initialize session state defaults
-    _core.initialize_session_state_defaults()
+        # Reset the session state
+        del st.session_state[setup.NAME]
+
+        # Initialize session state defaults
+        _core.initialize_session_state_defaults()
 
 
 # Define authentication & account management exception classes

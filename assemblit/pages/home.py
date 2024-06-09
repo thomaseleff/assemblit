@@ -22,7 +22,7 @@ class Content():
     def __init__(
         self,
         header: str = 'Welcome',
-        tagline: str = 'A ```gitstreamy``` web-application for Github projects.',
+        tagline: str = 'An ```assemblit``` web-application for Github projects.',
         content_url: str = None,
         content_file_name: str = 'README.md',
         content_info: str = 'For more information, visit the Github repository.'
@@ -78,7 +78,7 @@ class Content():
             if self.content_url:
 
                 # Layout columns
-                col1, col2, col3 = st.columns(setup.CONTENT_COLUMNS)
+                _, col2, _ = st.columns(setup.CONTENT_COLUMNS)
 
                 # Display readme
                 Github = web.Handler(url=self.content_url)
@@ -164,7 +164,7 @@ class Content():
                 )
 
                 # Layout columns
-                col1, col2, col3 = st.columns([1, 1, 1])
+                _, col2, col3 = st.columns([1, 1, 1])
 
                 # Display buttons
                 col2.form_submit_button(
@@ -229,7 +229,7 @@ class Content():
                 )
 
                 # Layout columns
-                col1, col2, col3 = st.columns([1, 1, 1])
+                _, col2, col3 = st.columns([1, 1, 1])
 
                 # Display buttons
                 col2.form_submit_button(
