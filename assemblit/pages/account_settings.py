@@ -14,8 +14,9 @@ Contains the `Class` for the account-management user-settings-page.
 
 import copy
 import streamlit as st
-from assemblit import setup, db, vault
+from assemblit import setup, vault
 from assemblit.pages._components import _key_value, _core
+from assemblit.database import generic
 
 
 class Content():
@@ -178,7 +179,7 @@ class Content():
                 )
 
                 # Initialize the connection to the users database
-                Users = db.Handler(
+                Users = generic.Handler(
                     db_name=self.db_name
                 )
 

@@ -13,8 +13,10 @@ Contains the generic methods for a key-value pair settings-page.
 """
 
 import streamlit as st
-from assemblit import setup, db
+from assemblit import setup
 from pytensils import utils
+
+from assemblit.database import generic
 
 
 # Define core-component key-value pair function(s)
@@ -40,7 +42,7 @@ def initialize_key_value_pair_table(
     """
 
     # Initialize the key-value database
-    Db = db.initialize_table(
+    Db = generic.initialize_table(
         db_name=db_name,
         table_name=table_name,
         cols=(
@@ -405,7 +407,7 @@ def display_key_value_pair_setting(
                 ),
                 return_dtype=d['dtype']
             )
-        except db.NullReturnValue:
+        except generic.NullReturnValue:
             d['value'] = ''
 
     # Display parameter input-object
@@ -497,7 +499,7 @@ def select_setting_table_column_value(
     """
 
     # Initialize the connection to the Database
-    Db = db.Handler(
+    Db = generic.Handler(
         db_name=db_name
     )
 
@@ -535,7 +537,7 @@ def update_settings(
     if response:
 
         # Initialize connection to the database
-        Db = db.Handler(
+        Db = generic.Handler(
             db_name=db_name
         )
 

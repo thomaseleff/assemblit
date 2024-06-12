@@ -18,7 +18,8 @@ import datetime
 import json
 import pandas as pd
 import streamlit as st
-from assemblit import setup, db
+from assemblit import setup
+from assemblit.database import generic
 from assemblit.server import layer
 from assemblit.server import setup as server_setup
 from assemblit.pages._components import _core, _selector
@@ -86,7 +87,7 @@ def display_run_analysis_form(
                 scope_db_name=scope_db_name,
                 scope_query_index=scope_query_index
             )
-        except db.NullReturnValue:
+        except generic.NullReturnValue:
             options = []
 
         # Set run-analysis drop-down default query index
@@ -99,7 +100,7 @@ def display_run_analysis_form(
                 scope_query_index=scope_query_index,
                 options=options
             )
-        except db.NullReturnValue:
+        except generic.NullReturnValue:
             index = None
 
         # Display the run-analysis drop-down
@@ -327,17 +328,17 @@ def run_job(
     ):
 
         # Initialize the connection to the scope database
-        Session = db.Handler(
+        Session = generic.Handler(
             db_name=scope_db_name
         )
 
         # Initialize connection to the data-ingestion database
-        Data = db.Handler(
+        Data = generic.Handler(
             db_name=setup.DATA_DB_NAME
         )
 
         # Initialize connection to the analysis database
-        Analysis = db.Handler(
+        Analysis = generic.Handler(
             db_name=db_name
         )
 

@@ -13,8 +13,9 @@ Contains the `Class` for the run-listing-page.
 """
 
 import streamlit as st
-from assemblit import setup, db
+from assemblit import setup
 from assemblit.pages._components import _core, _run_listing
+from assemblit.database import generic
 
 
 class Content():
@@ -91,7 +92,7 @@ class Content():
             if st.session_state[setup.NAME][setup.SESSIONS_DB_NAME][setup.SESSIONS_DB_QUERY_INDEX]:
 
                 # Initialize the scope-database table
-                _ = db.initialize_table(
+                _ = generic.initialize_table(
                     db_name=self.scope_db_name,
                     table_name=self.table_name,
                     cols=(
@@ -100,7 +101,7 @@ class Content():
                 )
 
                 # Initialize the analysis-database table
-                _ = db.initialize_table(
+                _ = generic.initialize_table(
                     db_name=self.db_name,
                     table_name=self.table_name,
                     cols=(

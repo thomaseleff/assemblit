@@ -15,7 +15,8 @@ Contains the generic methods for a run-listing-page.
 import datetime
 import pandas as pd
 import streamlit as st
-from assemblit import setup, db
+from assemblit import setup
+from assemblit.database import generic
 from assemblit.server import layer
 from assemblit.server import setup as server_setup
 from assemblit.pages._components import _core, _selector
@@ -46,12 +47,12 @@ def display_run_listing_table(
     '''
 
     # Initialize the connection to the scope database
-    Session = db.Handler(
+    Session = generic.Handler(
         db_name=scope_db_name
     )
 
     # Initialize connection to the analysis database
-    Analysis = db.Handler(
+    Analysis = generic.Handler(
         db_name=db_name
     )
 
@@ -110,7 +111,7 @@ def display_run_listing_table(
             df['start_time'] = pd.to_datetime(df['start_time'], errors='coerce')
             df['end_time'] = pd.to_datetime(df['end_time'], errors='coerce')
             df['run_time'] = pd.to_datetime(df['run_time'], unit='s', errors='coerce')
-        except db.NullReturnValue:
+        except generic.NullReturnValue:
             df = pd.DataFrame(
                 columns=[
                     'created_on',
@@ -530,7 +531,7 @@ def refresh_run_listing_table(
     ):
 
         # Initialize connection to the analysis database
-        Analysis = db.Handler(
+        Analysis = generic.Handler(
             db_name=db_name
         )
 
@@ -548,7 +549,7 @@ def refresh_run_listing_table(
                 order='DESC',
                 contains=False
             )
-        except db.NullReturnValue:
+        except generic.NullReturnValue:
             run_ids = []
 
         # Poll the status of each run-id

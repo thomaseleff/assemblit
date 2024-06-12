@@ -1,22 +1,35 @@
 """
 Information
 ---------------------------------------------------------------------
-Name        : db.py
+Name        : generic.py
 Location    : ~/
-Author      : Tom Eleff
-Published   : 2024-03-17
-Revised on  : .
 
 Description
 ---------------------------------------------------------------------
-Database handler `class` for retrieving information from a sqlite3
-database.
+Generic database handler and schema `class` objects for retrieving
+information from a sqlite3-database.
 """
 
 import os
+import datetime
 import sqlite3
+import contextlib
+import pandera
 from assemblit import setup
+from assemblit.database import datatypes, syntax
 from pytensils import utils
+
+# Assign static variables
+DBMS_OPTIONS: list[str] = [
+    'db',
+    'sdb',
+    'sqlite',
+    'db3',
+    's3db',
+    'sqlite3',
+    'sl3'
+]
+DEFAULT_DBMS: str = 'db'
 
 
 class Handler():
@@ -36,27 +49,19 @@ class Handler():
             Local directory path of the database.
         """
 
-        # Assign db class variables
+        # Assign class variables
         self.dir_name = dir_name
-        self.db_name = db_name
+        self.db_name = parse_db_name(db_name=db_name)
 
         # Create the database directory if it does not exist
         if not os.path.exists(dir_name):
-            os.mkdir(os.path.join(
-                setup.ROOT_DIR,
-                'db'
-            ))
+            os.mkdir(dir_name)
 
-        # Setup connection
-        self.connection = sqlite3.connect(
-            os.path.join(
-                dir_name,
-                db_name
-            )
-        )
-
-        # Setup cursor
-        self.cursor = self.connection.cursor()
+    # Define db function(s) to handle connections
+    def connection(self) -> sqlite3.Connection:
+        """ Returns a new sqlite3-connection context manager.
+        """
+        return sqlite3.connect(os.path.join(self.dir_name, self.db_name))
 
     # Define db function(s) to create tables
     def create_table(
@@ -64,7 +69,7 @@ class Handler():
         table_name: str,
         cols: list
     ):
-        """ Creates a database table.
+        """ Creates {table_name} in the database if it does not exist.
 
         Parameters
         ----------
@@ -73,51 +78,37 @@ class Handler():
         cols : `list`
             List object containing the columns of `table_name`.
         """
-
-        if not self.table_exists(table_name=table_name):
-            self.cursor.execute(
-                "CREATE TABLE %s(%s)" % (
+        with contextlib.closing(self.connection()) as connection:
+            connection.cursor().execute(
+                """
+                    CREATE TABLE IF NOT EXISTS %s(%s);
+                """ % (
                     str(table_name),
                     ', '.join(cols)
                 )
             )
-
-    def table_exists(
-        self,
-        table_name: str
-    ) -> bool:
-        """ Returns `True` when the table exists within a database.
-
-        Parameters
-        ----------
-        table_name : `str`
-            Name of the database table.
-        """
-
-        if self.cursor.execute(
-            "SELECT name FROM sqlite_master WHERE name='%s';" % (str(table_name))
-        ).fetchall():
-            return True
-        else:
-            return False
 
     # Define db function(s) to drop tables
     def drop_table(
         self,
         table_name: str
     ):
-        """ Drops a table from the database.
+        """ Drops {table_name} from the database if it exists.
 
         Parameters
         ----------
         table_name : `str`
             Name of the database table.
         """
-
-        self.cursor.execute(
-            """DROP TABLE '%s'""" % (str(table_name))
-        )
-        self.connection.commit()
+        with contextlib.closing(self.connection()) as connection:
+            connection.cursor().execute(
+                """
+                    DROP TABLE IF EXISTS '%s';
+                """ % (
+                    str(table_name)
+                )
+            )
+            connection.commit()
 
     # Define db function(s) to insert/update table values
     def insert(
@@ -126,7 +117,7 @@ class Handler():
         values: dict,
         validate: dict = {}
     ):
-        """ Inserts a row of values into a database table.
+        """ Inserts a row of values into the database table.
 
         Parameters
         ----------
@@ -158,36 +149,33 @@ class Handler():
                     'Table record already exists.'
                 )
 
-        # Check for missing values
-        if (
-            list(values.keys())
-        ) == (
+        # Insert values
+        if (list(values.keys())) == (
             self.select_table_column_names_as_list(
                 table_name=table_name
             )
         ):
-
-            # Insert values into table
-            self.cursor.execute(
-                """
-                INSERT INTO %s VALUES (%s);
-                """ % (
-                    str(table_name),
-                    ', '.join(
-                        [
-                            "'%s'" % normalize(string=i) for i in list(
-                                values.values()
-                            )
-                        ]
+            with contextlib.closing(self.connection()) as connection:
+                connection.cursor().execute(
+                    """
+                        INSERT INTO %s
+                        VALUES (%s);
+                    """ % (
+                        str(table_name),
+                        ', '.join(
+                            [
+                                "'%s'" % normalize(string=i) for i in list(
+                                    values.values()
+                                )
+                            ]
+                        )
                     )
                 )
-            )
-            self.connection.commit()
+                connection.commit()
 
+        # Raise an error if the table columns mismatch
+        #   the provided values
         else:
-
-            # Raise an error if the table columns mismatch
-            #   the provided values
             raise KeyError(
                 ' '.join([
                     "Missing values.",
@@ -196,9 +184,11 @@ class Handler():
                         self.db_name
                     ),
                     "expects values in the following order,",
-                    str(self.select_table_column_names_as_list(
-                        table_name=table_name
-                    ))
+                    str(
+                        self.select_table_column_names_as_list(
+                            table_name=table_name
+                        )
+                    )
                 ])
             )
 
@@ -234,30 +224,32 @@ class Handler():
                 }
         """
 
-        # Get the number of table records returned from the query
-        records = self.select_num_table_records(
+        # Update values
+        if self.select_num_table_records(
             table_name=table_name,
             filtr=filtr
-        )
-
-        # Update values in the database table
-        if records == 1:
-            self.cursor.execute(
-                """
-                UPDATE %s SET %s = '%s' WHERE %s = '%s';
-                """ % (
-                    str(table_name),
-                    str(values['col']),
-                    normalize(string=values['val']),
-                    str(filtr['col']),
-                    normalize(string=filtr['val'])
+        ) == 1:
+            with contextlib.closing(self.connection()) as connection:
+                connection.cursor().execute(
+                    """
+                        UPDATE %s
+                        SET %s = '%s'
+                        WHERE %s = '%s';
+                    """ % (
+                        str(table_name),
+                        str(values['col']),
+                        normalize(string=values['val']),
+                        str(filtr['col']),
+                        normalize(string=filtr['val'])
+                    )
                 )
-            )
-            self.connection.commit()
+                connection.commit()
 
+        # Raise an error if the query attempts to update more
+        #   than one record.
         else:
             raise ValueError(
-                'The query attempted to update more than 1 record.'
+                'The query attempted to update more than one record.'
             )
 
     def reset_table_column_value(
@@ -266,7 +258,7 @@ class Handler():
         values: dict,
         filtr: dict = {}
     ):
-        """ Resets a column value within a filtered database table.
+        """ Resets a column value in the database table.
 
         Parameters
         ----------
@@ -292,56 +284,59 @@ class Handler():
                 }
         """
 
-        if filtr:
-            if type(filtr['val']) is list:
-                self.cursor.execute(
-                    """
-                    UPDATE %s SET %s = '%s'
-                        WHERE %s IN (%s);
-                    """ % (
-                        str(table_name),
-                        str(values['col']),
-                        normalize(string=values['val']),
-                        str(filtr['col']),
-                        ', '.join(["'%s'" % normalize(string=i) for i in filtr['val']])
+        with contextlib.closing(self.connection()) as connection:
+            if filtr:
+                if type(filtr['val']) is list:
+                    connection.cursor().execute(
+                        """
+                            UPDATE %s
+                            SET %s = '%s'
+                            WHERE %s IN (%s);
+                        """ % (
+                            str(table_name),
+                            str(values['col']),
+                            normalize(string=values['val']),
+                            str(filtr['col']),
+                            ', '.join(["'%s'" % normalize(string=i) for i in filtr['val']])
+                        )
                     )
-                )
+                else:
+                    connection.cursor().execute(
+                        """
+                            UPDATE %s
+                            SET %s = '%s'
+                            WHERE %s = '%s';
+                        """ % (
+                            str(table_name),
+                            str(values['col']),
+                            normalize(string=values['val']),
+                            str(filtr['col']),
+                            normalize(string=filtr['val'])
+                        )
+                    )
             else:
-                self.cursor.execute(
+                connection.cursor().execute(
                     """
-                    UPDATE %s SET %s = '%s'
-                        WHERE %s = '%s';
+                        UPDATE %s
+                        SET %s = '%s';
                     """ % (
                         str(table_name),
                         str(values['col']),
-                        normalize(string=values['val']),
-                        str(filtr['col']),
-                        normalize(string=filtr['val'])
+                        normalize(string=values['val'])
                     )
                 )
-        else:
-            self.cursor.execute(
-                """
-                UPDATE %s SET %s = '%s';
-                """ % (
-                    str(table_name),
-                    str(values['col']),
-                    normalize(string=values['val'])
-                )
-            )
-        self.connection.commit()
+            connection.commit()
 
     # Define db function(s) to delete table values
     def delete(
         self,
         database_table_object: list
     ):
-        """ Removes all rows of values in a filtered database table for each
-        database table object.
+        """ Removes all rows in a filtered database table for each database table object.
 
         Parameters
         ----------
-        database_table_object: list
+        database_table_object: `list`
             List of dictionary objects containing kwargs for deleting table
                 column values.
 
@@ -355,8 +350,6 @@ class Handler():
                     }
                 ]
         """
-
-        # Delete values from each database table object
         if database_table_object:
             for kwargs in database_table_object:
                 self.delete_table_column_value(
@@ -384,29 +377,30 @@ class Handler():
                     'val' : '1'
                 }
         """
-
-        # Delete value(s) from the database table
-        if type(filtr['val']) is list:
-            self.cursor.execute(
-                """
-                DELETE FROM %s WHERE %s IN (%s);
-                """ % (
-                    str(table_name),
-                    str(filtr['col']),
-                    ', '.join(["'%s'" % normalize(string=i) for i in filtr['val']])
+        with contextlib.closing(self.connection()) as connection:
+            if type(filtr['val']) is list:
+                connection.cursor().execute(
+                    """
+                    DELETE FROM %s
+                    WHERE %s IN (%s);
+                    """ % (
+                        str(table_name),
+                        str(filtr['col']),
+                        ', '.join(["'%s'" % normalize(string=i) for i in filtr['val']])
+                    )
                 )
-            )
-        else:
-            self.cursor.execute(
-                """
-                DELETE FROM %s WHERE %s = '%s';
-                """ % (
-                    str(table_name),
-                    str(filtr['col']),
-                    normalize(string=filtr['val'])
+            else:
+                connection.cursor().execute(
+                    """
+                    DELETE FROM %s
+                    WHERE %s = '%s';
+                    """ % (
+                        str(table_name),
+                        str(filtr['col']),
+                        normalize(string=filtr['val'])
+                    )
                 )
-            )
-        self.connection.commit()
+            connection.commit()
 
     def build_database_table_objects_to_delete(
         self,
@@ -425,7 +419,6 @@ class Handler():
         query_index_values : `list`
             List of database `query_index` values that will be deleted.
         """
-
         object_to_delete = []
         if table_names:
             for table in table_names:
@@ -465,7 +458,6 @@ class Handler():
         dependent_query_index : `str`
             Name of the database `query_index` that depends on `query_index`.
         """
-
         dependent_query_index_values = []
         if table_names:
             for table in table_names:
@@ -489,8 +481,8 @@ class Handler():
     ) -> list:
         """ Selects the associated database table `col` values that belong
         only to the filtered index value, `filtr['val']`, and returns them as a `list`.
-        The returned values would have no owner once `filtr['val']`
-        is deleted from the database.
+        The returned values would have no owner once `filtr['val']` is deleted
+        from the database.
 
         Parameters
         ----------
@@ -511,9 +503,11 @@ class Handler():
 
         if type(filtr['val']) is list:
             query = """
-                SELECT %s FROM (
-                    SELECT %s, %s, COUNT(%s) as COUNT FROM %s
-                        GROUP BY %s
+                SELECT %s
+                FROM (
+                    SELECT %s, %s, COUNT(%s) as COUNT
+                    FROM %s
+                    GROUP BY %s
                 ) WHERE COUNT = 1 AND %s in (%s);
             """ % (
                 str(col),
@@ -528,8 +522,9 @@ class Handler():
         else:
             query = """
                 SELECT %s FROM (
-                    SELECT %s, %s, COUNT(%s) as COUNT FROM %s
-                        GROUP BY %s
+                    SELECT %s, %s, COUNT(%s) as COUNT
+                    FROM %s
+                    GROUP BY %s
                 ) WHERE COUNT = 1 AND %s = '%s';
             """ % (
                 str(col),
@@ -542,9 +537,10 @@ class Handler():
                 normalize(string=filtr['val'])
             )
 
-        values = [
-            i[0] for i in self.cursor.execute(query).fetchall()
-        ]
+        with contextlib.closing(self.connection()) as connection:
+            values = [
+                i[0] for i in connection.cursor().execute(query).fetchall()
+            ]
 
         return [utils.as_type(value=i, return_dtype='str') for i in values]
 
@@ -566,18 +562,40 @@ class Handler():
         query_index_values : `list`
             List of database `query_index` values that will be deleted.
         """
-
         return [
             {
-                'table_name': table_name,
+                'table_name': str(table_name),
                 'filtr': {
-                    'col': query_index,
-                    'val': query_index_values
+                    'col': str(query_index),
+                    'val': str(query_index_values)
                 }
             }
         ]
 
     # Define generic db function(s) for retrieving table information
+    def table_exists(
+        self,
+        table_name: str
+    ) -> bool:
+        """ Returns `True` when {table_name} exists within the database.
+
+        Parameters
+        ----------
+        table_name : `str`
+            Name of the database table.
+        """
+        with contextlib.closing(self.connection()) as connection:
+            if connection.cursor().execute(
+                """
+                    SELECT name
+                    FROM sqlite_master
+                    WHERE name = '%s';
+                """ % (str(table_name))
+            ).fetchall():
+                return True
+            else:
+                return False
+
     def table_record_exists(
         self,
         table_name: str,
@@ -599,31 +617,39 @@ class Handler():
                     'val' : '1'
                 }
         """
-
-        if type(filtr['val']) is list:
-            if self.cursor.execute(
-                "SELECT %s FROM %s WHERE %s IN (%s)" % (
-                    str(filtr['col']),
-                    str(table_name),
-                    str(filtr['col']),
-                    ', '.join(["'%s'" % normalize(string=i) for i in filtr['val']])
-                )
-            ).fetchall():
-                return True
+        with contextlib.closing(self.connection()) as connection:
+            if type(filtr['val']) is list:
+                if connection.cursor().execute(
+                    """
+                        SELECT %s
+                        FROM %s
+                        WHERE %s IN (%s);
+                    """ % (
+                        str(filtr['col']),
+                        str(table_name),
+                        str(filtr['col']),
+                        ', '.join(["'%s'" % normalize(string=i) for i in filtr['val']])
+                    )
+                ).fetchall():
+                    return True
+                else:
+                    return False
             else:
-                return False
-        else:
-            if self.cursor.execute(
-                "SELECT %s FROM %s WHERE %s = '%s'" % (
-                    str(filtr['col']),
-                    str(table_name),
-                    str(filtr['col']),
-                    normalize(string=filtr['val'])
-                )
-            ).fetchall():
-                return True
-            else:
-                return False
+                if connection.cursor().execute(
+                    """
+                        SELECT %s
+                        FROM %s
+                        WHERE %s = '%s';
+                    """ % (
+                        str(filtr['col']),
+                        str(table_name),
+                        str(filtr['col']),
+                        normalize(string=filtr['val'])
+                    )
+                ).fetchall():
+                    return True
+                else:
+                    return False
 
     def select_table_column_names_as_list(
         self,
@@ -636,13 +662,18 @@ class Handler():
         table_name : `str`
             Name of the database table.
         """
-        return [
-            col[0] for col in self.cursor.execute(
-                "SELECT name FROM pragma_table_info('%s') ORDER BY cid;" % (
-                    table_name
-                )
-            ).fetchall()
-        ]
+        with contextlib.closing(self.connection()) as connection:
+            return [
+                col[0] for col in connection.cursor().execute(
+                    """
+                        SELECT name
+                        FROM pragma_table_info('%s')
+                        ORDER BY cid;
+                    """ % (
+                        table_name
+                    )
+                ).fetchall()
+            ]
 
     def select_num_table_records(
         self,
@@ -666,15 +697,19 @@ class Handler():
                     'val' : '1'
                 }
         """
-
-        query = "SELECT COUNT(*) FROM %s WHERE %s = '%s';" % (
-            table_name,
+        query = """
+            SELECT COUNT(*)
+            FROM %s
+            WHERE %s = '%s';
+        """ % (
+            str(table_name),
             str(filtr['col']),
             normalize(string=filtr['val'])
         )
-        value = [
-            i[0] for i in self.cursor.execute(query).fetchall()
-        ]
+        with contextlib.closing(self.connection()) as connection:
+            value = [
+                i[0] for i in connection.cursor().execute(query).fetchall()
+            ]
 
         if value:
             return int(value[0])
@@ -693,18 +728,19 @@ class Handler():
         col : `str`
             Name of the database table column.
         """
-
         query = """
-            SELECT m.name AS table_name,
+            SELECT
+                m.name AS table_name,
                 p.name AS column_name
             FROM sqlite_master AS m
             LEFT OUTER JOIN pragma_table_info((m.name)) AS p
-                ON m.name <> p.name
+            ON m.name <> p.name
             WHERE column_name = '%s'
             ORDER BY table_name, column_name;
-        """ % (col)
+        """ % (str(col))
 
-        return [i[0] for i in self.cursor.execute(query).fetchall()]
+        with contextlib.closing(self.connection()) as connection:
+            return [i[0] for i in connection.cursor().execute(query).fetchall()]
 
     # Define generic db function(s) for selecting table values
     def select_table_column_value(
@@ -755,27 +791,38 @@ class Handler():
             filtr['val'] = [filtr['val']]
 
         if contains:
-            query = "SELECT %s FROM %s WHERE %s IN (%s) ORDER BY %s %s;" % (
+            query = """
+                SELECT %s
+                FROM %s
+                WHERE %s IN (%s)
+                ORDER BY %s %s;
+            """ % (
                 str(col),
-                table_name,
+                str(table_name),
                 str(filtr['col']),
                 ', '.join(["'%s'" % normalize(string=i) for i in filtr['val']]),
                 str(col),
                 str(order)
             )
         else:
-            query = "SELECT %s FROM %s WHERE %s NOT IN (%s) ORDER BY %s %s;" % (
+            query = """
+                SELECT %s
+                FROM %s
+                WHERE %s NOT IN (%s)
+                ORDER BY %s %s;
+            """ % (
                 str(col),
-                table_name,
+                str(table_name),
                 str(filtr['col']),
                 ', '.join(["'%s'" % normalize(string=i) for i in filtr['val']]),
                 str(col),
                 str(order)
             )
 
-        value = [
-            i[0] for i in self.cursor.execute(query).fetchall()
-        ]
+        with contextlib.closing(self.connection()) as connection:
+            value = [
+                i[0] for i in connection.cursor().execute(query).fetchall()
+            ]
 
         if value:
             if len(value) == 1 and not multi:
@@ -836,34 +883,31 @@ class Handler():
         if type(filtr['val']) is list:
             query = """
                 SELECT %s
-                    FROM %s
-                        WHERE %s IN (%s);
+                FROM %s
+                WHERE %s IN (%s);
             """ % (
                 ', '.join([str(i) for i in cols]),
-                table_name,
+                str(table_name),
                 str(filtr['col']),
                 ', '.join(["'%s'" % normalize(string=i) for i in filtr['val']])
             )
         else:
             query = """
                 SELECT %s
-                    FROM %s
-                        WHERE %s = '%s';
+                FROM %s
+                WHERE %s = '%s';
             """ % (
                 ', '.join([str(i) for i in cols]),
-                table_name,
+                str(table_name),
                 str(filtr['col']),
                 normalize(string=filtr['val'])
             )
-        values = self.cursor.execute(query).fetchall()[0]
+
+        with contextlib.closing(self.connection()) as connection:
+            values = connection.cursor().execute(query).fetchall()[0]
 
         if values:
-            return dict(
-                zip(
-                    cols,
-                    values
-                )
-            )
+            return dict(zip(cols, values))
         else:
             raise NullReturnValue(
                 "The query {%s} returned a null value." % (
@@ -888,10 +932,10 @@ class Handler():
                 the returned value. If the returned value cannot be converted
                 to `return_dtype` then a `TypeError` is raised.
         """
-
-        value = [
-            i[0] for i in self.cursor.execute(query).fetchall()
-        ]
+        with contextlib.closing(self.connection()) as connection:
+            value = [
+                i[0] for i in connection.cursor().execute(query).fetchall()
+            ]
 
         if value:
             if len(value) == 1:
@@ -915,6 +959,56 @@ class Handler():
                     query
                 )
             )
+
+
+class Schema(pandera.DataFrameSchema):
+
+    def __init__(self):
+        """ Initializes an instance of the Schema as an extension of `pandera.DataFrameSchema`.
+        """
+        super().__init__(
+            name='generic',
+            columns={
+                "index_column": pandera.Column(str, nullable=False, unique=True, metadata={'primary_key': True}),
+                "str_column": pandera.Column(str, nullable=False, unique=True, default='str'),
+                "intint_column": pandera.Column(int, nullable=True, unique=False),
+                "bool_column": pandera.Column(bool, nullable=False, unique=True, default=False),
+                "int_column": pandera.Column(int, nullable=False, unique=True),
+                "date_column": pandera.Column(pandera.Timestamp, nullable=False, unique=False),
+                "time_column": pandera.Column(pandera.Timestamp, nullable=True, unique=True),
+                "delta_column": pandera.Column(pandera.Timedelta, nullable=False, default=datetime.timedelta(days=1))
+            }
+        )
+
+    def to_sqlite(self):
+        """ Returns a sqlite3 schema.
+        """
+        columns: list = []
+
+        for name, column_schema in self.columns.items():
+            columns.append(self.column_def(name=name, column_schema=column_schema))
+
+        return ''.join(['(', ', '.join(columns), ')'])
+
+    def column_def(self, name: str, column_schema: pandera.Column):
+        """ Returns the sqlite3-column definition for a single schema column.
+        """
+        column_def = ' '.join([
+            name,
+            datatypes.from_pandera(column_schema.dtype).to_sqlite()
+        ])
+
+        if not column_schema.nullable:
+            column_def = ' '.join([column_def, 'NOT NULL', syntax.Conflict.nullable_clause()])
+        if column_schema.unique:
+            column_def = ' '.join([column_def, 'UNIQUE', syntax.Conflict.unique_clause()])
+        if column_schema.default is not None:
+            column_def = ' '.join([column_def, 'DEFAULT', syntax.Literal.value(column_schema.default)])
+        if column_schema.metadata:
+            if 'primary_key' in column_schema.metadata:
+                column_def = ' '.join([column_def, 'PRIMARY KEY', syntax.Conflict.primary_key_clause()])
+
+        return column_def
 
 
 # Define exception classes
@@ -941,17 +1035,28 @@ def initialize_table(
     """
 
     # Initialize the connection to the database
-    Db = Handler(
-        db_name=db_name
-    )
+    Database = Handler(db_name=db_name)
 
     # Create the table in the database
-    Db.create_table(
-        table_name=table_name,
-        cols=cols
-    )
+    Database.create_table(table_name=table_name, cols=cols)
 
-    return Db
+    return Database
+
+
+def parse_db_name(db_name: str) -> str:
+    """ Parses {db_name} to ensure the database contains a proper file-extension.
+
+    Parameters
+    ----------
+    db_name : `str`
+        Name of the database.
+    """
+    file_name, extension = os.path.splitext(db_name)
+
+    if extension and extension.lower().replace('.', '') in DBMS_OPTIONS:
+        return ''.join([file_name, extension.lower()])
+    else:
+        return '.'.join([file_name, DEFAULT_DBMS])
 
 
 def normalize(
@@ -964,7 +1069,6 @@ def normalize(
     string: `str`
         String to format.
     """
-
     return escape_quote_char(string=string)
 
 
@@ -978,5 +1082,4 @@ def escape_quote_char(
     string: `str`
         String to escape.
     """
-
     return str(string).replace("'", "''")

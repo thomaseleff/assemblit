@@ -19,8 +19,9 @@ import argon2
 from argon2 import PasswordHasher
 from email_validator import validate_email, EmailNotValidError
 import streamlit as st
-from assemblit import setup, db
+from assemblit import setup
 from assemblit.pages._components import _core
+from assemblit.database import generic
 
 
 # Define generic authentication function(s)
@@ -55,7 +56,7 @@ def authenticate(
         Argon2id = PasswordHasher()
 
         # Initialize connection to the users database
-        Users = db.Handler(
+        Users = generic.Handler(
             db_name=setup.USERS_DB_NAME
         )
 
@@ -177,7 +178,7 @@ def add_credentials(
             Argon2id = PasswordHasher()
 
             # Initialize connection to the users database
-            Users = db.Handler(
+            Users = generic.Handler(
                 db_name=setup.USERS_DB_NAME
             )
 
@@ -356,7 +357,7 @@ def update_username(
         username = email.normalized
 
         # Initialize connection to the users database
-        Users = db.Handler(
+        Users = generic.Handler(
             db_name=setup.USERS_DB_NAME
         )
 
@@ -423,7 +424,7 @@ def update_password(
         Argon2id = PasswordHasher()
 
         # Initialize connection to the users database
-        Users = db.Handler(
+        Users = generic.Handler(
             db_name=setup.USERS_DB_NAME
         )
 
@@ -461,17 +462,17 @@ def delete_account(
     """
 
     # Initialize connection to the users database
-    Users = db.Handler(
+    Users = generic.Handler(
         db_name=setup.USERS_DB_NAME
     )
 
     # Initialize connection to the sessions database
-    Sessions = db.Handler(
+    Sessions = generic.Handler(
         db_name=setup.SESSIONS_DB_NAME
     )
 
     # Initialize connection to the data-ingestion database
-    Data = db.Handler(
+    Data = generic.Handler(
         db_name=setup.DATA_DB_NAME
     )
 

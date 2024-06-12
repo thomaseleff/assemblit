@@ -14,9 +14,11 @@ Contains the generic methods for a session-selector.
 
 import hashlib
 import streamlit as st
-from assemblit import setup, db
+from assemblit import setup
 from assemblit.pages._components import _core, _key_value
 from pytensils import utils
+
+from assemblit.database import generic
 
 
 # Define core-component selector function(s)
@@ -152,12 +154,12 @@ def select_selector_dropdown_options(
     """
 
     # Initialize connection to the scope-database
-    Scope = db.Handler(
+    Scope = generic.Handler(
         db_name=scope_db_name
     )
 
     # Initialize the connection to the session-selector database
-    Db = db.Handler(
+    Db = generic.Handler(
         db_name=db_name
     )
 
@@ -342,12 +344,12 @@ def select_query_index_value(
     """
 
     # Initialize connection to the scope-database
-    Scope = db.Handler(
+    Scope = generic.Handler(
         db_name=scope_db_name
     )
 
     # Initialize connection to the session-selector database
-    Db = db.Handler(
+    Db = generic.Handler(
         db_name=db_name
     )
 
@@ -374,7 +376,7 @@ def select_query_index_value(
                 )]
             ),
             str(filtr['col']),
-            db.normalize(string=filtr['val'])
+            generic.normalize(string=filtr['val'])
         )
     ).fetchall()
 
@@ -432,12 +434,12 @@ def create_session(
     """
 
     # Initialize connection to the scope-database
-    Scope = db.Handler(
+    Scope = generic.Handler(
         db_name=scope_db_name
     )
 
     # Initialize connection to the session-selector database
-    Db = db.Handler(
+    Db = generic.Handler(
         db_name=db_name
     )
 
@@ -471,7 +473,7 @@ def create_session(
                 },
                 multi=True
             )
-        except db.NullReturnValue:
+        except generic.NullReturnValue:
             ids = []
 
         if id not in ids:
@@ -561,7 +563,7 @@ def update_session(
     """
 
     # Initialize connection to the session-selector database
-    Db = db.Handler(
+    Db = generic.Handler(
         db_name=db_name
     )
 
@@ -667,17 +669,17 @@ def delete_session(
     """
 
     # Initialize connection to the users database
-    Users = db.Handler(
+    Users = generic.Handler(
         db_name=setup.USERS_DB_NAME
     )
 
     # Initialize connection to the sessions database
-    Sessions = db.Handler(
+    Sessions = generic.Handler(
         db_name=setup.SESSIONS_DB_NAME
     )
 
     # Initialize connection to the data-ingestion database
-    Data = db.Handler(
+    Data = generic.Handler(
         db_name=setup.DATA_DB_NAME
     )
 

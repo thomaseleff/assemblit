@@ -16,8 +16,9 @@ import hashlib
 import json
 import pandas as pd
 import streamlit as st
-from assemblit import data_toolkit, setup, db
+from assemblit import data_toolkit, setup
 from assemblit.pages._components import _core, _selector
+from assemblit.database import generic
 
 
 # Define core-component uploader function(s)
@@ -799,12 +800,12 @@ def retrieve_data_from_database(
     """
 
     # Initialize the connection to the scope database
-    Scope = db.Handler(
+    Scope = generic.Handler(
         db_name=scope_db_name
     )
 
     # Initialize connection to the data-ingestion database
-    Data = db.Handler(
+    Data = generic.Handler(
         db_name=db_name
     )
 
@@ -833,7 +834,7 @@ def retrieve_data_from_database(
                 },
                 multi=True
             )
-        except db.NullReturnValue:
+        except generic.NullReturnValue:
             ids = []
 
         if dataset_id in ids:
@@ -894,7 +895,7 @@ def retrieve_data_from_database(
                     ),
                     return_dtype='list'
                 )
-            except db.NullReturnValue:
+            except generic.NullReturnValue:
                 selected_datetime = []
             selected_dimensions = Data.select_generic_query(
                 query="""
@@ -997,12 +998,12 @@ def finalize_dataset(
     """
 
     # Initialize connection to the data-ingestion database
-    Data = db.Handler(
+    Data = generic.Handler(
         db_name=db_name
     )
 
     # Initialize connection to the scope database
-    Scope = db.Handler(
+    Scope = generic.Handler(
         db_name=setup.SESSIONS_DB_NAME
     )
 
@@ -1074,7 +1075,7 @@ def save_dataset(
     """
 
     # Initialize connection to the data-ingestion database
-    Data = db.Handler(
+    Data = generic.Handler(
         db_name=db_name
     )
 
@@ -1137,12 +1138,12 @@ def delete_dataset(
     """
 
     # Initialize connection to the sessions database
-    Sessions = db.Handler(
+    Sessions = generic.Handler(
         db_name=setup.SESSIONS_DB_NAME
     )
 
     # Initialize connection to the data-ingestion database
-    Data = db.Handler(
+    Data = generic.Handler(
         db_name=setup.DATA_DB_NAME
     )
 

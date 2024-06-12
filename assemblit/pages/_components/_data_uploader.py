@@ -20,7 +20,8 @@ import pandas as pd
 import pandera as pa
 from pandera.engines import pandas_engine
 import streamlit as st
-from assemblit import data_toolkit, setup, db
+from assemblit import data_toolkit, setup
+from assemblit.database import generic
 
 
 # Define core-component uploader function(s)
@@ -549,12 +550,12 @@ def promote_data_to_database(
     """
 
     # Initialize the connection to the scope database
-    Scope = db.Handler(
+    Scope = generic.Handler(
         db_name=scope_db_name
     )
 
     # Initialize connection to the data-ingestion database
-    Data = db.Handler(
+    Data = generic.Handler(
         db_name=db_name
     )
 
@@ -582,7 +583,7 @@ def promote_data_to_database(
             ) + 1
         )
 
-    except (TypeError, db.NullReturnValue):
+    except (TypeError, generic.NullReturnValue):
         version = 1
 
     # Create an id from the session name and file name
