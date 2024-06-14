@@ -18,7 +18,7 @@ import sqlite3
 import contextlib
 import pandera
 from assemblit import setup
-from assemblit.database import datatypes, syntax, dbutils
+from assemblit.database import datatypes, syntax
 from pytensils import utils
 
 
@@ -86,7 +86,7 @@ class Handler():
 
         # Assign class variables
         self.dir_name: str = dir_name
-        self.db_name: str = dbutils.parse_db_name(db_name=db_name)
+        self.db_name: str = parse_db_name(db_name=db_name)
         self.conn: sqlite3.Connection = sqlite3.connect(os.path.join(dir_name, db_name))
 
         # Create the database directory if it does not exist
@@ -152,8 +152,8 @@ class Handler():
     def insert(
         self,
         table_name: str,
-        values: dbutils.Values,
-        validate: dbutils.Validate | None = None
+        values: Values,
+        validate: Validate | None = None
     ):
         """ Inserts a row of values into the database table.
 
@@ -161,12 +161,12 @@ class Handler():
         ----------
         table_name : `str`
             Name of the database table.
-        values : `dbutils.Values`
+        values : `Values`
             Values object containing the table columns (as keys)
                 and values (as values) to insert into `table_name`. If
                 the order of the columns does not match the order of
                 columns in the database table, a `KeyError` is raised.
-        validate : `dbutils.Validate`
+        validate : `Validate`
             Validate object containing the column `col` and value
                 `val` to filter `table_name`. If the filtered table
                 returns a record, a `ValueError` is raised.
@@ -197,7 +197,7 @@ class Handler():
                         str(table_name),
                         ', '.join(
                             [
-                                "'%s'" % dbutils.normalize(string=i) for i in list(
+                                "'%s'" % normalize(string=i) for i in list(
                                     values.val
                                 )
                             ]
@@ -228,8 +228,8 @@ class Handler():
     def update(
         self,
         table_name: str,
-        values: dbutils.Values,
-        filtr: dbutils.Filter
+        values: Values,
+        filtr: Filter
     ):
         """ Updates a single column value in a filtered database table.
 
@@ -237,10 +237,10 @@ class Handler():
         ----------
         table_name : `str`
             Name of the database table.
-        values : `dbutils.Values`
+        values : `Values`
             Values object containing the column `col` and value
                 `val` to update in `table_name`.
-        filtr : `dbutils.Filter`
+        filtr : `Filter`
             Filter object containing the column `col` and value
                 `val` to filter `table_name`. If the filtered table
                 returns more than one record, a `ValueError` is raised.
@@ -260,9 +260,9 @@ class Handler():
                     """ % (
                         str(table_name),
                         str(values.col),
-                        dbutils.normalize(string=values.val),
+                        normalize(string=values.val),
                         str(filtr.col),
-                        dbutils.normalize(string=filtr.val)
+                        normalize(string=filtr.val)
                     )
                 )
                 connection.commit()
@@ -277,8 +277,8 @@ class Handler():
     def reset_table_column_value(
         self,
         table_name: str,
-        values: dbutils.Values,
-        filtr: dbutils.Filter | None = None
+        values: Values,
+        filtr: Filter | None = None
     ):
         """ Resets a column value in the database table.
 
@@ -286,10 +286,10 @@ class Handler():
         ----------
         table_name : `str`
             Name of the database table.
-        values : `dbutils.Values`
+        values : `Values`
             Values object containing the column `col` and value
                 `val` to update in `table_name`.
-        filtr : `dbutils.Filter`
+        filtr : `Filter`
             Filter object containing the column `col` and value
                 `val` to filter `table_name`. If the filtered table
                 returns more than one record, a `ValueError` is raised.
@@ -306,9 +306,9 @@ class Handler():
                         """ % (
                             str(table_name),
                             str(values.col),
-                            dbutils.normalize(string=values.val),
+                            normalize(string=values.val),
                             str(filtr.col),
-                            ', '.join(["'%s'" % dbutils.normalize(string=i) for i in filtr.val])
+                            ', '.join(["'%s'" % normalize(string=i) for i in filtr.val])
                         )
                     )
                 else:
@@ -320,9 +320,9 @@ class Handler():
                         """ % (
                             str(table_name),
                             str(values.col),
-                            dbutils.normalize(string=values.val),
+                            normalize(string=values.val),
                             str(filtr.col),
-                            dbutils.normalize(string=filtr.val)
+                            normalize(string=filtr.val)
                         )
                     )
             else:
@@ -333,7 +333,7 @@ class Handler():
                     """ % (
                         str(table_name),
                         str(values.col),
-                        dbutils.normalize(string=values.val)
+                        normalize(string=values.val)
                     )
                 )
             connection.commit()
@@ -341,13 +341,13 @@ class Handler():
     # Define db function(s) to delete table values
     def delete(
         self,
-        table_list: list[dbutils.Table]
+        table_list: list[Table]
     ):
         """ Removes all rows in a filtered database table for each database table object.
 
         Parameters
         ----------
-        database_table_object: `dbutils.Table`
+        database_table_object: `Table`
             List of Table objects containing parameters for deleting table
                 column values.
         """
@@ -361,7 +361,7 @@ class Handler():
     def delete_table_column_value(
         self,
         table_name: str,
-        filtr: dbutils.Filter
+        filtr: Filter
     ):
         """ Removes all rows of values in a filtered database table.
 
@@ -369,7 +369,7 @@ class Handler():
         ----------
         table_name : `str`
             Name of the database table.
-        filtr : `dbutils.Filter`
+        filtr : `Filter`
             Filter object containing the column `col` and value
                 `val` to filter `table_name`. The returned record(s) are
                 deleted from `table_name`.
@@ -383,7 +383,7 @@ class Handler():
                     """ % (
                         str(table_name),
                         str(filtr.col),
-                        ', '.join(["'%s'" % dbutils.normalize(string=i) for i in filtr.val])
+                        ', '.join(["'%s'" % normalize(string=i) for i in filtr.val])
                     )
                 )
             else:
@@ -394,7 +394,7 @@ class Handler():
                     """ % (
                         str(table_name),
                         str(filtr.col),
-                        dbutils.normalize(string=filtr.val)
+                        normalize(string=filtr.val)
                     )
                 )
             connection.commit()
@@ -421,7 +421,7 @@ class Handler():
             for table_name in table_names:
                 if self.table_record_exists(
                     table_name=table_name,
-                    filtr=dbutils.Filter(
+                    filtr=Filter(
                         col=str(query_index),
                         val=query_index_values
                     )
@@ -463,7 +463,7 @@ class Handler():
                 dependencies = self.select_orphaned_table_column_values(
                     table_name=str(table),
                     col=dependent_query_index,
-                    filtr=dbutils.Filter(
+                    filtr=Filter(
                         col=str(query_index),
                         val=str(query_index_value)
                     )
@@ -476,7 +476,7 @@ class Handler():
         self,
         table_name: str,
         col: str,
-        filtr: dbutils.Filter
+        filtr: Filter
     ) -> list[str]:
         """ Selects the associated database table `col` values that belong
         only to the filtered index value, `filtr.val`, and returns them as a `list`.
@@ -489,7 +489,7 @@ class Handler():
             Name of the database table.
         col : `str`
             Name of the database table column.
-        filtr : `dbutils.Filter`
+        filtr : `Filter`
             Filter object containing the column `col` and value
                 `val` to filter `table_name`. The returned record is
                 deleted from `table_name`.
@@ -511,7 +511,7 @@ class Handler():
                 str(table_name),
                 str(col),
                 str(filtr.col),
-                ', '.join(["'%s'" % dbutils.normalize(string=i) for i in filtr.val])
+                ', '.join(["'%s'" % normalize(string=i) for i in filtr.val])
             )
         else:
             query = """
@@ -528,7 +528,7 @@ class Handler():
                 str(table_name),
                 str(col),
                 str(filtr.col),
-                dbutils.normalize(string=filtr.val)
+                normalize(string=filtr.val)
             )
 
         values = [
@@ -542,7 +542,7 @@ class Handler():
         table_name: str,
         query_index: str,
         query_index_values: list[str]
-    ) -> list[dbutils.Table]:
+    ) -> list[Table]:
         """ Creates a Table object containg parameters for deleting rows of a database table
         and returns it as a `list`.
 
@@ -555,9 +555,9 @@ class Handler():
         query_index_values : `list`
             List of database `query_index` values that will be deleted.
         """
-        return dbutils.Table(
+        return Table(
             table_name=str(table_name),
-            filtr=dbutils.Filter(
+            filtr=Filter(
                 col=str(query_index),
                 val=query_index_values
             )
@@ -589,7 +589,7 @@ class Handler():
     def table_record_exists(
         self,
         table_name: str,
-        filtr: dbutils.Filter
+        filtr: Filter
     ) -> bool:
         """ Returns `True` when the filtered records exist within a database table.
 
@@ -597,7 +597,7 @@ class Handler():
         ----------
         table_name : `str`
             Name of the database table.
-        filtr : `dbutils.Filter`
+        filtr : `Filter`
             Filter object containing the column `col` and value
                 `val` to filter `table_name`. If the filtered table
                 returns a record, `True` is returned.
@@ -612,7 +612,7 @@ class Handler():
                     str(filtr.col),
                     str(table_name),
                     str(filtr.col),
-                    ', '.join(["'%s'" % dbutils.normalize(string=i) for i in filtr.val])
+                    ', '.join(["'%s'" % normalize(string=i) for i in filtr.val])
                 )
             ).fetchall():
                 return True
@@ -628,7 +628,7 @@ class Handler():
                     str(filtr.col),
                     str(table_name),
                     str(filtr.col),
-                    dbutils.normalize(string=filtr.val)
+                    normalize(string=filtr.val)
                 )
             ).fetchall():
                 return True
@@ -661,7 +661,7 @@ class Handler():
     def select_num_table_records(
         self,
         table_name: str,
-        filtr: dbutils.Filter
+        filtr: Filter
     ) -> int:
         """ Returns the number of records from a filtered database table as an `int`.
 
@@ -669,7 +669,7 @@ class Handler():
         ----------
         table_name : `str`
             Name of the database table.
-        filtr : `dbutils.Filter`
+        filtr : `Filter`
             Filter object containing the column `col` and value
                 `val` to filter `table_name`. If the filtered table
                 returns (a) record(s), then the number of records
@@ -682,7 +682,7 @@ class Handler():
         """ % (
             str(table_name),
             str(filtr.col),
-            dbutils.normalize(string=filtr.val)
+            normalize(string=filtr.val)
         )
         value = [
             i[0] for i in self.conn.cursor().execute(query).fetchall()
@@ -723,7 +723,7 @@ class Handler():
         self,
         table_name: str,
         col: str,
-        filtr: dbutils.Filter,
+        filtr: Filter,
         return_dtype: str = 'str',
         multi: bool = False,
         order: str = 'ASC',
@@ -737,7 +737,7 @@ class Handler():
             Name of the database table.
         col : `str`
             Name of the database table column.
-        filtr : `dbutils.Filter`
+        filtr : `Filter`
             Filter object containing the column `col` and value `val` to filter
                 `table_name`. If the filtered table returns (a) record(s), then the
                 `col` value is returned as `return_dtype`. If no record(s) are returned,
@@ -770,7 +770,7 @@ class Handler():
                 str(col),
                 str(table_name),
                 str(filtr.col),
-                ', '.join(["'%s'" % dbutils.normalize(string=i) for i in filtr.val]),
+                ', '.join(["'%s'" % normalize(string=i) for i in filtr.val]),
                 str(col),
                 str(order)
             )
@@ -784,7 +784,7 @@ class Handler():
                 str(col),
                 str(table_name),
                 str(filtr.col),
-                ', '.join(["'%s'" % dbutils.normalize(string=i) for i in filtr.val]),
+                ', '.join(["'%s'" % normalize(string=i) for i in filtr.val]),
                 str(col),
                 str(order)
             )
@@ -828,7 +828,7 @@ class Handler():
         self,
         table_name: str,
         cols: list[str],
-        filtr: dbutils.Filter
+        filtr: Filter
     ) -> dict:
         """ Returns multiple column values from a filtered database table as a `dict`.
 
@@ -838,7 +838,7 @@ class Handler():
             Name of the database table.
         cols : `list`
             Names of the database table columns.
-        filtr : `dbutils.Filter`
+        filtr : `Filter`
             Filter object containing the column `col` and value `val` to filter
                 `table_name`. If the filtered table returns (a) record(s), then
                 the `cols` and values are returned as a `dict`. If no record(s) are
@@ -853,7 +853,7 @@ class Handler():
                 ', '.join([str(i) for i in cols]),
                 str(table_name),
                 str(filtr.col),
-                ', '.join(["'%s'" % dbutils.normalize(string=i) for i in filtr.val])
+                ', '.join(["'%s'" % normalize(string=i) for i in filtr.val])
             )
         else:
             query = """
@@ -864,7 +864,7 @@ class Handler():
                 ', '.join([str(i) for i in cols]),
                 str(table_name),
                 str(filtr.col),
-                dbutils.normalize(string=filtr.val)
+                normalize(string=filtr.val)
             )
 
         values = self.conn.cursor().execute(query).fetchall()[0]
