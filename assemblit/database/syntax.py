@@ -9,18 +9,20 @@ Description
 Database conflict-clause defaults for sqlite3-databases.
 """
 
-from typing import Any
+from dataclasses import dataclass
+from typing import Any, ClassVar
 import datetime
 from assemblit.database import adapters
 
 
+@dataclass
 class Conflict():
 
-    rollback = 'ROLLBACK'
-    abort = 'ABORT'
-    fail = 'FAIL'
-    ignore = 'IGNORE'
-    replace = 'REPLACE'
+    rollback: ClassVar[str] = 'ROLLBACK'
+    abort: ClassVar[str] = 'ABORT'
+    fail: ClassVar[str] = 'FAIL'
+    ignore: ClassVar[str] = 'IGNORE'
+    replace: ClassVar[str] = 'REPLACE'
 
     def nullable_clause():
         return 'ON CONFLICT %s' % (Conflict.abort)
@@ -32,6 +34,7 @@ class Conflict():
         return 'ON CONFLICT %s' % (Conflict.abort)
 
 
+@dataclass
 class Literal():
 
     def value(value: Any) -> str:
