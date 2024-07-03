@@ -13,7 +13,7 @@ ENV GITHUB_REPOSITORY_URL "https://github.com/thomaseleff/assemblit"
 ENV GITHUB_BRANCH_NAME "v0.1.0#14"
 
 # Streamlit configuration settings
-ENV CLIENT_PORT 8501
+ENV CLIENT_PORT 8080
 ENV PORT ${CLIENT_PORT}
 
 # Orchestration server configuration settings
