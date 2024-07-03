@@ -16,7 +16,7 @@ import copy
 import streamlit as st
 from assemblit import setup
 from assemblit.pages._components import _core, _key_value, _selector
-from assemblit.database import generic
+from assemblit.database import users
 
 
 class Content():
@@ -170,12 +170,9 @@ class Content():
                     )
 
             # Initialize the scope-database table
-            _ = generic.initialize_table(
-                db_name=self.scope_db_name,
-                table_name=self.table_name,
-                cols=(
-                    [self.scope_query_index] + [self.query_index]
-                )
+            _ = users.Connection().create_table(
+                table_name=users.Schemas.sessions.name,
+                schema=users.Schemas.sessions
             )
 
             # Manage the sessions-key-value-pair-settings database table

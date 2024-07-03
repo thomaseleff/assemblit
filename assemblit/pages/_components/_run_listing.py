@@ -2,11 +2,7 @@
 Information
 ---------------------------------------------------------------------
 Name        : _run_listing.py
-Location    : ~/_components
-Author      : Tom Eleff
-Published   : 2024-06-02
-Revised on  : .
-
+Location    : ~/pages/_components
 Description
 ---------------------------------------------------------------------
 Contains the generic methods for a run-listing-page.
@@ -16,10 +12,13 @@ import datetime
 import pandas as pd
 import streamlit as st
 from assemblit import setup
-from assemblit.database import generic
+from assemblit.pages._components import _core, _selector
+from assemblit.database import sessions, analysis, generic
 from assemblit.server import layer
 from assemblit.server import setup as server_setup
-from assemblit.pages._components import _core, _selector
+
+# --TODO Remove scope_db_name and scope_query_index from all function(s).
+#       Scope for analysis is not dynamic, it can only be the sessions-db.
 
 
 # Define core-component run-listing function(s)
@@ -47,14 +46,10 @@ def display_run_listing_table(
     '''
 
     # Initialize the connection to the scope database
-    Session = generic.Handler(
-        db_name=scope_db_name
-    )
+    Sessions = sessions.Connection()
 
     # Initialize connection to the analysis database
-    Analysis = generic.Handler(
-        db_name=db_name
-    )
+    Analysis = analysis.Connection()
 
     # Check server-health
     server_health = layer.health_check(
@@ -72,7 +67,7 @@ def display_run_listing_table(
                 sql="SELECT * FROM %s WHERE %s IN (%s)" % (
                     table_name,
                     query_index,
-                    ', '.join(["'%s'" % (i) for i in Session.select_table_column_value(
+                    ', '.join(["'%s'" % (i) for i in Sessions.select_table_column_value(
                         table_name=table_name,
                         col=query_index,
                         filtr={
@@ -531,9 +526,7 @@ def refresh_run_listing_table(
     ):
 
         # Initialize connection to the analysis database
-        Analysis = generic.Handler(
-            db_name=db_name
-        )
+        Analysis = analysis.Connection()
 
         # Get all run-ids with non-terminal states
         try:

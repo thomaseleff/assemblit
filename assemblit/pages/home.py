@@ -3,9 +3,6 @@ Information
 ---------------------------------------------------------------------
 Name        : home.py
 Location    : ~/pages
-Author      : Tom Eleff
-Published   : 2024-02-21
-Revised on  : .
 
 Description
 ---------------------------------------------------------------------
@@ -13,7 +10,8 @@ Contains the `Class` for the home-page.
 """
 
 import streamlit as st
-from assemblit import setup, vault, web
+from assemblit import setup, web
+from assemblit.auth import vault
 from assemblit.pages._components import _core
 
 
@@ -22,10 +20,10 @@ class Content():
     def __init__(
         self,
         header: str = 'Welcome',
-        tagline: str = 'An ```assemblit``` web-application for Github projects.',
+        tagline: str = 'An ```assemblit``` web-application for GitHub projects.',
         content_url: str = None,
         content_file_name: str = 'README.md',
-        content_info: str = 'For more information, visit the Github repository.'
+        content_info: str = 'For more information, visit the GitHub repository.'
     ):
         """ Initializes an instance of the home-page `Class`.
 
@@ -260,7 +258,7 @@ class Content():
 
     def display_sign_up_form(
         self,
-        value
+        value: bool
     ):
         """ Displays the sign-up form.
 

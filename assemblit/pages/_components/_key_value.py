@@ -14,9 +14,8 @@ Contains the generic methods for a key-value pair settings-page.
 
 import streamlit as st
 from assemblit import setup
-from pytensils import utils
-
 from assemblit.database import generic
+from pytensils import utils
 
 
 # Define core-component key-value pair function(s)
@@ -499,7 +498,7 @@ def select_setting_table_column_value(
     """
 
     # Initialize the connection to the Database
-    Db = generic.Handler(
+    Db = generic.Connection(
         db_name=db_name
     )
 
@@ -537,7 +536,7 @@ def update_settings(
     if response:
 
         # Initialize connection to the database
-        Db = generic.Handler(
+        Db = generic.Connection(
             db_name=db_name
         )
 

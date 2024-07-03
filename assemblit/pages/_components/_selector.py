@@ -16,9 +16,8 @@ import hashlib
 import streamlit as st
 from assemblit import setup
 from assemblit.pages._components import _core, _key_value
+from assemblit.database import users, sessions, data, generic
 from pytensils import utils
-
-from assemblit.database import generic
 
 
 # Define core-component selector function(s)
@@ -154,12 +153,12 @@ def select_selector_dropdown_options(
     """
 
     # Initialize connection to the scope-database
-    Scope = generic.Handler(
+    Scope = generic.Connection(
         db_name=scope_db_name
     )
 
     # Initialize the connection to the session-selector database
-    Db = generic.Handler(
+    Db = generic.Connection(
         db_name=db_name
     )
 
@@ -344,12 +343,12 @@ def select_query_index_value(
     """
 
     # Initialize connection to the scope-database
-    Scope = generic.Handler(
+    Scope = generic.Connection(
         db_name=scope_db_name
     )
 
     # Initialize connection to the session-selector database
-    Db = generic.Handler(
+    Db = generic.Connection(
         db_name=db_name
     )
 
@@ -434,12 +433,12 @@ def create_session(
     """
 
     # Initialize connection to the scope-database
-    Scope = generic.Handler(
+    Scope = generic.Connection(
         db_name=scope_db_name
     )
 
     # Initialize connection to the session-selector database
-    Db = generic.Handler(
+    Db = generic.Connection(
         db_name=db_name
     )
 
@@ -563,7 +562,7 @@ def update_session(
     """
 
     # Initialize connection to the session-selector database
-    Db = generic.Handler(
+    Db = generic.Connection(
         db_name=db_name
     )
 
@@ -669,19 +668,13 @@ def delete_session(
     """
 
     # Initialize connection to the users database
-    Users = generic.Handler(
-        db_name=setup.USERS_DB_NAME
-    )
+    Users = users.Connection()
 
     # Initialize connection to the sessions database
-    Sessions = generic.Handler(
-        db_name=setup.SESSIONS_DB_NAME
-    )
+    Sessions = sessions.Connection()
 
     # Initialize connection to the data-ingestion database
-    Data = generic.Handler(
-        db_name=setup.DATA_DB_NAME
-    )
+    Data = data.Connection()
 
     # Build database table objects to remove sessions from the users database
     users_db_query_index_objects_to_delete = Users.build_database_table_objects_to_delete(

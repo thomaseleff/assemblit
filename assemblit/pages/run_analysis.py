@@ -16,7 +16,7 @@ import copy
 import streamlit as st
 from assemblit import setup
 from assemblit.pages._components import _core, _run_analysis
-from assemblit.database import generic
+from assemblit.database import sessions, analysis
 
 
 class Content():
@@ -178,38 +178,15 @@ class Content():
                     )
 
                 # Initialize the scope-database table
-                _ = generic.initialize_table(
-                    db_name=self.scope_db_name,
-                    table_name=self.table_name,
-                    cols=(
-                        [self.scope_query_index] + [self.query_index]
-                    )
+                _ = sessions.Connection().create_table(
+                    table_name=sessions.Schemas.analysis.name,
+                    schema=sessions.Schemas.analysis
                 )
 
                 # Initialize the analysis-database table
-                _ = generic.initialize_table(
-                    db_name=self.db_name,
-                    table_name=self.table_name,
-                    cols=(
-                        [
-                            self.query_index,
-                            'name',
-                            'server_type',
-                            'submitted_by',
-                            'created_on',
-                            'state',
-                            'start_time',
-                            'end_time',
-                            'run_time',
-                            'file_name',
-                            'inputs',
-                            'outputs',
-                            'run_information',
-                            'parameters',
-                            'tags',
-                            'url'
-                        ]
-                    )
+                _ = analysis.Connection().create_table(
+                    table_name=analysis.Schemas.analysis.name,
+                    schema=analysis.Schemas.analysis
                 )
 
                 # Display the run-analysis submission form

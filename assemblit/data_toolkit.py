@@ -3,9 +3,6 @@ Information
 ---------------------------------------------------------------------
 Name        : data_toolkit.py
 Location    : ~/
-Author      : Tom Eleff
-Published   : 2024-03-16
-Revised on  : .
 
 Description
 ---------------------------------------------------------------------
@@ -13,6 +10,7 @@ Contains the `Classes` for generic data parsing, aggregating and
 plotting.
 """
 
+from typing import Literal
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
@@ -110,12 +108,9 @@ class Parser():
                     date_dimensions.append(
                         (
                             col,
-                            list(
-                                regex_patterns.keys()
-                            )[
-                                list(
-                                    regex_patterns.values()
-                                ).index(pattern)]
+                            list(regex_patterns.keys())[
+                                list(regex_patterns.values()).index(pattern)
+                            ]
                         )
                     )
                     break
@@ -130,7 +125,9 @@ class Aggregator():
         datetime: list | None = None,
         dimension: list | None = None,
         metrics: list | None = None,
-        aggrules: list | None = None
+        aggrules: list[Literal[
+            'Count', 'Sum', 'Min', 'Max', 'Mean', 'Median', 'Mode', 'Standard Deviation', 'Variance'
+        ]] | None = None
     ) -> pd.DataFrame:
         """ Groups `df` by `dimensions` and/or `datetime` and aggregates `metrics` with `aggrules`
         returning a `pd.Dataframe`.
@@ -218,7 +215,9 @@ class Aggregator():
         df: pd.DataFrame,
         dimension: list | None = None,
         metrics: list | None = None,
-        aggrules: list | None = None
+        aggrules: list[Literal[
+            'Count', 'Sum', 'Min', 'Max', 'Mean', 'Median', 'Mode', 'Standard Deviation', 'Variance'
+        ]] | None = None
     ) -> pd.DataFrame:
         """ Calculates descriptive statistics and returns a `pd.DataFrame'.
 
@@ -235,13 +234,13 @@ class Aggregator():
         """
 
         # Create a copy to describe
-        descriptives_df = df.copy()
+        descriptives_df: pd.DataFrame = df.copy()
 
         # Describe
         if dimension:
 
             # Create summary
-            summary_df = Aggregator.agg_df(
+            summary_df: pd.DataFrame = Aggregator.agg_df(
                 df=df,
                 datetime=None,
                 dimension=dimension,
@@ -346,7 +345,9 @@ class Plotter():
         datetime: list = None,
         dimension: list = None,
         metrics: list = None,
-        aggrules: list = None
+        aggrules: list[Literal[
+            'Count', 'Sum', 'Min', 'Max', 'Mean', 'Median', 'Mode', 'Standard Deviation', 'Variance'
+        ]] | None = None
     ) -> go.Line:
         """ Creates a time-series line-plot and returns a Plotly `go.Line` object.
 
@@ -411,7 +412,9 @@ class Plotter():
         df: pd.DataFrame,
         dimension: list = None,
         metrics: list = None,
-        aggrules: list = None
+        aggrules: list[Literal[
+            'Count', 'Sum', 'Min', 'Max', 'Mean', 'Median', 'Mode', 'Standard Deviation', 'Variance'
+        ]] | None = None
     ) -> go.Line:
         """ Creates a descriptive summary table-figure and returns a Plotly `go.Table` object.
 
@@ -428,14 +431,14 @@ class Plotter():
         """
 
         if dimension:
-            descriptives_df = Aggregator.describe_df(
+            descriptives_df: pd.DataFrame = Aggregator.describe_df(
                 df=df,
                 dimension=dimension,
                 metrics=metrics,
                 aggrules=aggrules
             )
         else:
-            descriptives_df = Aggregator.describe_df(
+            descriptives_df: pd.DataFrame = Aggregator.describe_df(
                 df=df,
                 dimension=None,
                 metrics=metrics,

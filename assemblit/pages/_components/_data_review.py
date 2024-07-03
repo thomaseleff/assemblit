@@ -2,14 +2,11 @@
 Information
 ---------------------------------------------------------------------
 Name        : _data_upload.py
-Location    : ~/_components
-Author      : Tom Eleff
-Published   : 2024-03-17
-Revised on  : .
+Location    : ~/pages/_components
 
 Description
 ---------------------------------------------------------------------
-Contains the generic methods for a data-uploader.
+Contains the generic methods for data-review.
 """
 
 import hashlib
@@ -18,7 +15,10 @@ import pandas as pd
 import streamlit as st
 from assemblit import data_toolkit, setup
 from assemblit.pages._components import _core, _selector
-from assemblit.database import generic
+from assemblit.database import sessions, data, generic
+
+# --TODO Remove scope_db_name and scope_query_index from all function(s).
+#       Scope for data is not dynamic, it can only be the sessions-db.
 
 
 # Define core-component uploader function(s)
@@ -799,15 +799,11 @@ def retrieve_data_from_database(
         Name of the index within `scope_db_name` & `table_name`. May only be one column.
     """
 
-    # Initialize the connection to the scope database
-    Scope = generic.Handler(
-        db_name=scope_db_name
-    )
+    # Initialize the connection to the sessions database
+    Sessions = sessions.Connection()
 
     # Initialize connection to the data-ingestion database
-    Data = generic.Handler(
-        db_name=db_name
-    )
+    Data = data.Connection()
 
     # Retrieve the selected datafile
     if st.session_state[setup.NAME][db_name]['name']:
@@ -825,7 +821,7 @@ def retrieve_data_from_database(
 
         # Check if the id already exists
         try:
-            ids = Scope.select_table_column_value(
+            ids = Sessions.select_table_column_value(
                 table_name=table_name,
                 col=query_index,
                 filtr={
@@ -997,15 +993,11 @@ def finalize_dataset(
         Dataset ID of the selected dataset
     """
 
-    # Initialize connection to the data-ingestion database
-    Data = generic.Handler(
-        db_name=db_name
-    )
+    # Initialize connection to the sessions database
+    Sessions = sessions.Connection()
 
-    # Initialize connection to the scope database
-    Scope = generic.Handler(
-        db_name=setup.SESSIONS_DB_NAME
-    )
+    # Initialize connection to the data-ingestion database
+    Data = data.Connection()
 
     # Reset all datasets
     Data.reset_table_column_value(
@@ -1016,7 +1008,7 @@ def finalize_dataset(
         },
         filtr={
             'col': query_index,
-            'val': Scope.select_table_column_value(
+            'val': Sessions.select_table_column_value(
                 table_name=table_name,
                 col=query_index,
                 filtr={
@@ -1075,9 +1067,7 @@ def save_dataset(
     """
 
     # Initialize connection to the data-ingestion database
-    Data = generic.Handler(
-        db_name=db_name
-    )
+    Data = data.Connection()
 
     # Update the database with the latest selected values
     Data.update(
@@ -1138,14 +1128,10 @@ def delete_dataset(
     """
 
     # Initialize connection to the sessions database
-    Sessions = generic.Handler(
-        db_name=setup.SESSIONS_DB_NAME
-    )
+    Sessions = sessions.Connection()
 
     # Initialize connection to the data-ingestion database
-    Data = generic.Handler(
-        db_name=setup.DATA_DB_NAME
-    )
+    Data = data.Connection()
 
     # Build database table objects to remove datasets from the sessions database
     sessions_db_query_index_objects_to_delete = Sessions.build_database_table_objects_to_delete(

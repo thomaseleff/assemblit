@@ -2,10 +2,7 @@
 Information
 ---------------------------------------------------------------------
 Name        : _data_upload.py
-Location    : ~/_components
-Author      : Tom Eleff
-Published   : 2024-03-17
-Revised on  : .
+Location    : ~/pages/_components
 
 Description
 ---------------------------------------------------------------------
@@ -21,7 +18,10 @@ import pandera as pa
 from pandera.engines import pandas_engine
 import streamlit as st
 from assemblit import data_toolkit, setup
-from assemblit.database import generic
+from assemblit.database import sessions, data, generic
+
+# --TODO Remove scope_db_name and scope_query_index from all function(s).
+#       Scope for data is not dynamic, it can only be the sessions-db.
 
 
 # Define core-component uploader function(s)
@@ -550,14 +550,10 @@ def promote_data_to_database(
     """
 
     # Initialize the connection to the scope database
-    Scope = generic.Handler(
-        db_name=scope_db_name
-    )
+    Sessions = sessions.Connection()
 
     # Initialize connection to the data-ingestion database
-    Data = generic.Handler(
-        db_name=db_name
-    )
+    Data = data.Connection()
 
     # Retrieve the latest data version number
     try:
@@ -569,7 +565,7 @@ def promote_data_to_database(
                 """ % (
                     table_name,
                     query_index,
-                    ', '.join(["'%s'" % (i) for i in Scope.select_table_column_value(
+                    ', '.join(["'%s'" % (i) for i in Sessions.select_table_column_value(
                         table_name=table_name,
                         col=query_index,
                         filtr={
@@ -601,7 +597,7 @@ def promote_data_to_database(
     if not Data.table_exists(table_name=id):
 
         # Update the scope database
-        Scope.insert(
+        Sessions.insert(
             table_name=table_name,
             values={
                 scope_query_index: (

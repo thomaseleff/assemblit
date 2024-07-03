@@ -17,7 +17,7 @@ import streamlit as st
 import pandas as pd
 from assemblit import setup
 from assemblit.pages._components import _core, _data_uploader, _data_review
-from assemblit.database import generic
+from assemblit.database import sessions, data
 
 
 class Content():
@@ -126,38 +126,15 @@ class Content():
             if st.session_state[setup.NAME][setup.SESSIONS_DB_NAME][setup.SESSIONS_DB_QUERY_INDEX]:
 
                 # Initialize the scope-database table
-                _ = generic.initialize_table(
-                    db_name=self.scope_db_name,
-                    table_name=self.table_name,
-                    cols=(
-                        [self.scope_query_index] + [self.query_index]
-                    )
+                _ = sessions.Connection().create_table(
+                    table_name=sessions.Schemas.data.name,
+                    schema=sessions.Schemas.data
                 )
 
                 # Initialize the data-ingestion-database table
-                _ = generic.initialize_table(
-                    db_name=self.db_name,
-                    table_name=self.table_name,
-                    cols=(
-                        [
-                            self.query_index,
-                            'uploaded_by',
-                            'created_on',
-                            'final',
-                            'version',
-                            'file_name',
-                            'dbms',
-                            'datetime',
-                            'dimensions',
-                            'metrics',
-                            'selected_datetime',
-                            'selected_dimensions',
-                            'selected_metrics',
-                            'selected_aggrules',
-                            'size_mb',
-                            'sha256'
-                        ]
-                    )
+                _ = data.Connection().create_table(
+                    table_name=data.Schemas.data.name,
+                    schema=data.Schemas.data
                 )
 
                 # Display the data-contract expander

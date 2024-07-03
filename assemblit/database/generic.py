@@ -6,50 +6,134 @@ Location    : ~/database
 
 Description
 ---------------------------------------------------------------------
-Generic database handler and schema `class` objects for retrieving
+Generic database schema and connection `class` objects for retrieving
 information from a sqlite3-database.
 """
 
 from __future__ import annotations
-from dataclasses import dataclass
-from typing import ClassVar
+from typing import List
 import os
 import sqlite3
 import contextlib
 import pandera
-from assemblit import setup
+from assemblit.app.structures import Setting
 from assemblit.database import datatypes, syntax
+from assemblit.database.structures import DBMS, Filter, Validate, Values, Table
 from pytensils import utils
 
 
-# Define the generic database schema class
+# Define the generic database schema `class`
 class Schema(pandera.DataFrameSchema):
 
-    def __init__(self):
-        """ Initializes an instance of the Schema as an extension of `pandera.DataFrameSchema`.
+    def from_settings(
+        name: str,
+        settings_object: List[Setting]
+    ) -> Schema:
+        """ Returns a `Schema` from a list of `assemblit.app.structures.Setting` objects.
+
+        Parameters
+        ----------
+        name : `str`
+            The name of the schema.
+        settings : `List[Setting]`
+            List of `assemblit.app.structures.Setting` objects.
         """
-        super().__init__(
-            name='generic',
+
+        # Assert object type
+        if not isinstance(settings_object, list):
+            raise TypeError('Object must be a `list`.')
+
+        # Assert object item type
+        for setting in settings_object:
+            if not isinstance(setting, Setting):
+                raise TypeError('Object must be a list of `assemblit.app.structures.Setting` objects.')
+
+        return Schema(
+            name=str(name),
             columns={
-                "id": pandera.Column(str, nullable=False, unique=True, metadata={'primary_key': True})
+                setting.parameter: setting.to_pandera() for setting in settings_object
             }
         )
 
-    def to_sqlite(self):
-        """ Returns a sqlite3 schema.
+    def from_pandas() -> Schema:
+        """ Returns a `Schema` from a `pandas.DataFrame` object.
         """
-        columns: list = []
+        raise NotImplementedError
 
-        for name, column_schema in self.columns.items():
-            columns.append(self.column_def(name=name, column_schema=column_schema))
+    def from_sqlite() -> Schema:
+        """ Returns a `Schema` from a sqlite3-database table.
+        """
+        raise NotImplementedError
 
-        return ''.join(['(', ', '.join(columns), ')'])
+    def cols(self) -> list[str]:
+        """ Returns the schema columns as a `list`
+        """
+        return list(self.columns.keys())
 
-    def column_def(self, name: str, column_schema: pandera.Column):
+    def to_dict(self) -> dict:
+        """ Returns a `dict` object representation of the `Schema`.
+        """
+        raise NotImplementedError
+
+    def to_sqlite(self) -> str:
+        """ Returns a sqlite3-column schema definition.
+        """
+        column_name: str
+        column_schema: pandera.Column
+        columns: list[str] = []
+        primary_keys: list[str] = []
+
+        # Build column definitions(s)
+        for column_name, column_schema in self.columns.items():
+
+            # Append column definition
+            columns.append(self._column_def(column_name=column_name, column_schema=column_schema))
+
+            # Append primary-key
+            if column_schema.metadata:
+                if 'primary_key' in column_schema.metadata:
+                    primary_keys.append(column_name)
+
+        if primary_keys:
+            return ''.join(
+                [
+                    '(',
+                    ', '.join(columns),
+                    ', ',
+                    'PRIMARY KEY',
+                    '(',
+                    ', '.join(primary_keys),
+                    ')',
+                    ' ',
+                    syntax.Conflict.primary_key_clause(),
+                    ')'
+                ]
+            )
+        else:
+            return ''.join(
+                [
+                    '(',
+                    ', '.join(columns),
+                    ')'
+                ]
+            )
+
+    def _column_def(
+        self,
+        column_name: str,
+        column_schema: pandera.Column
+    ):
         """ Returns the sqlite3-column definition for a single schema column.
+
+        Parameters
+        ----------
+        column_name : `str`
+            The name of the column.
+        column_schema : `pandera.Column`
+            The `pandera` column schema definition.
         """
         column_def = ' '.join([
-            name,
+            column_name,
             datatypes.from_pandera(column_schema.dtype).to_sqlite()
         ])
 
@@ -59,22 +143,19 @@ class Schema(pandera.DataFrameSchema):
             column_def = ' '.join([column_def, 'UNIQUE', syntax.Conflict.unique_clause()])
         if column_schema.default is not None:
             column_def = ' '.join([column_def, 'DEFAULT', syntax.Literal.value(column_schema.default)])
-        if column_schema.metadata:
-            if 'primary_key' in column_schema.metadata:
-                column_def = ' '.join([column_def, 'PRIMARY KEY', syntax.Conflict.primary_key_clause()])
 
         return column_def
 
 
-# Define the generic database handler class
-class Handler():
+# Define the generic database connection `class`
+class Connection():
 
     def __init__(
         self,
         db_name: str,
-        dir_name: str = setup.DB_DIR
+        dir_name: str
     ):
-        """ Initializes an instance of the database-handler Class().
+        """ Initializes an instance of the database-connection `class`.
 
         Parameters
         ----------
@@ -87,7 +168,7 @@ class Handler():
         # Assign class variables
         self.dir_name: str = dir_name
         self.db_name: str = parse_db_name(db_name=db_name)
-        self.conn: sqlite3.Connection = sqlite3.connect(os.path.join(dir_name, db_name))
+        self.conn: sqlite3.Connection = sqlite3.connect(os.path.join(self.dir_name, self.db_name))
 
         # Create the database directory if it does not exist
         if not os.path.exists(dir_name):
@@ -110,20 +191,20 @@ class Handler():
         self,
         table_name: str,
         schema: Schema
-    ) -> Handler:
+    ) -> Connection:
         """ Creates {table_name} in the database if it does not exist.
 
         Parameters
         ----------
         table_name : `str`
             Name of the database table.
-        schema : `assemblit.database.Schema`
-            The sqlite3-database table schema.
+        schema : `assemblit.database.generic.Schema`
+            Database table schema object.
         """
         self.conn.cursor().execute(
             """
                 CREATE TABLE IF NOT EXISTS %s %s;
-            """ % (table_name, schema.to_sqlite())
+            """ % (str(table_name), schema.to_sqlite())
         )
 
         return self
@@ -212,7 +293,7 @@ class Handler():
             raise KeyError(
                 ' '.join([
                     "Missing values.",
-                    "The Sqlite {%s} table in {%s} db" % (
+                    "The Sqlite {%s} table in {%s} " % (
                         table_name,
                         self.db_name
                     ),
@@ -926,45 +1007,6 @@ class Handler():
 # Define exception classes
 class NullReturnValue(Exception):
     pass
-
-
-# Define database management system options
-@dataclass
-class DBMS():
-    OPTIONS: ClassVar[list[str]] = [
-        'db',
-        'sdb',
-        'sqlite',
-        'db3',
-        's3db',
-        'sqlite3',
-        'sl3'
-    ]
-    DEFAULT: ClassVar[str] = 'db'
-
-
-# Define database operators
-@dataclass
-class Filter():
-    col: str | list[str] | None = None
-    val: str | list[str] | None = None
-
-
-@dataclass
-class Validate(Filter):
-    pass
-
-
-# Define database structures
-@dataclass
-class Values(Filter):
-    pass
-
-
-@dataclass
-class Table():
-    table_name: str | None = None
-    filtr: Filter | None = None
 
 
 # Define generic db function(s)

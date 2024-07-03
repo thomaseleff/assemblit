@@ -2,10 +2,7 @@
 Information
 ---------------------------------------------------------------------
 Name        : _run_analysis.py
-Location    : ~/_components
-Author      : Tom Eleff
-Published   : 2024-06-02
-Revised on  : .
+Location    : ~/pages/_components
 
 Description
 ---------------------------------------------------------------------
@@ -19,10 +16,13 @@ import json
 import pandas as pd
 import streamlit as st
 from assemblit import setup
-from assemblit.database import generic
+from assemblit.pages._components import _core, _selector
+from assemblit.database import sessions, data, analysis, generic
 from assemblit.server import layer
 from assemblit.server import setup as server_setup
-from assemblit.pages._components import _core, _selector
+
+# --TODO Remove scope_db_name and scope_query_index from all function(s).
+#       Scope for analysis is not dynamic, it can only be the sessions-db.
 
 
 # Define core-component key-value pair function(s)
@@ -327,20 +327,14 @@ def run_job(
         root_dir=setup.DB_DIR
     ):
 
-        # Initialize the connection to the scope database
-        Session = generic.Handler(
-            db_name=scope_db_name
-        )
+        # Initialize the connection to the sessions database
+        Sessions = sessions.Connection()
 
         # Initialize connection to the data-ingestion database
-        Data = generic.Handler(
-            db_name=setup.DATA_DB_NAME
-        )
+        Data = data.Connection()
 
         # Initialize connection to the analysis database
-        Analysis = generic.Handler(
-            db_name=db_name
-        )
+        Analysis = analysis.Connection()
 
         # Generate a job-run name
         name = hashlib.md5((str(datetime.datetime.now())).encode('utf-8')).hexdigest()
@@ -375,7 +369,7 @@ def run_job(
                 setup.DATA_DB_QUERY_INDEX,
                 'datasets',
                 setup.DATA_DB_QUERY_INDEX,
-                ', '.join(["'%s'" % (i) for i in Session.select_table_column_value(
+                ', '.join(["'%s'" % (i) for i in Sessions.select_table_column_value(
                     table_name='datasets',
                     col=setup.DATA_DB_QUERY_INDEX,
                     filtr={
@@ -403,7 +397,7 @@ def run_job(
                 setup.DATA_DB_QUERY_INDEX,
                 'datasets',
                 setup.DATA_DB_QUERY_INDEX,
-                ', '.join(["'%s'" % (i) for i in Session.select_table_column_value(
+                ', '.join(["'%s'" % (i) for i in Sessions.select_table_column_value(
                     table_name='datasets',
                     col=setup.DATA_DB_QUERY_INDEX,
                     filtr={
@@ -466,9 +460,9 @@ def run_job(
                 'inputs': os.path.join(setup.ROOT_DIR, db_name, name, 'inputs'),
                 'outputs': os.path.join(setup.ROOT_DIR, db_name, name, 'outputs')
             },
-            'workflow': Session.select_multi_table_column_value(
+            'workflow': Sessions.select_multi_table_column_value(
                 table_name='workflow',
-                cols=[col for col in Session.select_table_column_names_as_list(
+                cols=[col for col in Sessions.select_table_column_names_as_list(
                     table_name='workflow'
                 ) if col != scope_query_index],
                 filtr={
@@ -509,7 +503,7 @@ def run_job(
         )
 
         # Update the scope database
-        Session.insert(
+        Sessions.insert(
             table_name=table_name,
             values={
                 scope_query_index: (
