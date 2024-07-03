@@ -19,7 +19,7 @@ Welcome = home.Content(
     tagling='Shortening the roadmap to your first analytics customer.',
     content_url=(setup.GITHUB_CONTENT_URL),
     content_file_name='README.md',
-    content_info='For more information, visit the [assemblit](%s) Github page.' % (
+    content_info='For more information, visit the [assemblit](%s) GitHub page.' % (
         setup.GITHUB_REPOSITORY_URL
     )
 )
