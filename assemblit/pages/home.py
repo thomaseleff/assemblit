@@ -21,9 +21,9 @@ class Content():
         self,
         header: str = 'Welcome',
         tagline: str = 'An ```assemblit``` web-application for GitHub projects.',
-        content_url: str = None,
-        content_file_name: str = 'README.md',
-        content_info: str = 'For more information, visit the GitHub repository.'
+        content_url: str | None = None,
+        content_file_name: str | None = 'README.md',
+        content_info: str | None = 'For more information, visit the GitHub repository.'
     ):
         """ Initializes an instance of the home-page `Class`.
 
@@ -93,9 +93,10 @@ class Content():
             else:
 
                 # Display content information
-                _core.display_page_content_info(
-                    content_info=self.content_info
-                )
+                if self.content_info:
+                    _core.display_page_content_info(
+                        content_info=self.content_info
+                    )
 
         else:
 

@@ -2,15 +2,15 @@
 FROM python:3.10-slim
 
 # Developer configuration settings
-ENV ENV "PROD"
-ENV VERSION "v0.1.0#14"
-ENV DEBUG False
+ENV ENV "DEV"
+ENV VERSION "dev-container"
+ENV DEBUG True
 
 # Web-app configuration settings
 ENV NAME "assemblit"
 ENV HOME_PAGE_NAME "Welcome"
 ENV GITHUB_REPOSITORY_URL "https://github.com/thomaseleff/assemblit"
-ENV GITHUB_BRANCH_NAME "v0.1.0#14"
+ENV GITHUB_BRANCH_NAME "v0.1.0"
 
 # Streamlit configuration settings
 ENV CLIENT_PORT 8501
@@ -56,17 +56,11 @@ RUN apt-get update && apt-get install -y \
     nano \
     git --no-install-recommends && \
     rm -rf /var/lib/apt/lists/*
-RUN pip3 install --upgrade pip
+RUN pip3 install --upgrade pip setuptools
 
-# Clone from Github
-RUN git clone --branch ${GITHUB_BRANCH_NAME} "${GITHUB_REPOSITORY_URL}.git" .
-
-# Install Python requirements
-RUN pip3 install -r requirements.txt --no-cache-dir
+# Configure git to automatically convert CRLF line endings
+RUN git config --system core.autocrlf true
 
 # Expose the network port(s)
 EXPOSE $CLIENT_PORT
-# EXPOSE $SERVER_PORT
-
-# Run
-CMD streamlit run ${HOME_PAGE_NAME}.py --server.port=${CLIENT_PORT} --server.headless=true
+EXPOSE $SERVER_PORT

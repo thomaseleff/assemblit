@@ -178,13 +178,14 @@ def display_page_header(
             #         col1, col2 = st.columns([.5, .5])
 
             # Display 'Logout' button
-            col4.markdown('# ')
-            col4.button(
-                label='Logout',
-                on_click=vault.logout,
-                type='secondary',
-                use_container_width=True
-            )
+            if setup.REQUIRE_AUTHENTICATION:
+                col4.markdown('# ')
+                col4.button(
+                    label='Logout',
+                    on_click=vault.logout,
+                    type='secondary',
+                    use_container_width=True
+                )
 
     # Debug
     if setup.DEBUG:
