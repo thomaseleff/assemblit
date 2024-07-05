@@ -3,13 +3,10 @@ Information
 ---------------------------------------------------------------------
 Name        : run_listing.py
 Location    : ~/pages
-Author      : Tom Eleff
-Published   : 2024-06-02
-Revised on  : .
 
 Description
 ---------------------------------------------------------------------
-Contains the `Class` for the run-listing-page.
+Contains the `class` for the run-listing-page.
 """
 
 import streamlit as st
@@ -60,7 +57,7 @@ class Content():
 
         # Assign database class variables
         self.db_name = setup.ANALYSIS_DB_NAME
-        self.table_name = 'listing'
+        self.table_name = analysis.Schemas.analysis.name
         self.query_index = setup.ANALYSIS_DB_QUERY_INDEX
 
         # Initialize session state defaults

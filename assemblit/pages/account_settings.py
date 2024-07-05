@@ -3,21 +3,19 @@ Information
 ---------------------------------------------------------------------
 Name        : account_settings.py
 Location    : ~/pages
-Author      : Tom Eleff
-Published   : 2024-03-17
-Revised on  : .
 
 Description
 ---------------------------------------------------------------------
-Contains the `Class` for the account-management user-settings-page.
+Contains the `class` for the account-management user-settings-page.
 """
 
 import copy
 import streamlit as st
 from assemblit import setup
 from assemblit.auth import vault
+from assemblit.app.structures import Setting
 from assemblit.pages._components import _key_value, _core
-from assemblit.database import generic
+from assemblit.database import users
 
 
 class Content():
@@ -47,81 +45,56 @@ class Content():
 
         # Assign database class variables
         self.db_name = setup.USERS_DB_NAME
-        self.table_name = 'accounts'
+        self.table_name = 'accounts'  # Used only to organize the settings in the session state
         self.query_index = setup.USERS_DB_QUERY_INDEX
 
         # Assign default session state class variables
         self.settings = [
-            {
-                "sort": 0,
-                "type": "text-input",
-                "dtype": "str",
-                "parameter": "first_name",
-                "name": "Name",
-                "value": "",
-                "kwargs": {
-                    "disabled": True
-                },
-                "description": None
-            },
-            {
-                "sort": 1,
-                "type": "text-input",
-                "dtype": "str",
-                "parameter": "username",
-                "name": "Username",
-                "value": "",
-                "kwargs": {
-                    "disabled": True
-                },
-                "description": None
-            },
-            {
-                "sort": 2,
-                "type": "text-input",
-                "dtype": "str",
-                "parameter": "change_username",
-                "name": "Change username",
-                "value": "",
-                "kwargs": None,
-                "description": "Enter your new email address.",
-            },
-            {
-                "sort": 3,
-                "type": "text-input",
-                "dtype": "str",
-                "parameter": "change_password0",
-                "name": "Change password",
-                "value": "",
-                "kwargs": {
-                    'type': 'password'
-                },
-                "description": "Enter your new password."
-            },
-            {
-                "sort": 4,
-                "type": "text-input",
-                "dtype": "str",
-                "parameter": "change_password1",
-                "name": "Re-enter password",
-                "value": "",
-                "kwargs": {
-                    'type': 'password'
-                },
-                "description": "Re-enter your new password."
-            },
-            {
-                "sort": 5,
-                "type": "toggle",
-                "dtype": "bool",
-                "parameter": "delete_account",
-                "name": "Delete account",
-                "value": False,
-                "kwargs": None,
-                "description": (
-                    "Deleting your account will remove all your data."
-                )
-            }
+            Setting(
+                type='text-input',
+                dtype='str',
+                parameter='first_name',
+                name='Name',
+                kwargs={'disabled': True}
+            ),
+            Setting(
+                type='text-input',
+                dtype='str',
+                parameter='username',
+                name='Username',
+                kwargs={'disabled': True}
+            ),
+            Setting(
+                type='text-input',
+                dtype='str',
+                parameter='change_username',
+                name='Change username',
+                description='Enter your new email address.'
+            ),
+            Setting(
+                type='text-input',
+                dtype='str',
+                parameter='change_password0',
+                name='Change password',
+                kwargs={'type': 'password'},
+                description='Enter your new password.'
+            ),
+            Setting(
+                type='text-input',
+                dtype='str',
+                parameter='change_password1',
+                name='Re-enter password',
+                kwargs={'type': 'password'},
+                description='Re-enter your new password'
+            ),
+            Setting(
+                type='toggle',
+                dtype='bool',
+                parameter='delete_account',
+                name='Delete account',
+                value=False,
+                description='Deleting your account will remove all your data.'
+            )
         ]
 
         # Initialize session state defaults
@@ -180,14 +153,12 @@ class Content():
                 )
 
                 # Initialize the connection to the users database
-                Users = generic.Handler(
-                    db_name=self.db_name
-                )
+                Users = users.Connection()
 
                 # Apply credential settings into the account parameters
                 st.session_state[setup.NAME][self.db_name][self.table_name]['settings'][0]['value'] = (
                     Users.select_table_column_value(
-                        table_name='credentials',
+                        table_name=users.Schemas.credentials.name,
                         col='first_name',
                         filtr={
                             'col': self.query_index,
@@ -198,7 +169,7 @@ class Content():
                 )
                 st.session_state[setup.NAME][self.db_name][self.table_name]['settings'][1]['value'] = (
                     Users.select_table_column_value(
-                        table_name='credentials',
+                        table_name=users.Schemas.credentials.name,
                         col='username',
                         filtr={
                             'col': self.query_index,

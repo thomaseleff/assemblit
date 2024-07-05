@@ -28,7 +28,7 @@ _DTYPE_MAP = {
 
 @dataclass
 class Setting():
-    type: Literal['text-input', 'toggle', 'slider']
+    type: Literal['text-input', 'toggle', 'slider', 'selectbox', 'multiselect']
     dtype: Literal['bool', 'str', 'int', 'float', 'datetime', 'timedelta']
     parameter: str
     name: str

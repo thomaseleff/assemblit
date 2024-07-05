@@ -6,7 +6,7 @@ Location    : ~/pages
 
 Description
 ---------------------------------------------------------------------
-Contains the `Class` for the home-page.
+Contains the `class` for the home-page.
 """
 
 import streamlit as st
@@ -20,7 +20,7 @@ class Content():
     def __init__(
         self,
         header: str = 'Welcome',
-        tagline: str = 'An ```assemblit``` web-application for GitHub projects.',
+        tagline: str = 'An `assemblit` web-application for analytics projects.',
         content_url: str | None = None,
         content_file_name: str | None = 'README.md',
         content_info: str | None = 'For more information, visit the GitHub repository.'

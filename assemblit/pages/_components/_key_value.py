@@ -2,10 +2,7 @@
 Information
 ---------------------------------------------------------------------
 Name        : _key_value.py
-Location    : ~/_components
-Author      : Tom Eleff
-Published   : 2024-03-17
-Revised on  : .
+Location    : ~/pages/_components
 
 Description
 ---------------------------------------------------------------------
@@ -14,6 +11,7 @@ Contains the generic methods for a key-value pair settings-page.
 
 import streamlit as st
 from assemblit import setup
+from assemblit.app.structures import Setting
 from assemblit.database import generic
 from pytensils import utils
 
@@ -23,7 +21,7 @@ def initialize_key_value_pair_table(
     db_name: str,
     table_name: str,
     query_index: str,
-    settings: list
+    settings: list[Setting]
 ):
     """ Initializes the key-value pair database table and parses the database
     table values into the session state when `table_name` is not `None`.
@@ -36,27 +34,34 @@ def initialize_key_value_pair_table(
         Name of the table within `db_name` to store the setting(s) parameters & values.
     query_index : 'str'
         Name of the index within `db_name` & `table_name`. May only be one column.
-    settings : `list`
-        List of dictionary objects containing the setting(s) parameters & values.
+    settings : `list[Setting]`
+        List of `assemblit.app.structures.Setting` objects containing the setting(s) parameters & values.
     """
 
     # Initialize the key-value database
-    Db = generic.initialize_table(
+    Database = generic.Connection(
         db_name=db_name,
+        dir_name=setup.DB_DIR
+    )
+
+    # Construct key-value settings schema
+    schema: generic.Schema = generic.Schema.from_settings(
+        name=table_name,
+        settings_object=settings,
+        primary_key=query_index
+    )
+
+    # Create the key-value settings table
+    Database.create_table(
         table_name=table_name,
-        cols=(
-            [query_index] + get_key_value_pair_parameters(
-                db_name=db_name,
-                table_name=table_name
-            )
-        )
+        schema=schema
     )
 
     # Manage unset query parameters
     if st.session_state[setup.NAME][db_name][query_index]:
 
         # Assign the table information to the session state for the form content
-        if Db.table_record_exists(
+        if Database.table_record_exists(
             table_name=table_name,
             filtr={
                 'col': query_index,
@@ -66,7 +71,7 @@ def initialize_key_value_pair_table(
 
             # Retrieve the table information
             dictionary = (
-                Db.select_multi_table_column_value(
+                Database.select_multi_table_column_value(
                     table_name=table_name,
                     cols=get_key_value_pair_parameters(
                         db_name=db_name,
@@ -83,15 +88,19 @@ def initialize_key_value_pair_table(
             for index, item in enumerate(
                 st.session_state[setup.NAME][db_name][table_name]['settings']
             ):
-                st.session_state[setup.NAME][db_name][table_name]['settings'][index]['value'] = utils.as_type(
-                    value=dictionary[item['parameter']],
-                    return_dtype=st.session_state[setup.NAME][db_name][table_name]['settings'][index]['dtype']
+                # Assign types
+                item: Setting
+
+                # Parse settings
+                st.session_state[setup.NAME][db_name][table_name]['settings'][index].value = utils.as_type(
+                    value=dictionary[item.parameter],
+                    return_dtype=st.session_state[setup.NAME][db_name][table_name]['settings'][index].dtype
                 )
 
         else:
 
             # Insert the table information as defaults
-            Db.insert(
+            Database.insert(
                 table_name=table_name,
                 values=get_default_key_value_pair_settings(
                     db_name=db_name,
@@ -133,7 +142,7 @@ def display_key_value_pair_settings_form(
     """
 
     # Layout columns
-    col1, col2, col3 = st.columns(setup.CONTENT_COLUMNS)
+    _, col2, col3 = st.columns(setup.CONTENT_COLUMNS)
 
     # Display the key-value pair configuration form
     with col2.form(
@@ -159,11 +168,11 @@ def display_key_value_pair_settings_form(
                 table_name=table_name,
                 query_index=query_index,
                 apply_db_values=apply_db_values,
-                d=setting
+                setting=setting
             )
 
         # Layout form columns
-        col1, col2, col3 = st.columns([.6, .2, .2])
+        _, col2, col3 = st.columns([.6, .2, .2])
 
         # Display the 'Clear' button
         col2.write('')
@@ -222,13 +231,15 @@ def parse_form_response(
     ):
 
         # Parse the form values into a dictionary
-        for field in st.session_state[setup.NAME][db_name][table_name]['settings']:
-            if field['parameter'] in st.session_state:
-                if field['value'] != st.session_state[field['parameter']]:
-                    responses[field['parameter']] = st.session_state[field['parameter']]
+        for setting in st.session_state[setup.NAME][db_name][table_name]['settings']:
+            setting: Setting
+
+            if setting.parameter in st.session_state:
+                if setting.value != st.session_state[setting.parameter]:
+                    responses[setting.parameter] = st.session_state[setting.parameter]
 
                 # Reset session state variables
-                del st.session_state[field['parameter']]
+                del st.session_state[setting.parameter]
 
         # Reset session state variables
         st.session_state[setup.NAME][db_name][table_name]['form-submission'] = False
@@ -263,7 +274,7 @@ def get_key_value_pair_parameters(
         Name of the table within `db_name` to store the setting(s) parameters & values.
     """
     return [
-        i['parameter'] for i in (
+        i.parameter for i in (
             st.session_state[setup.NAME][db_name][table_name]['settings']
         )
     ]
@@ -292,8 +303,9 @@ def get_default_key_value_pair_settings(
         query_index: st.session_state[setup.NAME][db_name][query_index]
     }
 
-    for i in settings:
-        defaults[i['parameter']] = i['value']
+    for setting in settings:
+        setting: Setting
+        defaults[setting.parameter] = setting.value
 
     return defaults
 
@@ -363,9 +375,9 @@ def display_key_value_pair_setting(
     table_name: str,
     query_index: str,
     apply_db_values: bool,
-    d: dict
+    setting: Setting
 ):
-    """ Displays a dictionary object as key-value pair configuration.
+    """ Displays a `assemblit.app.structures.Setting` object as key-value pair configuration.
 
     Parameters
     ----------
@@ -378,15 +390,15 @@ def display_key_value_pair_setting(
     apply_db_values: `bool`
         `True` or `False`, determines whether to apply the current database table
             value as the placeholder value in the form component.
-    d : `dict`
-        Dictionary object
+    setting : `Setting`
+        `assemblit.app.structures.Setting` object.
     """
 
     # Layout columns
     col1, col2, col3 = st.columns([.25, .25, .5])
 
     # Display parameter name
-    col1.markdown('_%s_' % (d['name']))
+    col1.markdown('_%s_' % (setting.name))
 
     # Update values based on query settings
     if (
@@ -394,75 +406,75 @@ def display_key_value_pair_setting(
         and (st.session_state[setup.NAME][db_name][query_index])
     ):
         try:
-            d['value'] = select_setting_table_column_value(
+            setting.value = select_setting_table_column_value(
                 db_name=db_name,
                 query="""
                     SELECT %s FROM %s WHERE %s = '%s';
                 """ % (
-                    d['parameter'],
+                    setting.parameter,
                     table_name,
                     query_index,
                     st.session_state[setup.NAME][db_name][query_index]
                 ),
-                return_dtype=d['dtype']
+                return_dtype=setting.dtype
             )
         except generic.NullReturnValue:
-            d['value'] = ''
+            setting.value = ''
 
     # Display parameter input-object
-    if str(d['type']).strip().upper() == 'TEXT-INPUT':
-        if d['kwargs']:
+    if str(setting.type).strip().upper() == 'TEXT-INPUT':
+        if setting.kwargs:
             col2.text_input(
-                key=d['parameter'],
-                label=d['name'],
-                value=d['value'],
+                key=setting.parameter,
+                label=setting.name,
+                value=setting.value,
                 label_visibility='collapsed',
-                **d['kwargs']
+                **setting.kwargs
             )
         else:
             col2.text_input(
-                key=d['parameter'],
-                label=d['name'],
-                value=d['value'],
+                key=setting.parameter,
+                label=setting.name,
+                value=setting.value,
                 label_visibility='collapsed'
             )
-    elif str(d['type']).strip().upper() == 'TOGGLE':
-        if d['kwargs']:
+    elif str(setting.type).strip().upper() == 'TOGGLE':
+        if setting.kwargs:
             col2.toggle(
-                key=d['parameter'],
+                key=setting.parameter,
                 label='Enable',
-                value=d['value'],
+                value=setting.value,
                 label_visibility='collapsed',
-                **d['kwargs']
+                **setting.kwargs
             )
         else:
             col2.toggle(
-                key=d['parameter'],
+                key=setting.parameter,
                 label='Enable',
-                value=d['value'],
+                value=setting.value,
                 label_visibility='collapsed',
             )
-    elif str(d['type']).strip().upper() == 'SLIDER':
-        if d['kwargs']:
+    elif str(setting.type).strip().upper() == 'SLIDER':
+        if setting.kwargs:
             col2.slider(
-                key=d['parameter'],
-                label=d['name'],
-                value=d['value'],
+                key=setting.parameter,
+                label=setting.name,
+                value=setting.value,
                 label_visibility='collapsed',
-                **d['kwargs']
+                **setting.kwargs
             )
         else:
             raise KeyError(
                 "st.slider() cannot be built without 'kwargs'."
             )
-    elif str(d['type']).strip().upper() == 'MULTISELECT':
-        if d['kwargs']:
+    elif str(setting.type).strip().upper() == 'MULTISELECT':
+        if setting.kwargs:
             col2.multiselect(
-                key=d['parameter'],
-                label=d['name'],
-                default=d['value'],
+                key=setting.parameter,
+                label=setting.name,
+                default=setting.value,
                 label_visibility='collapsed',
-                **d['kwargs']
+                **setting.kwargs
             )
         else:
             raise KeyError(
@@ -470,12 +482,12 @@ def display_key_value_pair_setting(
             )
     else:
         raise NameError(
-            "st.%s() is currently not supported." % (d['type'])
+            "st.%s() is currently not supported." % (setting.type)
         )
 
     # Display parameter description
-    if d['description']:
-        col3.write(d['description'])
+    if setting.description:
+        col3.write(setting.description)
 
 
 # Define function(s) for standard key-value pair database queries
@@ -498,13 +510,14 @@ def select_setting_table_column_value(
     """
 
     # Initialize the connection to the Database
-    Db = generic.Connection(
-        db_name=db_name
+    Database = generic.Connection(
+        db_name=db_name,
+        dir_name=setup.DB_DIR
     )
 
     # Return the table column value
     return (
-        Db.select_generic_query(
+        Database.select_generic_query(
             query=query,
             return_dtype=return_dtype
         )
@@ -536,14 +549,15 @@ def update_settings(
     if response:
 
         # Initialize connection to the database
-        Db = generic.Connection(
-            db_name=db_name
+        Database = generic.Connection(
+            db_name=db_name,
+            dir_name=setup.DB_DIR
         )
 
         # Update database settings
         for parameter in list(response.keys()):
 
-            if Db.table_record_exists(
+            if Database.table_record_exists(
                 table_name=table_name,
                 filtr={
                     'col': query_index,
@@ -551,7 +565,7 @@ def update_settings(
                 }
             ):
                 try:
-                    Db.update(
+                    Database.update(
                         table_name=table_name,
                         values={
                             'col': parameter,

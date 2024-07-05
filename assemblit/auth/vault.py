@@ -19,6 +19,7 @@ import streamlit as st
 from assemblit import setup
 from assemblit.pages._components import _core
 from assemblit.database import users, sessions, data
+from assemblit.database.structures import Filter, Values, Validate
 
 
 # Define generic authentication function(s)
@@ -64,10 +65,10 @@ def authenticate(
         # Check if the user exists
         if Users.table_record_exists(
             table_name=users.Schemas.credentials.name,
-            filtr={
-                'col': 'username',
-                'val': username
-            }
+            filtr=Filter(
+                col='username',
+                val=username
+            )
         ):
 
             # Check if the user provided the correct password
@@ -76,10 +77,10 @@ def authenticate(
                         Users.select_table_column_value(
                             table_name=users.Schemas.credentials.name,
                             col='password',
-                            filtr={
-                                'col': 'username',
-                                'val': username
-                            }
+                            filtr=Filter(
+                                col='username',
+                                val=username
+                            )
                         ),
                         password
                 )
@@ -89,19 +90,19 @@ def authenticate(
                     'name': Users.select_table_column_value(
                         table_name=users.Schemas.credentials.name,
                         col='first_name',
-                        filtr={
-                            'col': 'username',
-                            'val': username
-                        }
+                        filtr=Filter(
+                            col='username',
+                            val=username
+                        )
                     ),
                     setup.USERS_DB_QUERY_INDEX: (
                         Users.select_table_column_value(
                             table_name=users.Schemas.credentials.name,
                             col=setup.USERS_DB_QUERY_INDEX,
-                            filtr={
-                                'col': 'username',
-                                'val': username
-                            }
+                            filtr=Filter(
+                                col='username',
+                                val=username
+                            )
                         )
                     )
                 }
@@ -193,10 +194,10 @@ def add_credentials(
                         'password': hashkey,
                         'first_name': first_name
                     },
-                    validate={
-                        'col': 'username',
-                        'val': username
-                    }
+                    validate=Validate(
+                        col='username',
+                        val=username
+                    )
                 )
 
                 return {
@@ -346,23 +347,23 @@ def update_username(
         # Check if the user exists
         if not Users.table_record_exists(
             table_name=users.Schemas.credentials.name,
-            filtr={
-                'col': 'username',
-                'val': username
-            }
+            filtr=Filter(
+                col='username',
+                val=username
+            )
         ):
 
             # Update username
             Users.update(
                 table_name=users.Schemas.credentials.name,
-                values={
-                    'col': 'username',
-                    'val': username
-                },
-                filtr={
-                    'col': setup.USERS_DB_QUERY_INDEX,
-                    'val': user_id
-                }
+                values=Values(
+                    col='username',
+                    val=username
+                ),
+                filtr=Filter(
+                    col=setup.USERS_DB_QUERY_INDEX,
+                    val=user_id
+                )
             )
 
         else:
@@ -414,14 +415,14 @@ def update_password(
         # Add the user
         Users.update(
             table_name=users.Schemas.credentials.name,
-            values={
-                'col': 'password',
-                'val': hashkey
-            },
-            filtr={
-                'col': setup.USERS_DB_QUERY_INDEX,
-                'val': user_id
-            }
+            values=Values(
+                col='password',
+                val=hashkey
+            ),
+            filtr=Filter(
+                col=setup.USERS_DB_QUERY_INDEX,
+                val=user_id
+            )
         )
 
     else:

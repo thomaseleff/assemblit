@@ -3,19 +3,17 @@ Information
 ---------------------------------------------------------------------
 Name        : data_ingestion.py
 Location    : ~/pages
-Author      : Tom Eleff
-Published   : 2024-03-16
-Revised on  : .
 
 Description
 ---------------------------------------------------------------------
-Contains the `Class` for the data-ingestion-page.
+Contains the `class` for the data-ingestion-page.
 """
 
 import copy
 import streamlit as st
 import pandas as pd
 from assemblit import setup
+from assemblit.app.structures import Setting
 from assemblit.pages._components import _core, _data_uploader, _data_review
 from assemblit.database import sessions, data
 
@@ -69,20 +67,17 @@ class Content():
 
         # Assign database class variables
         self.db_name = setup.DATA_DB_NAME
-        self.table_name = 'datasets'
+        self.table_name = data.Schemas.data.name
         self.query_index = setup.DATA_DB_QUERY_INDEX
 
         # Assign default session state class variables
-        self.selector = {
-            "sort": 0,
-            "type": "selectbox",
-            "dtype": "str",
-            "parameter": "file_name",
-            "name": "Datafile name",
-            "value": "",
-            "kwargs": None,
-            "description": "Select a datafile to review."
-        }
+        self.selector = Setting(
+            type='selectbox',
+            dtype='str',
+            parameter='file_name',
+            name='Datafile name',
+            description='Select a datafile to review.'
+        )
 
         # Initialize session state defaults
         _core.initialize_session_state_defaults()

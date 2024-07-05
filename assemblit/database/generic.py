@@ -27,7 +27,8 @@ class Schema(pandera.DataFrameSchema):
 
     def from_settings(
         name: str,
-        settings_object: List[Setting]
+        settings_object: List[Setting],
+        primary_key: str | None = None
     ) -> Schema:
         """ Returns a `Schema` from a list of `assemblit.app.structures.Setting` objects.
 
@@ -37,6 +38,8 @@ class Schema(pandera.DataFrameSchema):
             The name of the schema.
         settings : `List[Setting]`
             List of `assemblit.app.structures.Setting` objects.
+        primary_key : `str | None`
+            The primary key of the schema.
         """
 
         # Assert object type
@@ -48,12 +51,20 @@ class Schema(pandera.DataFrameSchema):
             if not isinstance(setting, Setting):
                 raise TypeError('Object must be a list of `assemblit.app.structures.Setting` objects.')
 
-        return Schema(
-            name=str(name),
-            columns={
-                setting.parameter: setting.to_pandera() for setting in settings_object
-            }
-        )
+        # Construct schema
+        if primary_key:
+            return Schema(
+                name=str(name),
+                columns={
+                    **{primary_key: pandera.Column(str, nullable=False, unique=True, metadata={'primary_key': True})},
+                    **{setting.parameter: setting.to_pandera() for setting in settings_object}
+                }
+            )
+        else:
+            return Schema(
+                name=str(name),
+                columns={setting.parameter: setting.to_pandera() for setting in settings_object}
+            )
 
     def from_pandas() -> Schema:
         """ Returns a `Schema` from a `pandas.DataFrame` object.
@@ -87,7 +98,7 @@ class Schema(pandera.DataFrameSchema):
         for column_name, column_schema in self.columns.items():
 
             # Append column definition
-            columns.append(self._column_def(column_name=column_name, column_schema=column_schema))
+            columns.append(self._sqlite_column_def(column_name=column_name, column_schema=column_schema))
 
             # Append primary-key
             if column_schema.metadata:
@@ -118,7 +129,7 @@ class Schema(pandera.DataFrameSchema):
                 ]
             )
 
-    def _column_def(
+    def _sqlite_column_def(
         self,
         column_name: str,
         column_schema: pandera.Column
@@ -233,7 +244,7 @@ class Connection():
     def insert(
         self,
         table_name: str,
-        values: Values,
+        values: dict,
         validate: Validate | None = None
     ):
         """ Inserts a row of values into the database table.
@@ -242,8 +253,8 @@ class Connection():
         ----------
         table_name : `str`
             Name of the database table.
-        values : `Values`
-            Values object containing the table columns (as keys)
+        values : `dict`
+            Dictionary object containing the table columns (as keys)
                 and values (as values) to insert into `table_name`. If
                 the order of the columns does not match the order of
                 columns in the database table, a `KeyError` is raised.
@@ -264,7 +275,7 @@ class Connection():
                 )
 
         # Insert values
-        if (list(values.col)) == (
+        if (list(values.keys)) == (
             self.select_table_column_names_as_list(
                 table_name=table_name
             )
@@ -279,7 +290,7 @@ class Connection():
                         ', '.join(
                             [
                                 "'%s'" % normalize(string=i) for i in list(
-                                    values.val
+                                    values.values
                                 )
                             ]
                         )
@@ -459,8 +470,8 @@ class Connection():
             if isinstance(filtr.val, list):
                 connection.cursor().execute(
                     """
-                    DELETE FROM %s
-                    WHERE %s IN (%s);
+                        DELETE FROM %s
+                        WHERE %s IN (%s);
                     """ % (
                         str(table_name),
                         str(filtr.col),
@@ -470,8 +481,8 @@ class Connection():
             else:
                 connection.cursor().execute(
                     """
-                    DELETE FROM %s
-                    WHERE %s = '%s';
+                        DELETE FROM %s
+                        WHERE %s = '%s';
                     """ % (
                         str(table_name),
                         str(filtr.col),

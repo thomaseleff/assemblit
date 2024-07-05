@@ -3,18 +3,16 @@ Information
 ---------------------------------------------------------------------
 Name        : run_analysis.py
 Location    : ~/pages
-Author      : Tom Eleff
-Published   : 2024-06-02
-Revised on  : .
 
 Description
 ---------------------------------------------------------------------
-Contains the `Class` for the run-analysis-page.
+Contains the `class` for the run-analysis-page.
 """
 
 import copy
 import streamlit as st
 from assemblit import setup
+from assemblit.app.structures import Setting
 from assemblit.pages._components import _core, _run_analysis
 from assemblit.database import sessions, analysis
 
@@ -61,46 +59,33 @@ class Content():
 
         # Assign database class variables
         self.db_name = setup.ANALYSIS_DB_NAME
-        self.table_name = 'listing'
+        self.table_name = analysis.Schemas.analysis.name
         self.query_index = setup.ANALYSIS_DB_QUERY_INDEX
 
         # Assign default session state class variables
         self.settings = [
-            {
-                "sort": 0,
-                "type": "multiselect",
-                "dtype": "str",
-                "parameter": "dataset",
-                "name": "Dataset",
-                "value": "",
-                "kwargs": False,
-                "description": """
-                    Select a dataset for the model analysis.
-                """
-            },
-            {
-                "sort": 1,
-                "type": "text-input",
-                "dtype": "str",
-                "parameter": "run_information",
-                "name": "Run information",
-                "value": "",
-                "kwargs": False,
-                "description": """
-                    Enter context about the model analysis run.
-                """
-            }
+            Setting(
+                type='multiselect',
+                dtype='str',
+                parameter='dataset',
+                name='Dataset',
+                description='Select a dataset for the model analysis.'
+            ),
+            Setting(
+                type='text-input',
+                dtype='str',
+                parameter='run_information',
+                name='Run information',
+                description='Enter context about the model analysis run.'
+            )
         ]
-        self.selector = {
-            "sort": 0,
-            "type": "selectbox",
-            "dtype": "str",
-            "parameter": "file_name",
-            "name": "Datafile name",
-            "value": "",
-            "kwargs": None,
-            "description": "Select a datafile to review."
-        }
+        self.selector = Setting(
+            type='selectbox',
+            dtype='str',
+            parameter='file_name',
+            name='Datafile name',
+            description='Select a datafile to review.'
+        )
 
         # Initialize session state defaults
         _core.initialize_session_state_defaults()
