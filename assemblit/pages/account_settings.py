@@ -16,6 +16,7 @@ from assemblit.auth import vault
 from assemblit.app.structures import Setting
 from assemblit.pages._components import _key_value, _core
 from assemblit.database import users
+from assemblit.database.structures import Filter
 
 
 class Content():
@@ -25,7 +26,7 @@ class Content():
         headerless: bool = False,
         personalize: bool = True
     ):
-        """ Initializes the content of the account-management user-settings `Class`.
+        """ Initializes the content of the account-management user-settings `class`.
 
         Parameters
         ----------
@@ -160,10 +161,10 @@ class Content():
                     Users.select_table_column_value(
                         table_name=users.Schemas.credentials.name,
                         col='first_name',
-                        filtr={
-                            'col': self.query_index,
-                            'val': st.session_state[setup.NAME][self.db_name][self.query_index]
-                        },
+                        filtr=Filter(
+                            col=self.query_index,
+                            val=st.session_state[setup.NAME][self.db_name][self.query_index]
+                        ),
                         return_dtype='str'
                     )
                 )
@@ -171,10 +172,10 @@ class Content():
                     Users.select_table_column_value(
                         table_name=users.Schemas.credentials.name,
                         col='username',
-                        filtr={
-                            'col': self.query_index,
-                            'val': st.session_state[setup.NAME][self.db_name][self.query_index]
-                        },
+                        filtr=Filter(
+                            col=self.query_index,
+                            val=st.session_state[setup.NAME][self.db_name][self.query_index]
+                        ),
                         return_dtype='str'
                     )
                 )

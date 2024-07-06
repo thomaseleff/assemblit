@@ -14,6 +14,7 @@ import streamlit as st
 from assemblit import setup
 from assemblit.pages._components import _core, _selector
 from assemblit.database import sessions, analysis, generic
+from assemblit.database.structures import Filter, Value
 from assemblit.server import layer
 from assemblit.server import setup as server_setup
 
@@ -70,10 +71,10 @@ def display_run_listing_table(
                     ', '.join(["'%s'" % (i) for i in Sessions.select_table_column_value(
                         table_name=table_name,
                         col=query_index,
-                        filtr={
-                            'col': scope_query_index,
-                            'val': st.session_state[setup.NAME][scope_db_name][scope_query_index]
-                        },
+                        filtr=Filter(
+                            col=scope_query_index,
+                            val=st.session_state[setup.NAME][scope_db_name][scope_query_index]
+                        ),
                         multi=True
                     )])
                 ),
@@ -533,10 +534,10 @@ def refresh_run_listing_table(
             run_ids = Analysis.select_table_column_value(
                 table_name=table_name,
                 col=query_index,
-                filtr={
-                    'col': 'state',
-                    'val': layer.terminal_job_states(server_type=server_setup.SERVER_TYPE)
-                },
+                filtr=Filter(
+                    col='state',
+                    val=layer.terminal_job_states(server_type=server_setup.SERVER_TYPE)
+                ),
                 return_dtype='str',
                 multi=True,
                 order='DESC',
@@ -562,12 +563,12 @@ def refresh_run_listing_table(
 
                         Analysis.update(
                             table_name=table_name,
-                            values={
-                                'col': key,
-                                'val': value,
-                            },
-                            filtr={
-                                'col': query_index,
-                                'val': run_id
-                            }
+                            value=Value(
+                                col=key,
+                                val=value,
+                            ),
+                            filtr=Filter(
+                                col=query_index,
+                                val=run_id
+                            )
                         )

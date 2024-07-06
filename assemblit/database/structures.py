@@ -44,8 +44,14 @@ class Validate(Filter):
 
 # Define database structures
 @dataclass
-class Values(Filter):
+class Value(Filter):
     pass
+
+
+@dataclass
+class Row():
+    cols: list[str] | None = None
+    vals: list[str] | None = None
 
 
 @dataclass

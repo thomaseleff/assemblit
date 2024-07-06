@@ -19,7 +19,7 @@ import streamlit as st
 from assemblit import setup
 from assemblit.pages._components import _core
 from assemblit.database import users, sessions, data
-from assemblit.database.structures import Filter, Values, Validate
+from assemblit.database.structures import Filter, Validate, Value, Row
 
 
 # Define generic authentication function(s)
@@ -188,12 +188,15 @@ def add_credentials(
             try:
                 Users.insert(
                     table_name=users.Schemas.credentials.name,
-                    values={
-                        setup.USERS_DB_QUERY_INDEX: user_id,
-                        'username': username,
-                        'password': hashkey,
-                        'first_name': first_name
-                    },
+                    data=Row(
+                        cols=users.Schemas.credentials.cols(),
+                        vals=[
+                            user_id,
+                            username,
+                            hashkey,
+                            first_name
+                        ]
+                    ),
                     validate=Validate(
                         col='username',
                         val=username
@@ -356,7 +359,7 @@ def update_username(
             # Update username
             Users.update(
                 table_name=users.Schemas.credentials.name,
-                values=Values(
+                values=Value(
                     col='username',
                     val=username
                 ),
@@ -415,7 +418,7 @@ def update_password(
         # Add the user
         Users.update(
             table_name=users.Schemas.credentials.name,
-            values=Values(
+            values=Value(
                 col='password',
                 val=hashkey
             ),

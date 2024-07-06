@@ -18,6 +18,7 @@ import streamlit as st
 from assemblit import setup
 from assemblit.pages._components import _core, _selector
 from assemblit.database import sessions, data, analysis, generic
+from assemblit.database.structures import Filter, Validate, Row
 from assemblit.server import layer
 from assemblit.server import setup as server_setup
 
@@ -372,10 +373,10 @@ def run_job(
                 ', '.join(["'%s'" % (i) for i in Sessions.select_table_column_value(
                     table_name='datasets',
                     col=setup.DATA_DB_QUERY_INDEX,
-                    filtr={
-                        'col': scope_query_index,
-                        'val': st.session_state[setup.NAME][scope_db_name][scope_query_index]
-                    },
+                    filtr=Filter(
+                        col=scope_query_index,
+                        val=st.session_state[setup.NAME][scope_db_name][scope_query_index]
+                    ),
                     multi=True
                 )]),
                 response['dataset']
@@ -400,10 +401,10 @@ def run_job(
                 ', '.join(["'%s'" % (i) for i in Sessions.select_table_column_value(
                     table_name='datasets',
                     col=setup.DATA_DB_QUERY_INDEX,
-                    filtr={
-                        'col': scope_query_index,
-                        'val': st.session_state[setup.NAME][scope_db_name][scope_query_index]
-                    },
+                    filtr=Filter(
+                        col=scope_query_index,
+                        val=st.session_state[setup.NAME][scope_db_name][scope_query_index]
+                    ),
                     multi=True
                 )]),
                 response['dataset']
@@ -465,10 +466,10 @@ def run_job(
                 cols=[col for col in Sessions.select_table_column_names_as_list(
                     table_name='workflow'
                 ) if col != scope_query_index],
-                filtr={
-                    'col': scope_query_index,
-                    'val': st.session_state[setup.NAME][scope_db_name][scope_query_index]
-                }
+                filtr=Filter(
+                    col=scope_query_index,
+                    val=st.session_state[setup.NAME][scope_db_name][scope_query_index]
+                )
             )
         }
 
@@ -505,39 +506,43 @@ def run_job(
         # Update the scope database
         Sessions.insert(
             table_name=table_name,
-            values={
-                scope_query_index: (
-                    st.session_state[setup.NAME][scope_db_name][scope_query_index]
-                ),
-                query_index: job_run['id']
-            }
+            row=Row(
+                cols=sessions.Schemas.analysis.cols(),
+                vals=[
+                    st.session_state[setup.NAME][scope_db_name][scope_query_index],
+                    job_run['id']
+                ]
+            )
         )
 
         # Update the run-analysis database
         Analysis.insert(
             table_name=table_name,
-            values={
-                query_index: job_run['id'],
-                'name': name,
-                'server_type': server_setup.SERVER_TYPE,
-                'submitted_by': st.session_state[setup.NAME][setup.USERS_DB_NAME]['name'],
-                'created_on': run_request['run-information']['start-date'],
-                'state': job_run['state'],
-                'start_time': job_run['start_time'],
-                'end_time': job_run['end_time'],
-                'run_time': job_run['run_time'],
-                'file_name': response['dataset'],
-                'inputs': run_request['dir']['inputs'],
-                'outputs': run_request['dir']['outputs'],
-                'run_information': response['run_information'],
-                'parameters': job_run['parameters'],
-                'tags': job_run['tags'],
-                'url': job_run['url']
-            },
-            validate={
-                'col': query_index,
-                'val': job_run['id']
-            }
+            row=Row(
+                cols=analysis.Schemas.analysis.cols(),
+                vals=[
+                    job_run['id'],
+                    name,
+                    server_setup.SERVER_TYPE,
+                    st.session_state[setup.NAME][setup.USERS_DB_NAME]['name'],
+                    run_request['run-information']['start-date'],
+                    job_run['state'],
+                    job_run['start_time'],
+                    job_run['end_time'],
+                    job_run['run_time'],
+                    response['dataset'],
+                    run_request['dir']['inputs'],
+                    run_request['dir']['outputs'],
+                    response['run_information'],
+                    job_run['parameters'],
+                    job_run['tags'],
+                    job_run['url']
+                ]
+            ),
+            validate=Validate(
+                col=query_index,
+                val=job_run['id']
+            )
         )
 
         # Log success

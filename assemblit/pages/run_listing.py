@@ -31,7 +31,7 @@ class Content():
         ),
         headerless: bool = False
     ):
-        """ Initializes the content of the run-analysis `Class`.
+        """ Initializes the content of the run-analysis `class`.
 
         Parameters
         ----------

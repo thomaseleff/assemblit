@@ -36,7 +36,7 @@ class Content():
         data_dictionary: pd.DataFrame = pd.DataFrame(),
         data_example: pd.DataFrame = pd.DataFrame()
     ):
-        """ Initializes an instance of the data-ingestion-page Class().
+        """ Initializes an instance of the data-ingestion-page `class`.
 
         Parameters
         ----------

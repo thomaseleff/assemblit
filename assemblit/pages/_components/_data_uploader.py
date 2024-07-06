@@ -1,12 +1,12 @@
 """
 Information
 ---------------------------------------------------------------------
-Name        : _data_upload.py
+Name        : _data_uploader.py
 Location    : ~/pages/_components
 
 Description
 ---------------------------------------------------------------------
-Contains the generic methods for a data-uploader.
+Contains the components for a data-uploader.
 """
 
 import os
@@ -19,6 +19,7 @@ from pandera.engines import pandas_engine
 import streamlit as st
 from assemblit import data_toolkit, setup
 from assemblit.database import sessions, data, generic
+from assemblit.database.structures import Filter, Validate, Row
 
 # --TODO Remove scope_db_name and scope_query_index from all function(s).
 #       Scope for data is not dynamic, it can only be the sessions-db.
@@ -41,7 +42,7 @@ def display_data_contract(
     """
 
     # Layout columns
-    col1, col2, col3 = st.columns(setup.CONTENT_COLUMNS)
+    _, col2, _ = st.columns(setup.CONTENT_COLUMNS)
 
     # Display the data-contract expander
     with col2:
@@ -100,7 +101,7 @@ def display_data_uploader(
     """
 
     # Layout columns
-    col1, col2, col3 = st.columns(setup.CONTENT_COLUMNS)
+    _, col2, col3 = st.columns(setup.CONTENT_COLUMNS)
 
     # Display the data uploader
     with col2:
@@ -175,7 +176,7 @@ def display_data_preview(
     """
 
     # Layout columns
-    col1, col2, col3 = st.columns(setup.CONTENT_COLUMNS)
+    _, col2, _ = st.columns(setup.CONTENT_COLUMNS)
 
     # Display the schema validation result and the data-preview table
     with col2:
@@ -568,10 +569,10 @@ def promote_data_to_database(
                     ', '.join(["'%s'" % (i) for i in Sessions.select_table_column_value(
                         table_name=table_name,
                         col=query_index,
-                        filtr={
-                            'col': scope_query_index,
-                            'val': st.session_state[setup.NAME][scope_db_name][scope_query_index]
-                        },
+                        filtr=Filter(
+                            col=scope_query_index,
+                            val=st.session_state[setup.NAME][scope_db_name][scope_query_index]
+                        ),
                         multi=True
                     )])
                 ),
@@ -599,39 +600,43 @@ def promote_data_to_database(
         # Update the scope database
         Sessions.insert(
             table_name=table_name,
-            values={
-                scope_query_index: (
-                    st.session_state[setup.NAME][scope_db_name][scope_query_index]
-                ),
-                query_index: id
-            }
+            row=Row(
+                cols=sessions.Schemas.data.cols(),
+                vals=[
+                    st.session_state[setup.NAME][scope_db_name][scope_query_index],
+                    id
+                ]
+            )
         )
 
         # Update the data ingestion database
         Data.insert(
             table_name=table_name,
-            values={
-                query_index: id,
-                'uploaded_by': st.session_state[setup.NAME][setup.USERS_DB_NAME]['name'],
-                'created_on': dt.datetime.now(),
-                'final': False,
-                'version': version,
-                'file_name': file_name,
-                'dbms': dbms,
-                'datetime': json.dumps(datetime),
-                'dimensions': json.dumps(dimensions),
-                'metrics': json.dumps(metrics),
-                'selected_datetime': json.dumps(selected_datetime),
-                'selected_dimensions': json.dumps(selected_dimensions),
-                'selected_metrics': json.dumps(selected_metrics),
-                'selected_aggrules': json.dumps(selected_aggrules),
-                'size_mb': round(file_size / 1024, 6),
-                'sha256': hashlib.sha256(df.to_string().encode('utf8')).hexdigest()
-            },
-            validate={
-                'col': query_index,
-                'val': id
-            }
+            row=Row(
+                cols=data.Schemas.data.cols(),
+                vals=[
+                    id,
+                    st.session_state[setup.NAME][setup.USERS_DB_NAME]['name'],
+                    dt.datetime.now(),
+                    False,
+                    version,
+                    file_name,
+                    dbms,
+                    json.dumps(datetime),
+                    json.dumps(dimensions),
+                    json.dumps(metrics),
+                    json.dumps(selected_datetime),
+                    json.dumps(selected_dimensions),
+                    json.dumps(selected_metrics),
+                    json.dumps(selected_aggrules),
+                    round(file_size / 1024, 6),
+                    hashlib.sha256(df.to_string().encode('utf8')).hexdigest()
+                ]
+            ),
+            validate=Validate(
+                col=query_index,
+                val=id
+            )
         )
 
         # Promote the datafile to the data-ingestion database as a table

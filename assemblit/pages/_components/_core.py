@@ -6,7 +6,7 @@ Location    : ~/pages/_components
 
 Description
 ---------------------------------------------------------------------
-Contains the generic methods for a getstreamy web-application.
+Contains the core components for an assemblit web-application.
 """
 
 import json

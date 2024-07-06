@@ -13,6 +13,7 @@ import streamlit as st
 from assemblit import setup
 from assemblit.app.structures import Setting
 from assemblit.database import generic
+from assemblit.database.structures import Filter, Validate, Value, Row
 from pytensils import utils
 
 
@@ -63,10 +64,10 @@ def initialize_key_value_pair_table(
         # Assign the table information to the session state for the form content
         if Database.table_record_exists(
             table_name=table_name,
-            filtr={
-                'col': query_index,
-                'val': st.session_state[setup.NAME][db_name][query_index]
-            }
+            filtr=Filter(
+                col=query_index,
+                val=st.session_state[setup.NAME][db_name][query_index]
+            )
         ):
 
             # Retrieve the table information
@@ -77,10 +78,10 @@ def initialize_key_value_pair_table(
                         db_name=db_name,
                         table_name=table_name
                     ),
-                    filtr={
-                        'col': query_index,
-                        'val': st.session_state[setup.NAME][db_name][query_index]
-                    }
+                    filtr=Filter(
+                        col=query_index,
+                        val=st.session_state[setup.NAME][db_name][query_index]
+                    )
                 )
             )
 
@@ -88,7 +89,6 @@ def initialize_key_value_pair_table(
             for index, item in enumerate(
                 st.session_state[setup.NAME][db_name][table_name]['settings']
             ):
-                # Assign types
                 item: Setting
 
                 # Parse settings
@@ -102,15 +102,15 @@ def initialize_key_value_pair_table(
             # Insert the table information as defaults
             Database.insert(
                 table_name=table_name,
-                values=get_default_key_value_pair_settings(
+                row=get_default_key_value_pair_settings(
                     db_name=db_name,
                     query_index=query_index,
                     settings=settings
                 ),
-                validate={
-                    'col': query_index,
-                    'val': st.session_state[setup.NAME][db_name][query_index]
-                }
+                validate=Validate(
+                    col=query_index,
+                    val=st.session_state[setup.NAME][db_name][query_index]
+                )
             )
 
 
@@ -283,10 +283,10 @@ def get_key_value_pair_parameters(
 def get_default_key_value_pair_settings(
     db_name: str,
     query_index: str,
-    settings: list,
-) -> dict:
+    settings: list[Setting],
+) -> Row:
     """ Parses the default setting(s) parameters and values and
-    returns a dictionary.
+    returns a `Row` object.
 
     Parameters
     ----------
@@ -296,8 +296,8 @@ def get_default_key_value_pair_settings(
         Name of the table within `db_name` to store the setting(s) parameters & values.
     query_index : 'str'
         Name of the index within `db_name` & `table_name`. May only be one column.
-    settings : `list`
-        List of dictionary objects containing the setting(s) parameters & values.
+    settings : `list[Setting]`
+        List of `assemblit.app.structures.Setting` objects containing the setting(s) parameters & values.
     """
     defaults = {
         query_index: st.session_state[setup.NAME][db_name][query_index]
@@ -307,7 +307,10 @@ def get_default_key_value_pair_settings(
         setting: Setting
         defaults[setting.parameter] = setting.value
 
-    return defaults
+    return Row(
+        cols=list(defaults.keys()),
+        vals=list(defaults.values())
+    )
 
 
 # Define function(s) for creating key-value pair forms
@@ -559,22 +562,22 @@ def update_settings(
 
             if Database.table_record_exists(
                 table_name=table_name,
-                filtr={
-                    'col': query_index,
-                    'val': st.session_state[setup.NAME][db_name][query_index]
-                }
+                filtr=Filter(
+                    col=query_index,
+                    val=st.session_state[setup.NAME][db_name][query_index]
+                )
             ):
                 try:
                     Database.update(
                         table_name=table_name,
-                        values={
-                            'col': parameter,
-                            'val': str(response[parameter]).strip()
-                        },
-                        filtr={
-                            'col': query_index,
-                            'val': st.session_state[setup.NAME][db_name][query_index]
-                        }
+                        value=Value(
+                            col=parameter,
+                            val=str(response[parameter]).strip()
+                        ),
+                        filtr=Filter(
+                            col=query_index,
+                            val=st.session_state[setup.NAME][db_name][query_index]
+                        )
                     )
 
                     # Log success

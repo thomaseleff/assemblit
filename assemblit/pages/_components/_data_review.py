@@ -1,12 +1,12 @@
 """
 Information
 ---------------------------------------------------------------------
-Name        : _data_upload.py
+Name        : _data_review.py
 Location    : ~/pages/_components
 
 Description
 ---------------------------------------------------------------------
-Contains the generic methods for data-review.
+Contains the components for data-review.
 """
 
 import hashlib
@@ -16,6 +16,7 @@ import streamlit as st
 from assemblit import data_toolkit, setup
 from assemblit.pages._components import _core, _selector
 from assemblit.database import sessions, data, generic
+from assemblit.database.structures import Filter, Value
 
 # --TODO Remove scope_db_name and scope_query_index from all function(s).
 #       Scope for data is not dynamic, it can only be the sessions-db.
@@ -29,7 +30,7 @@ def display_data_review(
     scope_db_name: str,
     scope_query_index: str
 ):
-    """ Displays the data-review
+    """ Displays the data-review.
 
     Parameters
     ----------
@@ -46,7 +47,7 @@ def display_data_review(
     """
 
     # Layout columns
-    col1, col2, col3 = st.columns(setup.CONTENT_COLUMNS)
+    _, col2, _ = st.columns(setup.CONTENT_COLUMNS)
 
     # Display schema validation and data-preview
     with col2:
@@ -824,10 +825,10 @@ def retrieve_data_from_database(
             ids = Sessions.select_table_column_value(
                 table_name=table_name,
                 col=query_index,
-                filtr={
-                    'col': scope_query_index,
-                    'val': st.session_state[setup.NAME][scope_db_name][scope_query_index]
-                },
+                filtr=Filter(
+                    col=scope_query_index,
+                    val=st.session_state[setup.NAME][scope_db_name][scope_query_index]
+                ),
                 multi=True
             )
         except generic.NullReturnValue:
@@ -1002,35 +1003,35 @@ def finalize_dataset(
     # Reset all datasets
     Data.reset_table_column_value(
         table_name=table_name,
-        values={
-            'col': 'final',
-            'val': False
-        },
-        filtr={
-            'col': query_index,
-            'val': Sessions.select_table_column_value(
+        value=Value(
+            col='final',
+            val=False
+        ),
+        filtr=Filter(
+            col=query_index,
+            val=Sessions.select_table_column_value(
                 table_name=table_name,
                 col=query_index,
-                filtr={
-                    'col': setup.SESSIONS_DB_QUERY_INDEX,
-                    'val': st.session_state[setup.NAME][setup.SESSIONS_DB_NAME][setup.SESSIONS_DB_QUERY_INDEX]
-                },
+                filtr=Filter(
+                    col=setup.SESSIONS_DB_QUERY_INDEX,
+                    val=st.session_state[setup.NAME][setup.SESSIONS_DB_NAME][setup.SESSIONS_DB_QUERY_INDEX]
+                ),
                 multi=True
             )
-        }
+        )
     )
 
     # Set the selected datafile as final
     Data.update(
         table_name=table_name,
-        values={
-            'col': 'final',
-            'val': True
-        },
-        filtr={
-            'col': query_index,
-            'val': dataset_id
-        }
+        value=Value(
+            col='final',
+            val=True
+        ),
+        filtr=Filter(
+            col=query_index,
+            val=dataset_id
+        )
     )
 
 
@@ -1072,47 +1073,47 @@ def save_dataset(
     # Update the database with the latest selected values
     Data.update(
         table_name=table_name,
-        values={
-            'col': 'selected_datetime',
-            'val': json.dumps(selected_datetime)
-        },
-        filtr={
-            'col': query_index,
-            'val': dataset_id
-        }
+        value=Value(
+            col='selected_datetime',
+            val=json.dumps(selected_datetime)
+        ),
+        filtr=Filter(
+            col=query_index,
+            val=dataset_id
+        )
     )
     Data.update(
         table_name=table_name,
-        values={
-            'col': 'selected_dimensions',
-            'val': json.dumps(selected_dimensions)
-        },
-        filtr={
-            'col': query_index,
-            'val': dataset_id
-        }
+        value=Value(
+            col='selected_dimensions',
+            val=json.dumps(selected_dimensions)
+        ),
+        filtr=Filter(
+            col=query_index,
+            val=dataset_id
+        )
     )
     Data.update(
         table_name=table_name,
-        values={
-            'col': 'selected_metrics',
-            'val': json.dumps(selected_metrics)
-        },
-        filtr={
-            'col': query_index,
-            'val': dataset_id
-        }
+        value=Value(
+            col='selected_metrics',
+            val=json.dumps(selected_metrics)
+        ),
+        filtr=Filter(
+            col=query_index,
+            val=dataset_id
+        )
     )
     Data.update(
         table_name=table_name,
-        values={
-            'col': 'selected_aggrules',
-            'val': json.dumps(selected_aggrules)
-        },
-        filtr={
-            'col': query_index,
-            'val': dataset_id
-        }
+        value=Value(
+            col='selected_aggrules',
+            val=json.dumps(selected_aggrules)
+        ),
+        filtr=Filter(
+            col=query_index,
+            val=dataset_id
+        )
     )
 
 

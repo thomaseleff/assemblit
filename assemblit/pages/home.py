@@ -25,7 +25,7 @@ class Content():
         content_file_name: str | None = 'README.md',
         content_info: str | None = 'For more information, visit the GitHub repository.'
     ):
-        """ Initializes an instance of the home-page `Class`.
+        """ Initializes an instance of the home-page `class`.
 
         Parameters
         ----------

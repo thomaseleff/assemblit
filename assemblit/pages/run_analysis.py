@@ -14,7 +14,7 @@ import streamlit as st
 from assemblit import setup
 from assemblit.app.structures import Setting
 from assemblit.pages._components import _core, _run_analysis
-from assemblit.database import sessions, analysis
+from assemblit.database import sessions, data, analysis
 
 
 class Content():
@@ -33,7 +33,7 @@ class Content():
         ),
         headerless: bool = False
     ):
-        """ Initializes the content of the run-analysis `Class`.
+        """ Initializes the content of the run-analysis `class`.
 
         Parameters
         ----------
@@ -108,14 +108,14 @@ class Content():
         # Assign key-value pair defaults for the selector
         if self.db_name not in st.session_state[setup.NAME]:
             st.session_state[setup.NAME][setup.DATA_DB_NAME] = {
-                'datasets': {
+                data.Schemas.data.name: {
                     'selector': copy.deepcopy(self.selector),
                     'set-up': False
                 }
             }
         else:
-            if 'datasets' not in st.session_state[setup.NAME][self.db_name]:
-                st.session_state[setup.NAME][setup.DATA_DB_NAME]['datasets'] = {
+            if data.Schemas.data.name not in st.session_state[setup.NAME][self.db_name]:
+                st.session_state[setup.NAME][setup.DATA_DB_NAME][data.Schemas.data.name] = {
                     'selector': copy.deepcopy(self.selector),
                     'set-up': False
                 }

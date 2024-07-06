@@ -6,7 +6,7 @@ Location    : ~/pages
 
 Description
 ---------------------------------------------------------------------
-Contains the `Class` for the session-settings-page.
+Contains the `class` for the session-settings-page.
 """
 
 import copy
@@ -43,7 +43,7 @@ class Content():
         clear_on_submit: bool = False,
         # table_name: str = 'workflow'
     ):
-        """ Initializes the content of the workflow-settings `Class`.
+        """ Initializes the content of the workflow-settings `class`.
 
         Parameters
         ----------

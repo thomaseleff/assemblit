@@ -11,14 +11,14 @@ information from a sqlite3-database.
 """
 
 from __future__ import annotations
-from typing import List
+from typing import List, Literal
 import os
 import sqlite3
 import contextlib
 import pandera
 from assemblit.app.structures import Setting
 from assemblit.database import datatypes, syntax
-from assemblit.database.structures import DBMS, Filter, Validate, Values, Table
+from assemblit.database.structures import DBMS, Filter, Validate, Value, Table, Row
 from pytensils import utils
 
 
@@ -244,7 +244,7 @@ class Connection():
     def insert(
         self,
         table_name: str,
-        values: dict,
+        row: Row,
         validate: Validate | None = None
     ):
         """ Inserts a row of values into the database table.
@@ -253,9 +253,9 @@ class Connection():
         ----------
         table_name : `str`
             Name of the database table.
-        values : `dict`
-            Dictionary object containing the table columns (as keys)
-                and values (as values) to insert into `table_name`. If
+        row : `Row`
+            Row object containing the table columns `cols`
+                and values `vals` to insert into `table_name`. If
                 the order of the columns does not match the order of
                 columns in the database table, a `KeyError` is raised.
         validate : `Validate`
@@ -275,7 +275,7 @@ class Connection():
                 )
 
         # Insert values
-        if (list(values.keys)) == (
+        if (list(row.cols)) == (
             self.select_table_column_names_as_list(
                 table_name=table_name
             )
@@ -290,7 +290,7 @@ class Connection():
                         ', '.join(
                             [
                                 "'%s'" % normalize(string=i) for i in list(
-                                    values.values
+                                    row.vals
                                 )
                             ]
                         )
@@ -320,7 +320,7 @@ class Connection():
     def update(
         self,
         table_name: str,
-        values: Values,
+        value: Value,
         filtr: Filter
     ):
         """ Updates a single column value in a filtered database table.
@@ -329,8 +329,8 @@ class Connection():
         ----------
         table_name : `str`
             Name of the database table.
-        values : `Values`
-            Values object containing the column `col` and value
+        value : `Value`
+            Value object containing the column `col` and value
                 `val` to update in `table_name`.
         filtr : `Filter`
             Filter object containing the column `col` and value
@@ -338,7 +338,7 @@ class Connection():
                 returns more than one record, a `ValueError` is raised.
         """
 
-        # Update values
+        # Update value
         if self.select_num_table_records(
             table_name=table_name,
             filtr=filtr
@@ -351,8 +351,8 @@ class Connection():
                         WHERE %s = '%s';
                     """ % (
                         str(table_name),
-                        str(values.col),
-                        normalize(string=values.val),
+                        str(value.col),
+                        normalize(string=value.val),
                         str(filtr.col),
                         normalize(string=filtr.val)
                     )
@@ -369,7 +369,7 @@ class Connection():
     def reset_table_column_value(
         self,
         table_name: str,
-        values: Values,
+        value: Value,
         filtr: Filter | None = None
     ):
         """ Resets a column value in the database table.
@@ -378,8 +378,8 @@ class Connection():
         ----------
         table_name : `str`
             Name of the database table.
-        values : `Values`
-            Values object containing the column `col` and value
+        value : `Value`
+            Value object containing the column `col` and value
                 `val` to update in `table_name`.
         filtr : `Filter`
             Filter object containing the column `col` and value
@@ -397,8 +397,8 @@ class Connection():
                             WHERE %s IN (%s);
                         """ % (
                             str(table_name),
-                            str(values.col),
-                            normalize(string=values.val),
+                            str(value.col),
+                            normalize(string=value.val),
                             str(filtr.col),
                             ', '.join(["'%s'" % normalize(string=i) for i in filtr.val])
                         )
@@ -411,8 +411,8 @@ class Connection():
                             WHERE %s = '%s';
                         """ % (
                             str(table_name),
-                            str(values.col),
-                            normalize(string=values.val),
+                            str(value.col),
+                            normalize(string=value.val),
                             str(filtr.col),
                             normalize(string=filtr.val)
                         )
@@ -424,8 +424,8 @@ class Connection():
                         SET %s = '%s';
                     """ % (
                         str(table_name),
-                        str(values.col),
-                        normalize(string=values.val)
+                        str(value.col),
+                        normalize(string=value.val)
                     )
                 )
             connection.commit()
@@ -816,7 +816,7 @@ class Connection():
         table_name: str,
         col: str,
         filtr: Filter,
-        return_dtype: str = 'str',
+        return_dtype: Literal['str', 'int', 'float', 'bool', 'list', 'dict'] = 'str',
         multi: bool = False,
         order: str = 'ASC',
         contains: bool = True
@@ -834,7 +834,7 @@ class Connection():
                 `table_name`. If the filtered table returns (a) record(s), then the
                 `col` value is returned as `return_dtype`. If no record(s) are returned,
                 then `NullReturnValue` is raised.
-        return_dtype : `str`
+        return_dtype : `Literal['str', 'int', 'float', 'bool', 'list', 'dict']`
             Name of the datatype (`str`, `int`, `float`, `bool`, `list`, `dict`) of
                 the returned value. If the returned value cannot be converted
                 to `return_dtype` then a `TypeError` is raised.
@@ -973,7 +973,7 @@ class Connection():
     def select_generic_query(
         self,
         query: str,
-        return_dtype: str
+        return_dtype: Literal['str', 'int', 'float', 'bool', 'list', 'dict'] = 'str'
     ) -> str | int | float | bool | list | dict:
         """ Returns the result of the SQL query as `return_dtype`.
 
@@ -982,7 +982,7 @@ class Connection():
         query : `str`
             SQL-query string. If multiple records are returned, a `ValueError` is raised.
             If no records are returned, a `NullReturnValue` is raised.
-        return_dtype : `str`
+        return_dtype : `Literal['str', 'int', 'float', 'bool', 'list', 'dict']`
             Name of the datatype (`str`, `int`, `float`, `bool`, `list`, `dict`) of
                 the returned value. If the returned value cannot be converted
                 to `return_dtype` then a `TypeError` is raised.

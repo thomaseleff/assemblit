@@ -15,6 +15,7 @@ from assemblit import setup
 from assemblit.app.structures import Setting
 from assemblit.pages._components import _core, _key_value
 from assemblit.database import users, sessions, data, generic
+from assemblit.database.structures import Filter, Value, Row
 from pytensils import utils
 
 
@@ -169,26 +170,26 @@ def select_selector_dropdown_options(
 
     if Scope.table_record_exists(
         table_name=table_name,
-        filtr={
-            'col': scope_query_index,
-            'val': st.session_state[setup.NAME][scope_db_name][scope_query_index]
-        }
+        filtr=Filter(
+            col=scope_query_index,
+            val=st.session_state[setup.NAME][scope_db_name][scope_query_index]
+        )
     ):
         options = Database.select_table_column_value(
             table_name=table_name,
             col=setting.parameter,
-            filtr={
-                'col': query_index,
-                'val': Scope.select_table_column_value(
+            filtr=Filter(
+                col=query_index,
+                val=Scope.select_table_column_value(
                     table_name=table_name,
                     col=query_index,
-                    filtr={
-                        'col': scope_query_index,
-                        'val': st.session_state[setup.NAME][scope_db_name][scope_query_index]
-                    },
+                    filtr=Filter(
+                        col=scope_query_index,
+                        val=st.session_state[setup.NAME][scope_db_name][scope_query_index]
+                    ),
                     multi=True
                 )
-            },
+            ),
             multi=True
         )
 
@@ -239,10 +240,10 @@ def select_selector_default_value(
                 query_index=query_index,
                 scope_db_name=scope_db_name,
                 scope_query_index=scope_query_index,
-                filtr={
-                    'col': setting.parameter,
-                    'val': options[index]
-                }
+                filtr=Filter(
+                    col=setting.parameter,
+                    val=options[index]
+                )
             )
         except ValueError:
             index = 0
@@ -255,10 +256,10 @@ def select_selector_default_value(
                 query_index=query_index,
                 scope_db_name=scope_db_name,
                 scope_query_index=scope_query_index,
-                filtr={
-                    'col': setting.parameter,
-                    'val': options[index]
-                }
+                filtr=Filter(
+                    col=setting.parameter,
+                    val=options[index]
+                )
             )
     else:
         index = 0
@@ -309,10 +310,10 @@ def set_query_index_value(
             query_index=query_index,
             scope_db_name=scope_db_name,
             scope_query_index=scope_query_index,
-            filtr={
-                'col': setting.parameter,
-                'val': selected_value
-            }
+            filtr=Filter(
+                col=setting.parameter,
+                val=selected_value
+            )
         )
 
 
@@ -375,10 +376,10 @@ def select_query_index_value(
                 ["'%s'" % (i) for i in Scope.select_table_column_value(
                     table_name=table_name,
                     col=query_index,
-                    filtr={
-                        'col': scope_query_index,
-                        'val': st.session_state[setup.NAME][scope_db_name][scope_query_index]
-                    },
+                    filtr=Filter(
+                        col=scope_query_index,
+                        val=st.session_state[setup.NAME][scope_db_name][scope_query_index]
+                    ),
                     return_dtype='str',
                     multi=True
                 )]
@@ -479,10 +480,10 @@ def create_session(
             ids = Scope.select_table_column_value(
                 table_name=table_name,
                 col=query_index,
-                filtr={
-                    'col': scope_query_index,
-                    'val': st.session_state[setup.NAME][scope_db_name][scope_query_index]
-                },
+                filtr=Filter(
+                    col=scope_query_index,
+                    val=st.session_state[setup.NAME][scope_db_name][scope_query_index]
+                ),
                 multi=True
             )
         except generic.NullReturnValue:
@@ -493,12 +494,10 @@ def create_session(
             # Add to user database
             Scope.insert(
                 table_name=table_name,
-                values={
-                    scope_query_index: (
-                        st.session_state[setup.NAME][scope_db_name][scope_query_index]
-                    ),
-                    query_index: id
-                }
+                row=Row(
+                    cols=[scope_query_index, query_index],
+                    vals=[st.session_state[setup.NAME][scope_db_name][scope_query_index], id]
+                )
             )
 
             # Create dictionary of columns and values to insert
@@ -508,7 +507,10 @@ def create_session(
             # Add to studies database
             Database.insert(
                 table_name=table_name,
-                values=values
+                row=Row(
+                    cols=list(values.keys()),
+                    vals=list(values.values())
+                )
             )
 
             # Log successes
@@ -595,23 +597,23 @@ def update_session(
 
                 if Database.table_record_exists(
                     table_name=table_name,
-                    filtr={
-                        'col': query_index,
-                        'val': st.session_state[setup.NAME][db_name][query_index]
-                    }
+                    filtr=Filter(
+                        col=query_index,
+                        val=st.session_state[setup.NAME][db_name][query_index]
+                    )
                 ):
 
                     try:
                         Database.update(
                             table_name=table_name,
-                            values={
-                                'col': parameter,
-                                'val': response[parameter]
-                            },
-                            filtr={
-                                'col': query_index,
-                                'val': st.session_state[setup.NAME][db_name][query_index]
-                            }
+                            value=Value(
+                                col=parameter,
+                                val=response[parameter]
+                            ),
+                            filtr=Filter(
+                                col=query_index,
+                                val=st.session_state[setup.NAME][db_name][query_index]
+                            )
                         )
 
                         # Log success

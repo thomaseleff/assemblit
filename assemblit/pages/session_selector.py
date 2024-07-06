@@ -42,7 +42,7 @@ class Content():
         headerless: bool = False,
         clear_on_submit: bool = True
     ):
-        """ Initializes an instance of the session-selector `Class`.
+        """ Initializes an instance of the session-selector `class`.
 
         Parameters
         ----------
