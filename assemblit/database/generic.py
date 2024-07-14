@@ -195,7 +195,10 @@ class Connection():
     def __del__(self):
         """ Closes the sqlite3-connection when deconstructed.
         """
-        self.conn.close()
+        try:
+            self.conn.close()
+        except AttributeError:
+            pass
 
     # Define db function(s) to create tables
     def create_table(

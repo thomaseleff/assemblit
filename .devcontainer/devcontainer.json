@@ -4,6 +4,10 @@
         "context": ".../..",
         "dockerfile": "Dockerfile"
     },
+    "mounts": [
+        "source=T:/Documents/Projects/Assemblit/analysis,target=/assemblit/analysis,type=bind,consistency=cached",
+        "source=T:/Documents/Projects/Assemblit/db,target=/assemblit/db,type=bind,consistency=cached"
+    ],
 	"customizations": {
 		"vscode": {
 			"settings": {
