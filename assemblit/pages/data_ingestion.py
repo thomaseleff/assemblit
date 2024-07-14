@@ -13,7 +13,7 @@ import copy
 import streamlit as st
 import pandas as pd
 from assemblit import setup
-from assemblit.app.structures import Setting
+from assemblit.app.structures import Selector
 from assemblit.pages._components import _core, _data_uploader, _data_review
 from assemblit.database import sessions, data
 
@@ -71,9 +71,7 @@ class Content():
         self.query_index = setup.DATA_DB_QUERY_INDEX
 
         # Assign default session state class variables
-        self.selector = Setting(
-            type='selectbox',
-            dtype='str',
+        self.selector = Selector(
             parameter='file_name',
             name='Datafile name',
             description='Select a datafile to review.'

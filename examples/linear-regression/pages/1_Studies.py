@@ -10,19 +10,12 @@ Studies-page of the 'linny' web-application.
 """
 
 from assemblit.pages import session_selector
-from assemblit.app.structures import Setting
+from assemblit.app.structures import Setting, Selector
 
 # Initialize the session-selector page content
 Sessions = session_selector.Content(
     header='Studies',
     tagline='Select a study for the session.',
-    selector=Setting(
-        type='selectbox',
-        dtype='str',
-        parameter='study_name',
-        name='Study name',
-        description='Select a study'
-    ),
     settings=[
         Setting(
             type='text-input',
@@ -39,6 +32,7 @@ Sessions = session_selector.Content(
             description='Input the name of the corresponding country.'
         )
     ],
+    selector=Selector(parameter='study_name')
 )
 
 # Serve content
