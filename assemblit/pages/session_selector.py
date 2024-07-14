@@ -197,8 +197,6 @@ class Content():
             # Set default sessions-key-value-pair settings configuration form attributes
             if not options:
                 st.session_state[setup.NAME][self.db_name][self.table_name]['set-up'] = True
-            # else:
-            #     st.session_state[setup.NAME][self.db_name][self.table_name]['set-up'] = False
 
             # Layout columns
             _, col2, _ = st.columns(setup.CONTENT_COLUMNS)
