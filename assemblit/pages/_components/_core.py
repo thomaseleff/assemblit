@@ -113,81 +113,66 @@ def display_page_header(
     # Display header & tagline
     if not headerless:
 
-        with st.container():
+        # Layout columns
+        _, col2, col3, col4, _ = st.columns(setup.HEADER_COLUMNS)
 
-            # Create class element for the header container
-            st.markdown(
-                """
-                    <div class='fixed-header'/>
-                    <style>
-                        div[data-testid="stVerticalBlock"] div:has(div.fixed-header) {
-                            position: sticky;
-                            top: 2.875rem;
-                            background-color: white;
-                            z-index: 999;
-                        }
-                    </style>
-                """,
-                unsafe_allow_html=True
+        # Display the header
+        col2.markdown('# %s' % header)
+
+        # Display context pop-over
+        if show_context and st.session_state[setup.NAME][setup.SESSIONS_DB_NAME]['name']:
+            col3.subheader('')
+            with col3.popover(label='🔍', use_container_width=True):
+
+                # Display subheader
+                st.write('##### %s context' % (
+                    ''.join([
+                        setup.SESSIONS_DB_NAME[0].upper(),
+                        setup.SESSIONS_DB_NAME[1:]
+                    ])
+                ))
+
+                # Display pop-over content
+                for setting in st.session_state[setup.NAME][setup.SESSIONS_DB_NAME][setup.SESSIONS_DB_NAME]['settings']:
+                    setting: Setting
+
+                    # Layout columns
+                    col1, col2 = st.columns([.5, .5])
+
+                    # Display context-parameters
+                    col1.write('_%s_' % (setting.name))
+                    col2.write('`%s`' % (setting.value))
+
+        # # Display user pop-over
+        # if st.session_state[setup.NAME][setup.USERS_DB_NAME]['name']:
+        #     col4.subheader('')
+        #     with col4.popover(label='👋'):
+
+        #         # Display account information
+        #         st.write(
+        #             '##### Hello, %s' % (
+        #                 st.session_state[setup.NAME][setup.USERS_DB_NAME]['name']
+        #             )
+        #         )
+
+        #         # Layout columns
+        #         col1, col2 = st.columns([.5, .5])
+
+        # Display 'Logout' button
+        if setup.REQUIRE_AUTHENTICATION:
+            col4.subheader('')
+            col4.button(
+                label='Logout',
+                on_click=vault.logout,
+                type='secondary',
+                use_container_width=True
             )
 
-            # Layout columns
-            col1, col2, col3, col4, _ = st.columns(setup.HEADER_COLUMNS)
+        # Layout columns
+        _, col2, _ = st.columns(setup.TAGLINE_COLUMNS)
 
-            # Display the header
-            col2.markdown('# %s' % header)
-            col2.write(tagline)
-            col2.write('')
-            col2.write('')
-
-            # Display context pop-over
-            if show_context and st.session_state[setup.NAME][setup.SESSIONS_DB_NAME]['name']:
-                col3.markdown('# ')
-                with col3.popover(label='🔍', use_container_width=True):
-
-                    # Display subheader
-                    st.write('##### %s context' % (
-                        ''.join([
-                            setup.SESSIONS_DB_NAME[0].upper(),
-                            setup.SESSIONS_DB_NAME[1:]
-                        ])
-                    ))
-
-                    # Display pop-over content
-                    for setting in st.session_state[setup.NAME][setup.SESSIONS_DB_NAME][setup.SESSIONS_DB_NAME]['settings']:
-                        setting: Setting
-
-                        # Layout columns
-                        col1, col2 = st.columns([.5, .5])
-
-                        # Display context-parameters
-                        col1.write('_%s_' % (setting.name))
-                        col2.write('`%s`' % (setting.value))
-
-            # # Display user pop-over
-            # if st.session_state[setup.NAME][setup.USERS_DB_NAME]['name']:
-            #     col4.subheader('')
-            #     with col4.popover(label='👋'):
-
-            #         # Display account information
-            #         st.write(
-            #             '##### Hello, %s' % (
-            #                 st.session_state[setup.NAME][setup.USERS_DB_NAME]['name']
-            #             )
-            #         )
-
-            #         # Layout columns
-            #         col1, col2 = st.columns([.5, .5])
-
-            # Display 'Logout' button
-            if setup.REQUIRE_AUTHENTICATION:
-                col4.markdown('# ')
-                col4.button(
-                    label='Logout',
-                    on_click=vault.logout,
-                    type='secondary',
-                    use_container_width=True
-                )
+        # Display the tagline
+        col2.markdown('%s' % tagline)
 
     # Debug
     if setup.DEBUG:

@@ -16,7 +16,7 @@ import assemblit.pages.home as home
 
 # Initialize the home-page content
 Welcome = home.Content(
-    header='👋 Welcome',
+    header='Welcome',
     tagline="""
         `assemblit` is helping data analysts and scientists rapidly scale notebooks
         into analytics-as-a-service (AaaS) web-applications.
@@ -37,6 +37,7 @@ Welcome.serve()
 # Temporary static content
 _, col2, _ = st.columns(setup.CONTENT_COLUMNS)
 
+col2.write('')
 col2.markdown(
     """
         🦄 `assemblit` is a Python package that provides a framework of [streamlit](https://streamlit.io/) based

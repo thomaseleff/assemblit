@@ -143,6 +143,12 @@ class Content():
                     settings=copy.deepcopy(self.settings)
                 )
 
+                # Layout columns
+                _, col2, _ = st.columns(setup.CONTENT_COLUMNS)
+
+                # Display spacing
+                col2.write('')
+
                 # Display the workflow-key-value-pair-settings configuration form
                 _key_value.display_key_value_pair_settings_form(
                     db_name=self.db_name,

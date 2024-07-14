@@ -3,14 +3,14 @@ FROM python:3.10-slim
 
 # Developer configuration settings
 ENV ENV "PROD"
-ENV VERSION "v0.1.0#14"
+ENV VERSION "v0.1.0"
 ENV DEBUG False
 
 # Web-app configuration settings
 ENV NAME "assemblit"
 ENV HOME_PAGE_NAME "Welcome"
 ENV GITHUB_REPOSITORY_URL "https://github.com/thomaseleff/assemblit"
-ENV GITHUB_BRANCH_NAME "v0.1.0#14"
+ENV GITHUB_BRANCH_NAME "v0.1.0"
 
 # Streamlit configuration settings
 ENV CLIENT_PORT 8501

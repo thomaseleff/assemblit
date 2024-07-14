@@ -72,11 +72,14 @@ class Content():
                 tagline=self.tagline
             )
 
+            # Layout columns
+            _, col2, _ = st.columns(setup.CONTENT_COLUMNS)
+
+            # Display spacing
+            col2.write('')
+
             # Display content
             if self.content_url:
-
-                # Layout columns
-                _, col2, _ = st.columns(setup.CONTENT_COLUMNS)
 
                 # Display readme
                 Github = web.Handler(url=self.content_url)
@@ -85,18 +88,11 @@ class Content():
                 if readme is not None:
                     col2.markdown(readme)
 
-                # Display content information
+            # Display content information
+            if self.content_info:
                 _core.display_page_content_info(
                     content_info=self.content_info
                 )
-
-            else:
-
-                # Display content information
-                if self.content_info:
-                    _core.display_page_content_info(
-                        content_info=self.content_info
-                    )
 
         else:
 
