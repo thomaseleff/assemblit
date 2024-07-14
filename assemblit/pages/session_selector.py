@@ -200,6 +200,12 @@ class Content():
             else:
                 st.session_state[setup.NAME][self.db_name][self.table_name]['set-up'] = False
 
+            # Layout columns
+            _, col2, _ = st.columns(setup.CONTENT_COLUMNS)
+
+            # Display spacing
+            col2.write('')
+
             # Display the session-selector drop-down
             self.display_session_selector(
                 options=options,

@@ -49,6 +49,7 @@ DB_DIR: Union[str, os.PathLike] = os.path.abspath(
 LAYOUT: str = 'wide'
 INITIAL_SIDEBAR_STATE: str = 'expanded'
 HEADER_COLUMNS: List[Union[int, float]] = [.05, .625, .1, .175, .05]
+TAGLINE_COLUMNS: List[Union[int, float]] = [.05, .9, .05]
 CONTENT_COLUMNS: List[Union[int, float]] = [.075, .875, .05]
 
 # Authentication settings
