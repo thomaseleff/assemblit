@@ -9,10 +9,11 @@ Description
 Contains the generic methods for a session-selector.
 """
 
+from typing import List
 import hashlib
 import streamlit as st
 from assemblit import setup
-from assemblit.app.structures import Setting
+from assemblit.app.structures import Setting, Selector
 from assemblit.pages._components import _core, _key_value
 from assemblit.database import users, sessions, data, generic
 from assemblit.database.structures import Filter, Value, Row
@@ -53,54 +54,29 @@ def display_selector(
     """
 
     # Display the session-selector input object
-    setting: Setting = st.session_state[setup.NAME][db_name][table_name]['selector']
+    selector: Selector = st.session_state[setup.NAME][db_name][table_name]['selector']
 
-    if setting.kwargs:
-        st.selectbox(
-            key='Selector:%s' % generate_selector_key(
-                db_name=db_name,
-                table_name=table_name,
-                parameter=setting.parameter
-            ),
-            label=setting.name,
-            options=options,
-            index=index,
-            placeholder=setting.description,
-            on_change=set_query_index_value,
-            kwargs={
-                'db_name': db_name,
-                'table_name': table_name,
-                'query_index': query_index,
-                'scope_db_name': scope_db_name,
-                'scope_query_index': scope_query_index
-            },
-            disabled=disabled,
-            label_visibility='collapsed',
-            **setting.kwargs
-        )
-
-    else:
-        st.selectbox(
-            key='Selector:%s' % generate_selector_key(
-                db_name=db_name,
-                table_name=table_name,
-                parameter=setting.parameter
-            ),
-            label=setting.name,
-            options=options,
-            index=index,
-            placeholder=setting.description,
-            on_change=set_query_index_value,
-            kwargs={
-                'db_name': db_name,
-                'table_name': table_name,
-                'query_index': query_index,
-                'scope_db_name': scope_db_name,
-                'scope_query_index': scope_query_index
-            },
-            disabled=disabled,
-            label_visibility='collapsed'
-        )
+    st.selectbox(
+        key='Selector:%s' % generate_selector_key(
+            db_name=db_name,
+            table_name=table_name,
+            parameter=selector.parameter
+        ),
+        label=selector.name,
+        options=options,
+        index=index,
+        placeholder=selector.description,
+        on_change=set_query_index_value,
+        kwargs={
+            'db_name': db_name,
+            'table_name': table_name,
+            'query_index': query_index,
+            'scope_db_name': scope_db_name,
+            'scope_query_index': scope_query_index
+        },
+        disabled=disabled,
+        label_visibility='collapsed'
+    )
 
 
 # Define function(s) for creating selectors
@@ -127,6 +103,28 @@ def generate_selector_key(
         str(table_name).strip(),
         str(parameter).strip()
     )
+
+
+def parse_selector(
+    parameter: str,
+    settings: List[Setting]
+) -> Selector:
+    """ Returns a `Selector` object from a `Settings` object when passed the name of a parameter within the `Settings` object.
+
+    Parameters
+    ----------
+    parameter: `str`
+        Name of the parameter.
+    settings : `list[Setting]`
+        List of `assemblit.app.structures.Setting` objects containing the setting(s) parameters & values.
+    """
+
+    # Validate the selector-parameter
+    if parameter.strip().lower() not in [setting.parameter.strip().lower() for setting in settings]:
+        raise ValueError('The parameter {%s} does not exist within the settings.' % parameter.strip())
+
+    # Parse the selector object
+    return [setting.to_selector() for setting in settings if setting.parameter == parameter][0]
 
 
 # Define function(s) for standard selector database queries
@@ -166,7 +164,7 @@ def select_selector_dropdown_options(
     )
 
     # Select session-selector drop-down options
-    setting: Setting = st.session_state[setup.NAME][db_name][table_name]['selector']
+    selector: Selector = st.session_state[setup.NAME][db_name][table_name]['selector']
 
     if Scope.table_record_exists(
         table_name=table_name,
@@ -177,7 +175,7 @@ def select_selector_dropdown_options(
     ):
         options = Database.select_table_column_value(
             table_name=table_name,
-            col=setting.parameter,
+            col=selector.parameter,
             filtr=Filter(
                 col=query_index,
                 val=Scope.select_table_column_value(
@@ -226,7 +224,7 @@ def select_selector_default_value(
     """
 
     # Select the index of the default drop-down selection
-    setting: Setting = st.session_state[setup.NAME][db_name][table_name]['selector']
+    selector: Selector = st.session_state[setup.NAME][db_name][table_name]['selector']
 
     if options:
         try:
@@ -241,7 +239,7 @@ def select_selector_default_value(
                 scope_db_name=scope_db_name,
                 scope_query_index=scope_query_index,
                 filtr=Filter(
-                    col=setting.parameter,
+                    col=selector.parameter,
                     val=options[index]
                 )
             )
@@ -257,7 +255,7 @@ def select_selector_default_value(
                 scope_db_name=scope_db_name,
                 scope_query_index=scope_query_index,
                 filtr=Filter(
-                    col=setting.parameter,
+                    col=selector.parameter,
                     val=options[index]
                 )
             )
@@ -291,12 +289,12 @@ def set_query_index_value(
     """
 
     # Retrieve selected value
-    setting: Setting = st.session_state[setup.NAME][db_name][table_name]['selector']
+    selector: Selector = st.session_state[setup.NAME][db_name][table_name]['selector']
     selected_value = st.session_state[
         'Selector:%s' % generate_selector_key(
             db_name=db_name,
             table_name=table_name,
-            parameter=setting.parameter
+            parameter=selector.parameter
         )
     ]
 
@@ -311,7 +309,7 @@ def set_query_index_value(
             scope_db_name=scope_db_name,
             scope_query_index=scope_query_index,
             filtr=Filter(
-                col=setting.parameter,
+                col=selector.parameter,
                 val=selected_value
             )
         )
@@ -463,11 +461,11 @@ def create_session(
     ):
 
         # Create an id from query index values
-        setting: Setting = st.session_state[setup.NAME][db_name][table_name]['selector']
+        selector: Selector = st.session_state[setup.NAME][db_name][table_name]['selector']
 
         string_to_hash = ''.join(
             [str(st.session_state[setup.NAME][scope_db_name][scope_query_index])]
-            + [str(response[setting.parameter])]
+            + [str(response[selector.parameter])]
         )
 
         # Generate id
@@ -521,7 +519,7 @@ def create_session(
             )
 
             # Set session state
-            st.session_state[setup.NAME][db_name]['name'] = response[setting.parameter]
+            st.session_state[setup.NAME][db_name]['name'] = response[selector.parameter]
             st.session_state[setup.NAME][db_name][query_index] = id
 
         else:
@@ -577,9 +575,9 @@ def update_session(
     )
 
     # Check for existing session-selector values
-    setting: Setting = st.session_state[setup.NAME][db_name][table_name]['selector']
+    selector: Selector = st.session_state[setup.NAME][db_name][table_name]['selector']
 
-    if response[setting.parameter] not in (
+    if response[selector.parameter] not in (
         select_selector_dropdown_options(
             db_name=db_name,
             table_name=table_name,
@@ -657,8 +655,8 @@ def update_session(
         st.session_state[setup.NAME][db_name]['errors'] = (
             st.session_state[setup.NAME][db_name]['errors'] + [
                 "The entry {%s} already exists. Please enter a unique value for {%s}." % (
-                    response[setting.parameter],
-                    setting.name
+                    response[selector.parameter],
+                    selector.name
                 )
             ]
         )

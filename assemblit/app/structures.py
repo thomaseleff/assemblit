@@ -109,7 +109,63 @@ class Setting():
             required=not (self.value is None or self.value == '')
         )
 
+    def to_selector(self) -> Selector:
+        """ Returns a `Selector` object from the `Setting` object.
+        """
+        return Selector(
+            parameter=self.parameter,
+            name=self.name,
+            description=self.description
+        )
+
     def __repr__(self):
         """ Returns the `Setting` object as a json-formatted `str`.
+        """
+        return json.dumps(self.to_dict(), indent=2)
+
+
+@dataclass
+class Selector():
+    parameter: str
+    name: str | None = None
+    description: str | None = None
+
+    def from_dict(dict_object: dict) -> Selector:
+        """ Returns a `Selector` object from a `dict`.
+
+        Parameters
+        ----------
+        dict_object : `dict`
+            The dictionary object to convert to a `Selector` object.
+        """
+
+        # Assert object type
+        if not isinstance(dict_object, dict):
+            raise TypeError('Object must be a `dict`.')
+
+        # Assert keys
+        missing_keys = [key for key in [
+            'parameter'
+        ] if key not in dict_object]
+        if missing_keys:
+            raise KeyError(
+                'Missing keys. The `dict` object is missing the following required keys [%s].' % (
+                    ','.join(["'%s'" % (key) for key in missing_keys])
+                )
+            )
+
+        return Selector(**dict_object)
+
+    def to_dict(self):
+        """ Returns the `Selector` object as a `dict`.
+        """
+        return {
+            'parameter': self.parameter,
+            'name': self.name,
+            'description': self.description
+        }
+
+    def __repr__(self):
+        """ Returns the `Selector` object as a json-formatted `str`.
         """
         return json.dumps(self.to_dict(), indent=2)

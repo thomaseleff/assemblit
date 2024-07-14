@@ -12,7 +12,7 @@ Contains the `class` for the session-selector-page.
 import copy
 import streamlit as st
 from assemblit import setup
-from assemblit.app.structures import Setting
+from assemblit.app.structures import Setting, Selector
 from assemblit.pages._components import _core, _key_value, _selector
 from assemblit.database import users
 
@@ -23,12 +23,8 @@ class Content():
         self,
         header: str = 'Sessions',
         tagline: str = 'Select a session.',
-        selector: Setting = Setting(
-            type='selectbox',
-            dtype='str',
-            parameter='session_name',
-            name='Session name',
-            description='Select a session.'
+        selector: Selector = Selector(
+            parameter='session_name'
         ),
         settings: list[Setting] = [
             Setting(
@@ -47,19 +43,19 @@ class Content():
         Parameters
         ----------
         header : `str`
-            String to display as the web-page header
+            String to display as the web-page header.
         tagline : `str`
-            String to display as the web-page tagline
-        selector : `Setting`
-            `assemblit.app.structures.Setting` object containing the setting parameter & value to populate the
-                drop-down selection options
+            String to display as the web-page tagline.
+        selector : `Selector`
+            `assemblit.app.structures.Selector` object containing the setting parameter & value to populate the
+                drop-down selection options.
         settings : `list[Setting]`
-            List of `assemblit.app.structures.Setting` objects containing the setting(s) parameters & values
+            List of `assemblit.app.structures.Setting` objects containing the setting(s) parameters & values.
         headerless : `bool`
-            `True` or `False`, determines whether to display the header & tagline
+            `True` or `False`, determines whether to display the header & tagline.
         clear_on_submit : `bool`
             `True` or `False`, determines whether to clear the form-submission responses
-                after submission
+                after submission.
         """
 
         # Assign content class variables
@@ -78,7 +74,10 @@ class Content():
         self.query_index = setup.SESSIONS_DB_QUERY_INDEX
 
         # Assign default session state class variables
-        self.selector = copy.deepcopy(selector)
+        self.selector = _selector.parse_selector(
+            parameter=selector.parameter,
+            settings=settings
+        )
         self.settings = copy.deepcopy(settings)
 
         # Initialize session state defaults
