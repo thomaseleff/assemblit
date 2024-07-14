@@ -3,20 +3,19 @@ Information
 ---------------------------------------------------------------------
 Name        : data_ingestion.py
 Location    : ~/pages
-Author      : Tom Eleff
-Published   : 2024-03-16
-Revised on  : .
 
 Description
 ---------------------------------------------------------------------
-Contains the `Class` for the data-ingestion-page.
+Contains the `class` for the data-ingestion-page.
 """
 
 import copy
 import streamlit as st
 import pandas as pd
-from assemblit import setup, db
+from assemblit import setup
+from assemblit.app.structures import Setting
 from assemblit.pages._components import _core, _data_uploader, _data_review
+from assemblit.database import sessions, data
 
 
 class Content():
@@ -37,7 +36,7 @@ class Content():
         data_dictionary: pd.DataFrame = pd.DataFrame(),
         data_example: pd.DataFrame = pd.DataFrame()
     ):
-        """ Initializes an instance of the data-ingestion-page Class().
+        """ Initializes an instance of the data-ingestion-page `class`.
 
         Parameters
         ----------
@@ -68,20 +67,17 @@ class Content():
 
         # Assign database class variables
         self.db_name = setup.DATA_DB_NAME
-        self.table_name = 'datasets'
+        self.table_name = data.Schemas.data.name
         self.query_index = setup.DATA_DB_QUERY_INDEX
 
         # Assign default session state class variables
-        self.selector = {
-            "sort": 0,
-            "type": "selectbox",
-            "dtype": "str",
-            "parameter": "file_name",
-            "name": "Datafile name",
-            "value": "",
-            "kwargs": None,
-            "description": "Select a datafile to review."
-        }
+        self.selector = Setting(
+            type='selectbox',
+            dtype='str',
+            parameter='file_name',
+            name='Datafile name',
+            description='Select a datafile to review.'
+        )
 
         # Initialize session state defaults
         _core.initialize_session_state_defaults()
@@ -125,38 +121,15 @@ class Content():
             if st.session_state[setup.NAME][setup.SESSIONS_DB_NAME][setup.SESSIONS_DB_QUERY_INDEX]:
 
                 # Initialize the scope-database table
-                _ = db.initialize_table(
-                    db_name=self.scope_db_name,
-                    table_name=self.table_name,
-                    cols=(
-                        [self.scope_query_index] + [self.query_index]
-                    )
+                _ = sessions.Connection().create_table(
+                    table_name=sessions.Schemas.data.name,
+                    schema=sessions.Schemas.data
                 )
 
                 # Initialize the data-ingestion-database table
-                _ = db.initialize_table(
-                    db_name=self.db_name,
-                    table_name=self.table_name,
-                    cols=(
-                        [
-                            self.query_index,
-                            'uploaded_by',
-                            'created_on',
-                            'final',
-                            'version',
-                            'file_name',
-                            'dbms',
-                            'datetime',
-                            'dimensions',
-                            'metrics',
-                            'selected_datetime',
-                            'selected_dimensions',
-                            'selected_metrics',
-                            'selected_aggrules',
-                            'size_mb',
-                            'sha256'
-                        ]
-                    )
+                _ = data.Connection().create_table(
+                    table_name=data.Schemas.data.name,
+                    schema=data.Schemas.data
                 )
 
                 # Display the data-contract expander

@@ -3,9 +3,6 @@ Information
 ---------------------------------------------------------------------
 Name        : 4_Listing.py
 Location    : ~/pages
-Author      : Tom Eleff
-Published   : 2024-06-04
-Revised on  : .
 
 Description
 ---------------------------------------------------------------------

@@ -3,19 +3,18 @@ Information
 ---------------------------------------------------------------------
 Name        : session_selector.py
 Location    : ~/pages
-Author      : Tom Eleff
-Published   : 2024-03-16
-Revised on  : .
 
 Description
 ---------------------------------------------------------------------
-Contains the `Class` for the session-selector-page.
+Contains the `class` for the session-selector-page.
 """
 
 import copy
 import streamlit as st
-from assemblit import setup, db
+from assemblit import setup
+from assemblit.app.structures import Setting
 from assemblit.pages._components import _core, _key_value, _selector
+from assemblit.database import users
 
 
 class Content():
@@ -24,32 +23,26 @@ class Content():
         self,
         header: str = 'Sessions',
         tagline: str = 'Select a session.',
-        selector: dict = {
-            "sort": 0,
-            "type": "selectbox",
-            "dtype": "str",
-            "parameter": "session_name",
-            "name": "Session Name",
-            "value": "",
-            "kwargs": None,
-            "description": "Select a session."
-        },
-        settings: list = [
-            {
-                "sort": 0,
-                "type": "text-input",
-                "dtype": "str",
-                "parameter": "session_name",
-                "name": "Session Name",
-                "value": "",
-                "kwargs": None,
-                "description": "Input the name of a new session."
-            }
+        selector: Setting = Setting(
+            type='selectbox',
+            dtype='str',
+            parameter='session_name',
+            name='Session name',
+            description='Select a session.'
+        ),
+        settings: list[Setting] = [
+            Setting(
+                type='text-input',
+                dtype='str',
+                parameter='session_name',
+                name='Session name',
+                description='Input the name of a new session.'
+            )
         ],
         headerless: bool = False,
         clear_on_submit: bool = True
     ):
-        """ Initializes an instance of the session-selector `Class`.
+        """ Initializes an instance of the session-selector `class`.
 
         Parameters
         ----------
@@ -57,11 +50,11 @@ class Content():
             String to display as the web-page header
         tagline : `str`
             String to display as the web-page tagline
-        selector : `dict`
-            Dictionary object containing the setting parameter & value to populate the
+        selector : `Setting`
+            `assemblit.app.structures.Setting` object containing the setting parameter & value to populate the
                 drop-down selection options
-        settings : `list`
-            List of dictionary objects containing the setting(s) parameters & values
+        settings : `list[Setting]`
+            List of `assemblit.app.structures.Setting` objects containing the setting(s) parameters & values
         headerless : `bool`
             `True` or `False`, determines whether to display the header & tagline
         clear_on_submit : `bool`
@@ -95,7 +88,7 @@ class Content():
         if self.db_name not in st.session_state[setup.NAME]:
             st.session_state[setup.NAME][self.db_name] = {
                 self.table_name: {
-                    'selector': copy.deepcopy(selector),
+                    'selector': copy.deepcopy(self.selector),
                     'settings': copy.deepcopy(self.settings),
                     'form-submission': False,
                     'set-up': False
@@ -104,7 +97,7 @@ class Content():
         else:
             if self.table_name not in st.session_state[setup.NAME][self.db_name]:
                 st.session_state[setup.NAME][self.db_name][self.table_name] = {
-                    'selector': copy.deepcopy(selector),
+                    'selector': copy.deepcopy(self.selector),
                     'settings': copy.deepcopy(self.settings),
                     'form-submission': False,
                     'set-up': False
@@ -169,12 +162,9 @@ class Content():
                     )
 
             # Initialize the scope-database table
-            _ = db.initialize_table(
-                db_name=self.scope_db_name,
-                table_name=self.table_name,
-                cols=(
-                    [self.scope_query_index] + [self.query_index]
-                )
+            _ = users.Connection().create_table(
+                table_name=users.Schemas.sessions.name,
+                schema=users.Schemas.sessions
             )
 
             # Manage the sessions-key-value-pair-settings database table

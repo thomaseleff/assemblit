@@ -3,9 +3,6 @@ Information
 ---------------------------------------------------------------------
 Name        : 4_Analysis.py
 Location    : ~/pages
-Author      : Tom Eleff
-Published   : 2024-02-21
-Revised on  : .
 
 Description
 ---------------------------------------------------------------------

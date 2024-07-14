@@ -3,18 +3,16 @@ Information
 ---------------------------------------------------------------------
 Name        : workflow_settings.py
 Location    : ~/pages
-Author      : Tom Eleff
-Published   : 2024-03-12
-Revised on  : .
 
 Description
 ---------------------------------------------------------------------
-Contains the `Class` for the session-settings-page.
+Contains the `class` for the session-settings-page.
 """
 
 import copy
 import streamlit as st
 from assemblit import setup
+from assemblit.app.structures import Setting
 from assemblit.pages._components import _key_value, _core
 
 
@@ -32,131 +30,20 @@ class Content():
                 ])
             )
         ),
+        settings: list[Setting] = [
+            Setting(
+                type='text-input',
+                dtype='str',
+                parameter='y',
+                name='Response metric',
+                description='Input the name of the Response metric to model.'
+            )
+        ],
         headerless: bool = False,
         clear_on_submit: bool = False,
-        # table_name: str = 'workflow',
-        settings: list = [
-            {
-                "sort": 0,
-                "type": "text-input",
-                "dtype": "str",
-                "parameter": "Y",
-                "name": "Response metric name",
-                "value": "",
-                "kwargs": False,
-                "description": """
-                    Input the name of the Response metric to model.
-                """
-            },
-            {
-                "sort": 1,
-                "type": "toggle",
-                "dtype": "bool",
-                "parameter": "tune_this_time",
-                "name": "Estimate tuning hyper-parameters",
-                "value": True,
-                "kwargs": False,
-                "description": """
-                    If ```False```,
-                    the saved hyper-parameters will be used.
-                """
-            },
-            {
-                "sort": 2,
-                "type": "text-input",
-                "dtype": "str",
-                "parameter": "saved_hypers_filename",
-                "name": "Saved hyper-parameters filename",
-                "value": "",
-                "kwargs": False,
-                "description": """
-                    Input the name of the hyper-parameters source file
-                    when _Estimate tuning hyper-parameters_ = ```False```
-                """
-            },
-            {
-                "sort": 3,
-                "type": "toggle",
-                "dtype": "bool",
-                "parameter": "search_seasonality",
-                "name": "Select optimal seasonality controls",
-                "value": True,
-                "kwargs": False,
-                "description": """
-                    If ```True```,
-                    the optimal seasonal controls are automatically selected.
-                """
-            },
-            {
-                "sort": 4,
-                "type": "slider",
-                "dtype": "int",
-                "parameter": "fft_terms",
-                "name": "Number of fourier terms for seasonality",
-                "value": 2,
-                "kwargs": {
-                    "min_value": 0,
-                    "max_value": 5,
-                    "step": 1
-                },
-                "description": """
-                    Select the number of fourier terms.
-                    ```2``` is roughly semi-annual & trimesters,
-                    ```3``` is semi-annual, trimesters and quarters.
-                """
-            },
-            {
-                "sort": 5,
-                "type": "text-input",
-                "dtype": "str",
-                "parameter": "interaction_fft",
-                "name": "Seasonality interaction dimensions",
-                "value": "",
-                "kwargs": None,
-                "description": """
-                    Input the dimension names to evaluate
-                    as seasonality interactions.
-                """
-            },
-            {
-                "sort": 6,
-                "type": "toggle",
-                "dtype": "bool",
-                "parameter": "search_randoms",
-                "name": "Evaluate multiple random effects",
-                "value": False,
-                "kwargs": False,
-                "description": """
-                    If ```True```, multiple random effects will be evaluated.
-                """
-            },
-            {
-                "sort": 7,
-                "type": "text-input",
-                "dtype": "str",
-                "parameter": "list_rand_ints",
-                "name": "List random effects intercepts",
-                "value": "",
-                "kwargs": None,
-                "description": """
-                    Input the dimension names that should have random effects.
-                """
-            },
-            {
-                "sort": 8,
-                "type": "text-input",
-                "dtype": "str",
-                "parameter": "list_rand_slopes",
-                "name": "List factors for random slopes",
-                "value": "",
-                "kwargs": None,
-                "description": """
-                    Input the factor names that should have random slopes.
-                """
-            }
-        ],
+        # table_name: str = 'workflow'
     ):
-        """ Initializes the content of the workflow-settings `Class`.
+        """ Initializes the content of the workflow-settings `class`.
 
         Parameters
         ----------
@@ -166,15 +53,13 @@ class Content():
             String to display as the web-page tagline
         content_info : `str`
             String to display as `streamlit.info()` when there is no active session
+        settings : `list[Setting]`
+            List of `assemblit.app.structures.Setting` objects containing the setting(s) parameters & values
         headerless : `bool`
             `True` or `False`, determines whether to display the header & tagline
         clear_on_submit : `bool`
             `True` or `False`, determines whether to clear the form-submission responses
                 after submission
-        table_name : 'str'
-            Name of the table within `db_name` to store the setting(s) parameters & values
-        settings : `list`
-            List of dictionary objects containing the setting(s) parameters & values
         """
 
         # Assign content class variables

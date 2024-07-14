@@ -2,20 +2,19 @@
 Information
 ---------------------------------------------------------------------
 Name        : _core.py
-Location    : ~/_components
-Author      : Tom Eleff
-Published   : 2024-03-17
-Revised on  : .
+Location    : ~/pages/_components
 
 Description
 ---------------------------------------------------------------------
-Contains the generic methods for a getstreamy web-application.
+Contains the core components for an assemblit web-application.
 """
 
 import json
 import copy
 import streamlit as st
-from assemblit import setup, vault
+from assemblit import setup
+from assemblit.auth import vault
+from assemblit.app.structures import Setting
 
 
 # Define generic initialization function(s)
@@ -155,14 +154,15 @@ def display_page_header(
                     ))
 
                     # Display pop-over content
-                    for parameter in st.session_state[setup.NAME][setup.SESSIONS_DB_NAME][setup.SESSIONS_DB_NAME]['settings']:
+                    for setting in st.session_state[setup.NAME][setup.SESSIONS_DB_NAME][setup.SESSIONS_DB_NAME]['settings']:
+                        setting: Setting
 
                         # Layout columns
                         col1, col2 = st.columns([.5, .5])
 
                         # Display context-parameters
-                        col1.write('_%s_' % (parameter['name']))
-                        col2.write('`%s`' % (parameter['value']))
+                        col1.write('_%s_' % (setting.name))
+                        col2.write('`%s`' % (setting.value))
 
             # # Display user pop-over
             # if st.session_state[setup.NAME][setup.USERS_DB_NAME]['name']:
@@ -180,13 +180,14 @@ def display_page_header(
             #         col1, col2 = st.columns([.5, .5])
 
             # Display 'Logout' button
-            col4.markdown('# ')
-            col4.button(
-                label='Logout',
-                on_click=vault.logout,
-                type='secondary',
-                use_container_width=True
-            )
+            if setup.REQUIRE_AUTHENTICATION:
+                col4.markdown('# ')
+                col4.button(
+                    label='Logout',
+                    on_click=vault.logout,
+                    type='secondary',
+                    use_container_width=True
+                )
 
     # Debug
     if setup.DEBUG:
@@ -214,7 +215,7 @@ def display_page_content_info(
     """
 
     # Layout columns
-    col1, col2, col3 = st.columns(setup.CONTENT_COLUMNS)
+    _, col2, _ = st.columns(setup.CONTENT_COLUMNS)
 
     # Display info
     col2.info(content_info, icon='ℹ️')
@@ -233,7 +234,7 @@ def display_page_status(
     """
 
     # Layout columns
-    col1, col2, col3 = st.columns(setup.CONTENT_COLUMNS)
+    _, col2, _ = st.columns(setup.CONTENT_COLUMNS)
 
     # Errors
     if st.session_state[setup.NAME][db_name]['errors']:

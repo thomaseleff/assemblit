@@ -3,9 +3,6 @@ Information
 ---------------------------------------------------------------------
 Name        : vault.py
 Location    : ~/
-Author      : Tom Eleff
-Published   : 2024-03-17
-Revised on  : .
 
 Description
 ---------------------------------------------------------------------
@@ -19,8 +16,10 @@ import argon2
 from argon2 import PasswordHasher
 from email_validator import validate_email, EmailNotValidError
 import streamlit as st
-from assemblit import setup, db
+from assemblit import setup
 from assemblit.pages._components import _core
+from assemblit.database import users, sessions, data
+from assemblit.database.structures import Filter, Validate, Value, Row
 
 
 # Define generic authentication function(s)
@@ -51,70 +50,59 @@ def authenticate(
         email = validate_email(username, check_deliverability=False)
         username = email.normalized
 
-        # Initialize Argon2id password hasher class
-        Argon2id = PasswordHasher()
+        # Initialize authenticator
+        Authenticator = PasswordHasher()
 
         # Initialize connection to the users database
-        Users = db.Handler(
-            db_name=setup.USERS_DB_NAME
-        )
+        Users = users.Connection()
 
         # Create table in database
         Users.create_table(
-            table_name='credentials',
-            cols=(
-                [
-                    setup.USERS_DB_QUERY_INDEX,
-                    'username',
-                    'password',
-                    'first_name'
-                ]
-            )
+            table_name=users.Schemas.credentials.name,
+            schema=users.Schemas.credentials
         )
 
         # Check if the user exists
         if Users.table_record_exists(
-            table_name='credentials',
-            filtr={
-                'col': 'username',
-                'val': username
-            }
+            table_name=users.Schemas.credentials.name,
+            filtr=Filter(
+                col='username',
+                val=username
+            )
         ):
 
             # Check if the user provided the correct password
             try:
-                Argon2id.verify(
+                Authenticator.verify(
                         Users.select_table_column_value(
-                            table_name='credentials',
+                            table_name=users.Schemas.credentials.name,
                             col='password',
-                            filtr={
-                                'col': 'username',
-                                'val': username
-                            }
+                            filtr=Filter(
+                                col='username',
+                                val=username
+                            )
                         ),
                         password
                 )
 
-                # TO DO, Update the password and update the database
-
                 # Return the first name and user id
                 return {
                     'name': Users.select_table_column_value(
-                        table_name='credentials',
+                        table_name=users.Schemas.credentials.name,
                         col='first_name',
-                        filtr={
-                            'col': 'username',
-                            'val': username
-                        }
+                        filtr=Filter(
+                            col='username',
+                            val=username
+                        )
                     ),
                     setup.USERS_DB_QUERY_INDEX: (
                         Users.select_table_column_value(
-                            table_name='credentials',
+                            table_name=users.Schemas.credentials.name,
                             col=setup.USERS_DB_QUERY_INDEX,
-                            filtr={
-                                'col': 'username',
-                                'val': username
-                            }
+                            filtr=Filter(
+                                col='username',
+                                val=username
+                            )
                         )
                     )
                 }
@@ -173,29 +161,20 @@ def add_credentials(
         # Check if the two passwords match
         if password0 == password1:
 
-            # Initialize Argon2id password hasher class
-            Argon2id = PasswordHasher()
+            # Initialize authenticator
+            Authenticator = PasswordHasher()
 
             # Initialize connection to the users database
-            Users = db.Handler(
-                db_name=setup.USERS_DB_NAME
-            )
+            Users = users.Connection()
 
             # Create table in database
             Users.create_table(
-                table_name='credentials',
-                cols=(
-                    [
-                        setup.USERS_DB_QUERY_INDEX,
-                        'username',
-                        'password',
-                        'first_name'
-                    ]
-                )
+                table_name=users.Schemas.credentials.name,
+                schema=users.Schemas.credentials
             )
 
             # Generate a password hashkey
-            hashkey = Argon2id.hash(password=password0)
+            hashkey = Authenticator.hash(password=password0)
 
             # Generate a user-id
             user_id = hashlib.md5(
@@ -208,17 +187,20 @@ def add_credentials(
             # Add the user
             try:
                 Users.insert(
-                    table_name='credentials',
-                    values={
-                        setup.USERS_DB_QUERY_INDEX: user_id,
-                        'username': username,
-                        'password': hashkey,
-                        'first_name': first_name
-                    },
-                    validate={
-                        'col': 'username',
-                        'val': username
-                    }
+                    table_name=users.Schemas.credentials.name,
+                    row=Row(
+                        cols=users.Schemas.credentials.cols(),
+                        vals=[
+                            user_id,
+                            username,
+                            hashkey,
+                            first_name
+                        ]
+                    ),
+                    validate=Validate(
+                        col='username',
+                        val=username
+                    )
                 )
 
                 return {
@@ -244,6 +226,13 @@ def add_credentials(
 def update_credentials(
     response: dict
 ):
+    """ Applies the user-settings form response to the users database.
+
+    Parameters
+    ----------
+    response : `dict`
+        The user-settings form response.
+    """
 
     # Apply form submission to the database
     if response:
@@ -356,30 +345,28 @@ def update_username(
         username = email.normalized
 
         # Initialize connection to the users database
-        Users = db.Handler(
-            db_name=setup.USERS_DB_NAME
-        )
+        Users = users.Connection()
 
         # Check if the user exists
         if not Users.table_record_exists(
-            table_name='credentials',
-            filtr={
-                'col': 'username',
-                'val': username
-            }
+            table_name=users.Schemas.credentials.name,
+            filtr=Filter(
+                col='username',
+                val=username
+            )
         ):
 
             # Update username
             Users.update(
-                table_name='credentials',
-                values={
-                    'col': 'username',
-                    'val': username
-                },
-                filtr={
-                    'col': setup.USERS_DB_QUERY_INDEX,
-                    'val': user_id
-                }
+                table_name=users.Schemas.credentials.name,
+                values=Value(
+                    col='username',
+                    val=username
+                ),
+                filtr=Filter(
+                    col=setup.USERS_DB_QUERY_INDEX,
+                    val=user_id
+                )
             )
 
         else:
@@ -419,28 +406,26 @@ def update_password(
     # Check if the two passwords match
     if password0 == password1:
 
-        # Initialize Argon2id password hasher class
-        Argon2id = PasswordHasher()
+        # Initialize authenticator
+        Authenticator = PasswordHasher()
 
         # Initialize connection to the users database
-        Users = db.Handler(
-            db_name=setup.USERS_DB_NAME
-        )
+        Users = users.Connection()
 
         # Generate a password hashkey
-        hashkey = Argon2id.hash(password=password0)
+        hashkey = Authenticator.hash(password=password0)
 
         # Add the user
         Users.update(
-            table_name='credentials',
-            values={
-                'col': 'password',
-                'val': hashkey
-            },
-            filtr={
-                'col': setup.USERS_DB_QUERY_INDEX,
-                'val': user_id
-            }
+            table_name=users.Schemas.credentials.name,
+            values=Value(
+                col='password',
+                val=hashkey
+            ),
+            filtr=Filter(
+                col=setup.USERS_DB_QUERY_INDEX,
+                val=user_id
+            )
         )
 
     else:
@@ -461,19 +446,13 @@ def delete_account(
     """
 
     # Initialize connection to the users database
-    Users = db.Handler(
-        db_name=setup.USERS_DB_NAME
-    )
+    Users = users.Connection()
 
     # Initialize connection to the sessions database
-    Sessions = db.Handler(
-        db_name=setup.SESSIONS_DB_NAME
-    )
+    Sessions = sessions.Connection()
 
-    # Initialize connection to the data-ingestion database
-    Data = db.Handler(
-        db_name=setup.DATA_DB_NAME
-    )
+    # Initialize connection to the data database
+    Data = data.Connection()
 
     # Build database table objects to remove users from the users database
     users_db_query_index_objects_to_delete = Users.build_database_table_objects_to_delete(
@@ -526,23 +505,21 @@ def delete_account(
 
             # Drop all data-ingestion database tables
             for table in data_to_delete:
-                Data.drop_table(
-                    table_name=table
-                )
+                Data.drop_table(table_name=table)
 
             # Delete all data-ingestion database table values
             Data.delete(
-                database_table_object=data_db_query_index_objects_to_delete
+                tables=data_db_query_index_objects_to_delete
             )
 
         # Delete all sessions database table values
         Sessions.delete(
-            database_table_object=sessions_db_query_index_objects_to_delete
+            tables=sessions_db_query_index_objects_to_delete
         )
 
     # Delete all user database table values
     Users.delete(
-        database_table_object=users_db_query_index_objects_to_delete
+        tables=users_db_query_index_objects_to_delete
     )
 
     # Logout to reset the session state

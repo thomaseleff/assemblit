@@ -2,11 +2,7 @@
 Information
 ---------------------------------------------------------------------
 Name        : _run_listing.py
-Location    : ~/_components
-Author      : Tom Eleff
-Published   : 2024-06-02
-Revised on  : .
-
+Location    : ~/pages/_components
 Description
 ---------------------------------------------------------------------
 Contains the generic methods for a run-listing-page.
@@ -15,10 +11,15 @@ Contains the generic methods for a run-listing-page.
 import datetime
 import pandas as pd
 import streamlit as st
-from assemblit import setup, db
+from assemblit import setup
+from assemblit.pages._components import _core, _selector
+from assemblit.database import sessions, analysis, generic
+from assemblit.database.structures import Filter, Value
 from assemblit.server import layer
 from assemblit.server import setup as server_setup
-from assemblit.pages._components import _core, _selector
+
+# --TODO Remove scope_db_name and scope_query_index from all function(s).
+#       Scope for analysis is not dynamic, it can only be the sessions-db.
 
 
 # Define core-component run-listing function(s)
@@ -46,14 +47,10 @@ def display_run_listing_table(
     '''
 
     # Initialize the connection to the scope database
-    Session = db.Handler(
-        db_name=scope_db_name
-    )
+    Sessions = sessions.Connection()
 
     # Initialize connection to the analysis database
-    Analysis = db.Handler(
-        db_name=db_name
-    )
+    Analysis = analysis.Connection()
 
     # Check server-health
     server_health = layer.health_check(
@@ -71,17 +68,17 @@ def display_run_listing_table(
                 sql="SELECT * FROM %s WHERE %s IN (%s)" % (
                     table_name,
                     query_index,
-                    ', '.join(["'%s'" % (i) for i in Session.select_table_column_value(
+                    ', '.join(["'%s'" % (i) for i in Sessions.select_table_column_value(
                         table_name=table_name,
                         col=query_index,
-                        filtr={
-                            'col': scope_query_index,
-                            'val': st.session_state[setup.NAME][scope_db_name][scope_query_index]
-                        },
+                        filtr=Filter(
+                            col=scope_query_index,
+                            val=st.session_state[setup.NAME][scope_db_name][scope_query_index]
+                        ),
                         multi=True
                     )])
                 ),
-                con=Analysis.connection
+                con=Analysis.connection()
             )
             df = df[[
                 'created_on',
@@ -110,7 +107,7 @@ def display_run_listing_table(
             df['start_time'] = pd.to_datetime(df['start_time'], errors='coerce')
             df['end_time'] = pd.to_datetime(df['end_time'], errors='coerce')
             df['run_time'] = pd.to_datetime(df['run_time'], unit='s', errors='coerce')
-        except db.NullReturnValue:
+        except generic.NullReturnValue:
             df = pd.DataFrame(
                 columns=[
                     'created_on',
@@ -530,25 +527,23 @@ def refresh_run_listing_table(
     ):
 
         # Initialize connection to the analysis database
-        Analysis = db.Handler(
-            db_name=db_name
-        )
+        Analysis = analysis.Connection()
 
         # Get all run-ids with non-terminal states
         try:
             run_ids = Analysis.select_table_column_value(
                 table_name=table_name,
                 col=query_index,
-                filtr={
-                    'col': 'state',
-                    'val': layer.terminal_job_states(server_type=server_setup.SERVER_TYPE)
-                },
+                filtr=Filter(
+                    col='state',
+                    val=layer.terminal_job_states(server_type=server_setup.SERVER_TYPE)
+                ),
                 return_dtype='str',
                 multi=True,
                 order='DESC',
                 contains=False
             )
-        except db.NullReturnValue:
+        except generic.NullReturnValue:
             run_ids = []
 
         # Poll the status of each run-id
@@ -568,12 +563,12 @@ def refresh_run_listing_table(
 
                         Analysis.update(
                             table_name=table_name,
-                            values={
-                                'col': key,
-                                'val': value,
-                            },
-                            filtr={
-                                'col': query_index,
-                                'val': run_id
-                            }
+                            value=Value(
+                                col=key,
+                                val=value,
+                            ),
+                            filtr=Filter(
+                                col=query_index,
+                                val=run_id
+                            )
                         )

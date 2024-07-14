@@ -3,19 +3,18 @@ Information
 ---------------------------------------------------------------------
 Name        : run_analysis.py
 Location    : ~/pages
-Author      : Tom Eleff
-Published   : 2024-06-02
-Revised on  : .
 
 Description
 ---------------------------------------------------------------------
-Contains the `Class` for the run-analysis-page.
+Contains the `class` for the run-analysis-page.
 """
 
 import copy
 import streamlit as st
-from assemblit import setup, db
+from assemblit import setup
+from assemblit.app.structures import Setting
 from assemblit.pages._components import _core, _run_analysis
+from assemblit.database import sessions, data, analysis
 
 
 class Content():
@@ -34,7 +33,7 @@ class Content():
         ),
         headerless: bool = False
     ):
-        """ Initializes the content of the run-analysis `Class`.
+        """ Initializes the content of the run-analysis `class`.
 
         Parameters
         ----------
@@ -60,46 +59,33 @@ class Content():
 
         # Assign database class variables
         self.db_name = setup.ANALYSIS_DB_NAME
-        self.table_name = 'listing'
+        self.table_name = analysis.Schemas.analysis.name
         self.query_index = setup.ANALYSIS_DB_QUERY_INDEX
 
         # Assign default session state class variables
         self.settings = [
-            {
-                "sort": 0,
-                "type": "multiselect",
-                "dtype": "str",
-                "parameter": "dataset",
-                "name": "Dataset",
-                "value": "",
-                "kwargs": False,
-                "description": """
-                    Select a dataset for the model analysis.
-                """
-            },
-            {
-                "sort": 1,
-                "type": "text-input",
-                "dtype": "str",
-                "parameter": "run_information",
-                "name": "Run information",
-                "value": "",
-                "kwargs": False,
-                "description": """
-                    Enter context about the model analysis run.
-                """
-            }
+            Setting(
+                type='multiselect',
+                dtype='str',
+                parameter='dataset',
+                name='Dataset',
+                description='Select a dataset for the model analysis.'
+            ),
+            Setting(
+                type='text-input',
+                dtype='str',
+                parameter='run_information',
+                name='Run information',
+                description='Enter context about the model analysis run.'
+            )
         ]
-        self.selector = {
-            "sort": 0,
-            "type": "selectbox",
-            "dtype": "str",
-            "parameter": "file_name",
-            "name": "Datafile name",
-            "value": "",
-            "kwargs": None,
-            "description": "Select a datafile to review."
-        }
+        self.selector = Setting(
+            type='selectbox',
+            dtype='str',
+            parameter='file_name',
+            name='Datafile name',
+            description='Select a datafile to review.'
+        )
 
         # Initialize session state defaults
         _core.initialize_session_state_defaults()
@@ -122,14 +108,14 @@ class Content():
         # Assign key-value pair defaults for the selector
         if self.db_name not in st.session_state[setup.NAME]:
             st.session_state[setup.NAME][setup.DATA_DB_NAME] = {
-                'datasets': {
+                data.Schemas.data.name: {
                     'selector': copy.deepcopy(self.selector),
                     'set-up': False
                 }
             }
         else:
-            if 'datasets' not in st.session_state[setup.NAME][self.db_name]:
-                st.session_state[setup.NAME][setup.DATA_DB_NAME]['datasets'] = {
+            if data.Schemas.data.name not in st.session_state[setup.NAME][self.db_name]:
+                st.session_state[setup.NAME][setup.DATA_DB_NAME][data.Schemas.data.name] = {
                     'selector': copy.deepcopy(self.selector),
                     'set-up': False
                 }
@@ -177,38 +163,15 @@ class Content():
                     )
 
                 # Initialize the scope-database table
-                _ = db.initialize_table(
-                    db_name=self.scope_db_name,
-                    table_name=self.table_name,
-                    cols=(
-                        [self.scope_query_index] + [self.query_index]
-                    )
+                _ = sessions.Connection().create_table(
+                    table_name=sessions.Schemas.analysis.name,
+                    schema=sessions.Schemas.analysis
                 )
 
                 # Initialize the analysis-database table
-                _ = db.initialize_table(
-                    db_name=self.db_name,
-                    table_name=self.table_name,
-                    cols=(
-                        [
-                            self.query_index,
-                            'name',
-                            'server_type',
-                            'submitted_by',
-                            'created_on',
-                            'state',
-                            'start_time',
-                            'end_time',
-                            'run_time',
-                            'file_name',
-                            'inputs',
-                            'outputs',
-                            'run_information',
-                            'parameters',
-                            'tags',
-                            'url'
-                        ]
-                    )
+                _ = analysis.Connection().create_table(
+                    table_name=analysis.Schemas.analysis.name,
+                    schema=analysis.Schemas.analysis
                 )
 
                 # Display the run-analysis submission form

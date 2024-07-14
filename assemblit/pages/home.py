@@ -3,17 +3,15 @@ Information
 ---------------------------------------------------------------------
 Name        : home.py
 Location    : ~/pages
-Author      : Tom Eleff
-Published   : 2024-02-21
-Revised on  : .
 
 Description
 ---------------------------------------------------------------------
-Contains the `Class` for the home-page.
+Contains the `class` for the home-page.
 """
 
 import streamlit as st
-from assemblit import setup, vault, web
+from assemblit import setup, web
+from assemblit.auth import vault
 from assemblit.pages._components import _core
 
 
@@ -22,12 +20,12 @@ class Content():
     def __init__(
         self,
         header: str = 'Welcome',
-        tagline: str = 'An ```assemblit``` web-application for Github projects.',
-        content_url: str = None,
-        content_file_name: str = 'README.md',
-        content_info: str = 'For more information, visit the Github repository.'
+        tagline: str = 'An `assemblit` web-application for analytics projects.',
+        content_url: str | None = None,
+        content_file_name: str | None = 'README.md',
+        content_info: str | None = 'For more information, visit the GitHub repository.'
     ):
-        """ Initializes an instance of the home-page `Class`.
+        """ Initializes an instance of the home-page `class`.
 
         Parameters
         ----------
@@ -95,9 +93,10 @@ class Content():
             else:
 
                 # Display content information
-                _core.display_page_content_info(
-                    content_info=self.content_info
-                )
+                if self.content_info:
+                    _core.display_page_content_info(
+                        content_info=self.content_info
+                    )
 
         else:
 
@@ -260,7 +259,7 @@ class Content():
 
     def display_sign_up_form(
         self,
-        value
+        value: bool
     ):
         """ Displays the sign-up form.
 

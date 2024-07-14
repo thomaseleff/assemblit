@@ -1,23 +1,25 @@
 """
 Information
 ---------------------------------------------------------------------
-Name        : _data_upload.py
-Location    : ~/_components
-Author      : Tom Eleff
-Published   : 2024-03-17
-Revised on  : .
+Name        : _data_review.py
+Location    : ~/pages/_components
 
 Description
 ---------------------------------------------------------------------
-Contains the generic methods for a data-uploader.
+Contains the components for data-review.
 """
 
 import hashlib
 import json
 import pandas as pd
 import streamlit as st
-from assemblit import data_toolkit, setup, db
+from assemblit import data_toolkit, setup
 from assemblit.pages._components import _core, _selector
+from assemblit.database import sessions, data, generic
+from assemblit.database.structures import Filter, Value
+
+# --TODO Remove scope_db_name and scope_query_index from all function(s).
+#       Scope for data is not dynamic, it can only be the sessions-db.
 
 
 # Define core-component uploader function(s)
@@ -28,7 +30,7 @@ def display_data_review(
     scope_db_name: str,
     scope_query_index: str
 ):
-    """ Displays the data-review
+    """ Displays the data-review.
 
     Parameters
     ----------
@@ -45,7 +47,7 @@ def display_data_review(
     """
 
     # Layout columns
-    col1, col2, col3 = st.columns(setup.CONTENT_COLUMNS)
+    _, col2, _ = st.columns(setup.CONTENT_COLUMNS)
 
     # Display schema validation and data-preview
     with col2:
@@ -798,15 +800,11 @@ def retrieve_data_from_database(
         Name of the index within `scope_db_name` & `table_name`. May only be one column.
     """
 
-    # Initialize the connection to the scope database
-    Scope = db.Handler(
-        db_name=scope_db_name
-    )
+    # Initialize the connection to the sessions database
+    Sessions = sessions.Connection()
 
     # Initialize connection to the data-ingestion database
-    Data = db.Handler(
-        db_name=db_name
-    )
+    Data = data.Connection()
 
     # Retrieve the selected datafile
     if st.session_state[setup.NAME][db_name]['name']:
@@ -824,16 +822,16 @@ def retrieve_data_from_database(
 
         # Check if the id already exists
         try:
-            ids = Scope.select_table_column_value(
+            ids = Sessions.select_table_column_value(
                 table_name=table_name,
                 col=query_index,
-                filtr={
-                    'col': scope_query_index,
-                    'val': st.session_state[setup.NAME][scope_db_name][scope_query_index]
-                },
+                filtr=Filter(
+                    col=scope_query_index,
+                    val=st.session_state[setup.NAME][scope_db_name][scope_query_index]
+                ),
                 multi=True
             )
-        except db.NullReturnValue:
+        except generic.NullReturnValue:
             ids = []
 
         if dataset_id in ids:
@@ -843,7 +841,7 @@ def retrieve_data_from_database(
                 sql="""
                     SELECT * FROM '%s';
                 """ % dataset_id,
-                con=Data.connection
+                con=Data.connection()
             )
 
             # Set selector options
@@ -894,7 +892,7 @@ def retrieve_data_from_database(
                     ),
                     return_dtype='list'
                 )
-            except db.NullReturnValue:
+            except generic.NullReturnValue:
                 selected_datetime = []
             selected_dimensions = Data.select_generic_query(
                 query="""
@@ -996,48 +994,44 @@ def finalize_dataset(
         Dataset ID of the selected dataset
     """
 
-    # Initialize connection to the data-ingestion database
-    Data = db.Handler(
-        db_name=db_name
-    )
+    # Initialize connection to the sessions database
+    Sessions = sessions.Connection()
 
-    # Initialize connection to the scope database
-    Scope = db.Handler(
-        db_name=setup.SESSIONS_DB_NAME
-    )
+    # Initialize connection to the data-ingestion database
+    Data = data.Connection()
 
     # Reset all datasets
     Data.reset_table_column_value(
         table_name=table_name,
-        values={
-            'col': 'final',
-            'val': False
-        },
-        filtr={
-            'col': query_index,
-            'val': Scope.select_table_column_value(
+        value=Value(
+            col='final',
+            val=False
+        ),
+        filtr=Filter(
+            col=query_index,
+            val=Sessions.select_table_column_value(
                 table_name=table_name,
                 col=query_index,
-                filtr={
-                    'col': setup.SESSIONS_DB_QUERY_INDEX,
-                    'val': st.session_state[setup.NAME][setup.SESSIONS_DB_NAME][setup.SESSIONS_DB_QUERY_INDEX]
-                },
+                filtr=Filter(
+                    col=setup.SESSIONS_DB_QUERY_INDEX,
+                    val=st.session_state[setup.NAME][setup.SESSIONS_DB_NAME][setup.SESSIONS_DB_QUERY_INDEX]
+                ),
                 multi=True
             )
-        }
+        )
     )
 
     # Set the selected datafile as final
     Data.update(
         table_name=table_name,
-        values={
-            'col': 'final',
-            'val': True
-        },
-        filtr={
-            'col': query_index,
-            'val': dataset_id
-        }
+        value=Value(
+            col='final',
+            val=True
+        ),
+        filtr=Filter(
+            col=query_index,
+            val=dataset_id
+        )
     )
 
 
@@ -1074,54 +1068,52 @@ def save_dataset(
     """
 
     # Initialize connection to the data-ingestion database
-    Data = db.Handler(
-        db_name=db_name
-    )
+    Data = data.Connection()
 
     # Update the database with the latest selected values
     Data.update(
         table_name=table_name,
-        values={
-            'col': 'selected_datetime',
-            'val': json.dumps(selected_datetime)
-        },
-        filtr={
-            'col': query_index,
-            'val': dataset_id
-        }
+        value=Value(
+            col='selected_datetime',
+            val=json.dumps(selected_datetime)
+        ),
+        filtr=Filter(
+            col=query_index,
+            val=dataset_id
+        )
     )
     Data.update(
         table_name=table_name,
-        values={
-            'col': 'selected_dimensions',
-            'val': json.dumps(selected_dimensions)
-        },
-        filtr={
-            'col': query_index,
-            'val': dataset_id
-        }
+        value=Value(
+            col='selected_dimensions',
+            val=json.dumps(selected_dimensions)
+        ),
+        filtr=Filter(
+            col=query_index,
+            val=dataset_id
+        )
     )
     Data.update(
         table_name=table_name,
-        values={
-            'col': 'selected_metrics',
-            'val': json.dumps(selected_metrics)
-        },
-        filtr={
-            'col': query_index,
-            'val': dataset_id
-        }
+        value=Value(
+            col='selected_metrics',
+            val=json.dumps(selected_metrics)
+        ),
+        filtr=Filter(
+            col=query_index,
+            val=dataset_id
+        )
     )
     Data.update(
         table_name=table_name,
-        values={
-            'col': 'selected_aggrules',
-            'val': json.dumps(selected_aggrules)
-        },
-        filtr={
-            'col': query_index,
-            'val': dataset_id
-        }
+        value=Value(
+            col='selected_aggrules',
+            val=json.dumps(selected_aggrules)
+        ),
+        filtr=Filter(
+            col=query_index,
+            val=dataset_id
+        )
     )
 
 
@@ -1137,14 +1129,10 @@ def delete_dataset(
     """
 
     # Initialize connection to the sessions database
-    Sessions = db.Handler(
-        db_name=setup.SESSIONS_DB_NAME
-    )
+    Sessions = sessions.Connection()
 
     # Initialize connection to the data-ingestion database
-    Data = db.Handler(
-        db_name=setup.DATA_DB_NAME
-    )
+    Data = data.Connection()
 
     # Build database table objects to remove datasets from the sessions database
     sessions_db_query_index_objects_to_delete = Sessions.build_database_table_objects_to_delete(
@@ -1171,12 +1159,12 @@ def delete_dataset(
 
     # Delete all data-ingestion database table values
     Data.delete(
-        database_table_object=data_db_query_index_objects_to_delete
+        tables=data_db_query_index_objects_to_delete
     )
 
     # Delete all sessions database table values
     Sessions.delete(
-        database_table_object=sessions_db_query_index_objects_to_delete
+        tables=sessions_db_query_index_objects_to_delete
     )
 
     # Reset session state

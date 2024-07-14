@@ -3,9 +3,6 @@ Information
 ---------------------------------------------------------------------
 Name        : setup.py
 Location    : ~/
-Author      : Tom Eleff
-Published   : 2024-03-17
-Revised on  : 2024-03-28
 
 Description
 ---------------------------------------------------------------------
@@ -13,20 +10,11 @@ Contains the generic static variables and methods for a getstreamy app.
 """
 
 import os
-import dotenv
 import copy
 from typing import Union, List
 import urllib.parse as up
 from pytensils import utils
 
-# Assign private variable(s) for development
-_ROOT_DIR = r'T:\Documents\Projects\Assemblit\examples\linear-regression\.env'
-
-# Load environment
-if 'ENV' not in os.environ:
-    dotenv.load_dotenv(
-        dotenv_path=_ROOT_DIR
-    )
 
 # Developer configuration settings
 ENV: str = os.environ['ENV']

@@ -3,18 +3,16 @@ Information
 ---------------------------------------------------------------------
 Name        : run_listing.py
 Location    : ~/pages
-Author      : Tom Eleff
-Published   : 2024-06-02
-Revised on  : .
 
 Description
 ---------------------------------------------------------------------
-Contains the `Class` for the run-listing-page.
+Contains the `class` for the run-listing-page.
 """
 
 import streamlit as st
-from assemblit import setup, db
+from assemblit import setup
 from assemblit.pages._components import _core, _run_listing
+from assemblit.database import sessions, analysis
 
 
 class Content():
@@ -33,7 +31,7 @@ class Content():
         ),
         headerless: bool = False
     ):
-        """ Initializes the content of the run-analysis `Class`.
+        """ Initializes the content of the run-analysis `class`.
 
         Parameters
         ----------
@@ -59,7 +57,7 @@ class Content():
 
         # Assign database class variables
         self.db_name = setup.ANALYSIS_DB_NAME
-        self.table_name = 'listing'
+        self.table_name = analysis.Schemas.analysis.name
         self.query_index = setup.ANALYSIS_DB_QUERY_INDEX
 
         # Initialize session state defaults
@@ -91,38 +89,15 @@ class Content():
             if st.session_state[setup.NAME][setup.SESSIONS_DB_NAME][setup.SESSIONS_DB_QUERY_INDEX]:
 
                 # Initialize the scope-database table
-                _ = db.initialize_table(
-                    db_name=self.scope_db_name,
-                    table_name=self.table_name,
-                    cols=(
-                        [self.scope_query_index] + [self.query_index]
-                    )
+                _ = sessions.Connection().create_table(
+                    table_name=sessions.Schemas.analysis.name,
+                    schema=sessions.Schemas.analysis
                 )
 
                 # Initialize the analysis-database table
-                _ = db.initialize_table(
-                    db_name=self.db_name,
-                    table_name=self.table_name,
-                    cols=(
-                        [
-                            self.query_index,
-                            'name',
-                            'server_type',
-                            'submitted_by',
-                            'created_on',
-                            'state',
-                            'start_time',
-                            'end_time',
-                            'run_time',
-                            'file_name',
-                            'inputs',
-                            'outputs',
-                            'run_information',
-                            'parameters',
-                            'tags',
-                            'url'
-                        ]
-                    )
+                _ = analysis.Connection().create_table(
+                    table_name=analysis.Schemas.analysis.name,
+                    schema=analysis.Schemas.analysis
                 )
 
                 # Refresh the run-listing table
