@@ -323,7 +323,7 @@ def select_query_index_value(
     query_index: str,
     scope_db_name: str,
     scope_query_index: str,
-    filtr: dict
+    filtr: Filter
 ) -> str:
     """ Returns the query index value from a filtered database table.
 
@@ -339,8 +339,8 @@ def select_query_index_value(
         Name of the database that contains the associated scope for the selector
     scope_query_index : `str`
         Name of the index within `scope_db_name` & `table_name`. May only be one column.
-    filtr : `dict`
-        Dictionary object containing the column `col` and value
+    filtr : `Filter`
+        `assemblit.database.structures.Filter` object containing the column `col` and value
             `val` to filter `table_name`. If the filtered table
             returns more than one record, a `ValueError` is raised.
 
@@ -384,8 +384,8 @@ def select_query_index_value(
                     multi=True
                 )]
             ),
-            str(filtr['col']),
-            generic.normalize(string=filtr['val'])
+            str(filtr.col),
+            generic.normalize(string=filtr.val)
         )
     ).fetchall()
 
@@ -730,17 +730,17 @@ def delete_session(
 
         # Delete all data-ingestion database table values
         Data.delete(
-            database_table_object=data_db_query_index_objects_to_delete
+            tables=data_db_query_index_objects_to_delete
         )
 
     # Delete all sessions database table values
     Sessions.delete(
-        database_table_object=sessions_db_query_index_objects_to_delete
+        tables=sessions_db_query_index_objects_to_delete
     )
 
     # Delete all user database table values
     Users.delete(
-        database_table_object=users_db_query_index_objects_to_delete
+        tables=users_db_query_index_objects_to_delete
     )
 
     # Reset session state

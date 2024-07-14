@@ -642,7 +642,7 @@ def promote_data_to_database(
         # Promote the datafile to the data-ingestion database as a table
         df.to_sql(
             name=id,
-            con=Data.connection,
+            con=Data.connection(),
             index=False
         )
 

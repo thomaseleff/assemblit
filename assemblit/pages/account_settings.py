@@ -157,7 +157,7 @@ class Content():
                 Users = users.Connection()
 
                 # Apply credential settings into the account parameters
-                st.session_state[setup.NAME][self.db_name][self.table_name]['settings'][0]['value'] = (
+                st.session_state[setup.NAME][self.db_name][self.table_name]['settings'][0].value = (
                     Users.select_table_column_value(
                         table_name=users.Schemas.credentials.name,
                         col='first_name',
@@ -168,7 +168,7 @@ class Content():
                         return_dtype='str'
                     )
                 )
-                st.session_state[setup.NAME][self.db_name][self.table_name]['settings'][1]['value'] = (
+                st.session_state[setup.NAME][self.db_name][self.table_name]['settings'][1].value = (
                     Users.select_table_column_value(
                         table_name=users.Schemas.credentials.name,
                         col='username',

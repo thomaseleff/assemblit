@@ -16,6 +16,7 @@ import json
 import pandas as pd
 import streamlit as st
 from assemblit import setup
+from assemblit.app.structures import Setting
 from assemblit.pages._components import _core, _selector
 from assemblit.database import sessions, data, analysis, generic
 from assemblit.database.structures import Filter, Validate, Row
@@ -83,7 +84,7 @@ def display_run_analysis_form(
         try:
             options = _selector.select_selector_dropdown_options(
                 db_name=setup.DATA_DB_NAME,
-                table_name='datasets',
+                table_name=setup.DATA_DB_NAME,
                 query_index=setup.DATA_DB_QUERY_INDEX,
                 scope_db_name=scope_db_name,
                 scope_query_index=scope_query_index
@@ -95,7 +96,7 @@ def display_run_analysis_form(
         try:
             index = _selector.select_selector_default_value(
                 db_name=setup.DATA_DB_NAME,
-                table_name='datasets',
+                table_name=setup.DATA_DB_NAME,
                 query_index=setup.DATA_DB_QUERY_INDEX,
                 scope_db_name=scope_db_name,
                 scope_query_index=scope_query_index,
@@ -207,14 +208,16 @@ def parse_form_response(
     ):
 
         # Parse the form values into a dictionary
-        for field in st.session_state[setup.NAME][db_name][table_name]['settings']:
-            if field['parameter'] in st.session_state:
+        for setting in st.session_state[setup.NAME][db_name][table_name]['settings']:
+            setting: Setting
+
+            if setting.parameter in st.session_state:
 
                 # Preserve all response values
-                response[field['parameter']] = st.session_state[field['parameter']]
+                response[setting.parameter] = st.session_state[setting.parameter]
 
                 # Reset session state variables
-                del st.session_state[field['parameter']]
+                del st.session_state[setting.parameter]
 
         # Reset session state variables
         st.session_state[setup.NAME][db_name][table_name]['form-submission'] = False
@@ -368,10 +371,10 @@ def run_job(
             """ % (
                 setup.DATA_DB_QUERY_INDEX,
                 setup.DATA_DB_QUERY_INDEX,
-                'datasets',
+                setup.DATA_DB_NAME,
                 setup.DATA_DB_QUERY_INDEX,
                 ', '.join(["'%s'" % (i) for i in Sessions.select_table_column_value(
-                    table_name='datasets',
+                    table_name=setup.DATA_DB_NAME,
                     col=setup.DATA_DB_QUERY_INDEX,
                     filtr=Filter(
                         col=scope_query_index,
@@ -396,10 +399,10 @@ def run_job(
             """ % (
                 'dbms',
                 setup.DATA_DB_QUERY_INDEX,
-                'datasets',
+                setup.DATA_DB_NAME,
                 setup.DATA_DB_QUERY_INDEX,
                 ', '.join(["'%s'" % (i) for i in Sessions.select_table_column_value(
-                    table_name='datasets',
+                    table_name=setup.DATA_DB_NAME,
                     col=setup.DATA_DB_QUERY_INDEX,
                     filtr=Filter(
                         col=scope_query_index,
@@ -415,7 +418,7 @@ def run_job(
         # Unload the data
         df = pd.read_sql(
             sql="SELECT * FROM '%s'" % (dataset_id),
-            con=Data.connection
+            con=Data.connection()
         )
 
         if dataset_dbms == '.CSV':

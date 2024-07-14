@@ -78,7 +78,7 @@ def display_run_listing_table(
                         multi=True
                     )])
                 ),
-                con=Analysis.connection
+                con=Analysis.connection()
             )
             df = df[[
                 'created_on',

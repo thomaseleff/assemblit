@@ -433,18 +433,19 @@ class Connection():
     # Define db function(s) to delete table values
     def delete(
         self,
-        table_list: list[Table]
+        tables: list[Table]
     ):
         """ Removes all rows in a filtered database table for each database table object.
 
         Parameters
         ----------
-        database_table_object: `Table`
+        tables: `list[Table]`
             List of Table objects containing parameters for deleting table
                 column values.
         """
-        if table_list:
-            for table in table_list:
+        if tables:
+            for table in tables:
+                table: Table
                 self.delete_table_column_value(
                     table_name=table.table_name,
                     filtr=table.filtr

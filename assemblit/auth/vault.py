@@ -188,7 +188,7 @@ def add_credentials(
             try:
                 Users.insert(
                     table_name=users.Schemas.credentials.name,
-                    data=Row(
+                    row=Row(
                         cols=users.Schemas.credentials.cols(),
                         vals=[
                             user_id,
@@ -509,17 +509,17 @@ def delete_account(
 
             # Delete all data-ingestion database table values
             Data.delete(
-                database_table_object=data_db_query_index_objects_to_delete
+                tables=data_db_query_index_objects_to_delete
             )
 
         # Delete all sessions database table values
         Sessions.delete(
-            database_table_object=sessions_db_query_index_objects_to_delete
+            tables=sessions_db_query_index_objects_to_delete
         )
 
     # Delete all user database table values
     Users.delete(
-        database_table_object=users_db_query_index_objects_to_delete
+        tables=users_db_query_index_objects_to_delete
     )
 
     # Logout to reset the session state

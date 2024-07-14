@@ -14,6 +14,7 @@ import copy
 import streamlit as st
 from assemblit import setup
 from assemblit.auth import vault
+from assemblit.app.structures import Setting
 
 
 # Define generic initialization function(s)
@@ -153,14 +154,15 @@ def display_page_header(
                     ))
 
                     # Display pop-over content
-                    for parameter in st.session_state[setup.NAME][setup.SESSIONS_DB_NAME][setup.SESSIONS_DB_NAME]['settings']:
+                    for setting in st.session_state[setup.NAME][setup.SESSIONS_DB_NAME][setup.SESSIONS_DB_NAME]['settings']:
+                        setting: Setting
 
                         # Layout columns
                         col1, col2 = st.columns([.5, .5])
 
                         # Display context-parameters
-                        col1.write('_%s_' % (parameter['name']))
-                        col2.write('`%s`' % (parameter['value']))
+                        col1.write('_%s_' % (setting.name))
+                        col2.write('`%s`' % (setting.value))
 
             # # Display user pop-over
             # if st.session_state[setup.NAME][setup.USERS_DB_NAME]['name']:

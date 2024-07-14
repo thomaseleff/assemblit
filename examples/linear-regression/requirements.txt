@@ -1,2 +1,2 @@
-pytensils==1.1.0
+pytensils==1.2.0
 prefect==2.16.6

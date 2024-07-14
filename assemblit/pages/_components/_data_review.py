@@ -841,7 +841,7 @@ def retrieve_data_from_database(
                 sql="""
                     SELECT * FROM '%s';
                 """ % dataset_id,
-                con=Data.connection
+                con=Data.connection()
             )
 
             # Set selector options
@@ -1159,12 +1159,12 @@ def delete_dataset(
 
     # Delete all data-ingestion database table values
     Data.delete(
-        database_table_object=data_db_query_index_objects_to_delete
+        tables=data_db_query_index_objects_to_delete
     )
 
     # Delete all sessions database table values
     Sessions.delete(
-        database_table_object=sessions_db_query_index_objects_to_delete
+        tables=sessions_db_query_index_objects_to_delete
     )
 
     # Reset session state

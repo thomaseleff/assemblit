@@ -424,6 +424,12 @@ def display_key_value_pair_setting(
         except generic.NullReturnValue:
             setting.value = ''
 
+    # Parse null value
+    try:
+        setting.value = utils.as_type(setting.value, return_dtype='bool')
+    except TypeError:
+        pass
+
     # Display parameter input-object
     if str(setting.type).strip().upper() == 'TEXT-INPUT':
         if setting.kwargs:
