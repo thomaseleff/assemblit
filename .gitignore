@@ -6,10 +6,10 @@ __pycache__
 .assemblit
 assemblit.*
 build
+analysis
 db
 archive
 data
 testing.py
 /project
 /planning
-/examples/linear-regression/analysis

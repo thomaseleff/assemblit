@@ -27,7 +27,7 @@ ENV SERVER_DEPLOYMENT_NAME ""
 ENV DIR "/$NAME"
 
 # Authentication settings
-ENV REQUIRE_AUTHENTICATION False
+ENV REQUIRE_AUTHENTICATION True
 
 # Users db settings
 ENV USERS_DB_NAME "users"
