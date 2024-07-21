@@ -20,7 +20,7 @@ _DTYPE_MAP = {
 @dataclass
 class Setting():
     """ A class representing parameter settings.
-    
+
     Attributes
     ----------
     type : `Literal['text-input', 'toggle', 'slider', 'selectbox', 'multiselect']`
