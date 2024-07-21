@@ -1,24 +1,20 @@
-"""
-Information
----------------------------------------------------------------------
-Name        : Welcome.py
-Location    : ~/
+""" Home-page of `assemblit.org`.
 
-Description
----------------------------------------------------------------------
-Home-page of `assemblit`.
+Assemblit is helping data analysts and scientists rapidly scale notebooks into analytics-as-a-service (AaaS) web-applications.
 """
 
 import streamlit as st
+import assemblit
 import assemblit.setup as setup
 import assemblit.pages.home as home
+import inspect
 
 
 # Initialize the home-page content
 Welcome = home.Content(
     header='Welcome',
     tagline="""
-        `assemblit` is helping data analysts and scientists rapidly scale notebooks
+        Assemblit is helping data analysts and scientists rapidly scale notebooks
         into analytics-as-a-service (AaaS) web-applications.
     """,
     # content_url=setup.GITHUB_CONTENT_URL,
@@ -38,16 +34,7 @@ Welcome.serve()
 _, col2, _ = st.columns(setup.CONTENT_COLUMNS)
 
 col2.write('')
-col2.markdown(
-    """
-        🦄 `assemblit` is a Python package that provides a framework of [streamlit](https://streamlit.io/) based
-        web-components for quickly assembling end-to-end analytics-as-a-service
-        (AaaS) web-applications. `assemblit` comes with user-authentication, a lightweight
-        sqlite3-database backend, and workflow orchestration via [prefect](https://www.prefect.io).
-
-        `alpha-release` coming soon!
-    """
-)
+col2.markdown(inspect.getdoc(assemblit))
 col2.subheader('')
 col2.info(
     'For more information, visit the [assemblit](%s) GitHub page.' % (

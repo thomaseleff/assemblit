@@ -4,9 +4,6 @@ Information
 ---------------------------------------------------------------------
 Name        : setup.py
 Location    : ~/server
-Author      : Tom Eleff
-Published   : 2024-06-02
-Revised on  : .
 
 Description
 ---------------------------------------------------------------------

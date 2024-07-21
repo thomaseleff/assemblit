@@ -1,13 +1,4 @@
-"""
-Information
----------------------------------------------------------------------
-Name        : structures.py
-Location    : ~/app
-
-Description
----------------------------------------------------------------------
-Data object structures for building assemblit web-applications.
-"""
+""" Data objects for building `assemblit` web-applications. """
 
 from __future__ import annotations
 from dataclasses import dataclass
@@ -28,6 +19,26 @@ _DTYPE_MAP = {
 
 @dataclass
 class Setting():
+    """ A class representing parameter settings.
+    
+    Attributes
+    ----------
+    type : `Literal['text-input', 'toggle', 'slider', 'selectbox', 'multiselect']`
+        The `streamlit` widget to use to represent the parameter.
+    dtype : `Literal['bool', 'str', 'int', 'float', 'datetime', 'timedelta']`
+        The data-type of the parameter value.
+    parameter : `str`
+        The name used to represent the parameter in the database and the session-state.
+    name : `str`
+        The display name used to represent the parameter.
+    value : `str` | `None`
+        The default value of the parameter.
+    kwargs : `dict` | `None`
+        Additional key-word arguments for the `streamlit` widget.
+    description : `str` | `None`
+        The short summary of the parameter or instructions on setting the parameter value.
+    """
+
     type: Literal['text-input', 'toggle', 'slider', 'selectbox', 'multiselect']
     dtype: Literal['bool', 'str', 'int', 'float', 'datetime', 'timedelta']
     parameter: str
@@ -85,8 +96,7 @@ class Setting():
         return Setting(**dict_object)
 
     def to_dict(self):
-        """ Returns the `Setting` object as a `dict`.
-        """
+        """ Returns the `Setting` object as a `dict`. """
         return {
             'type': self.type,
             'dtype': self.dtype,
@@ -98,8 +108,7 @@ class Setting():
         }
 
     def to_pandera(self) -> pandera.Column:
-        """ Returns the `Setting` object as a `pandera.Column`.
-        """
+        """ Returns the `Setting` object as a `pandera.Column`. """
         return pandera.Column(
             dtype=self.dtype,
             name=self.parameter,
@@ -119,8 +128,7 @@ class Setting():
         )
 
     def __repr__(self):
-        """ Returns the `Setting` object as a json-formatted `str`.
-        """
+        """ Returns the `Setting` object as a json-formatted `str`. """
         return json.dumps(self.to_dict(), indent=2)
 
 
