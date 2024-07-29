@@ -16,10 +16,10 @@ import json
 import pandas as pd
 import streamlit as st
 from assemblit import setup
-from assemblit.app.structures import Setting
+from assemblit.blocks.structures import Setting
 from assemblit.pages._components import _core, _selector
-from assemblit.database import sessions, data, analysis, generic
-from assemblit.database.structures import Filter, Validate, Row
+from assemblit.database import _generic, sessions, data, analysis
+from assemblit.database._structures import Filter, Validate, Row
 from assemblit.server import layer
 from assemblit.server import setup as server_setup
 
@@ -89,7 +89,7 @@ def display_run_analysis_form(
                 scope_db_name=scope_db_name,
                 scope_query_index=scope_query_index
             )
-        except generic.NullReturnValue:
+        except _generic.NullReturnValue:
             options = []
 
         # Set run-analysis drop-down default query index
@@ -102,7 +102,7 @@ def display_run_analysis_form(
                 scope_query_index=scope_query_index,
                 options=options
             )
-        except generic.NullReturnValue:
+        except _generic.NullReturnValue:
             index = None
 
         # Display the run-analysis drop-down

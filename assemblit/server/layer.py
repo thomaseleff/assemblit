@@ -3,10 +3,6 @@ Information
 ---------------------------------------------------------------------
 Name        : layer.py
 Location    : ~/server
-Author      : Tom Eleff
-Published   : 2024-06-02
-Revised on  : .
-
 Description
 ---------------------------------------------------------------------
 The orchestration server abstraction layer for starting, managing

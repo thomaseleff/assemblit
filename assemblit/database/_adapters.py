@@ -1,13 +1,4 @@
-"""
-Information
----------------------------------------------------------------------
-Name        : adapters.py
-Location    : ~/database
-
-Description
----------------------------------------------------------------------
-Database datatype adapters and converters for sqlite3-databases.
-"""
+""" Datatype adapters and converters """
 
 import sqlite3
 import datetime
@@ -15,6 +6,13 @@ import datetime
 
 # Define sqlite datatype adapter(s) and converter(s)
 class Sqlite():
+    """ A `class` that allows for registering datatype adapters and converters for sqlite3-databases.
+
+    Additional supported datatypes,
+        - `datetime.datetime`
+        - `datetime.timedelta`
+
+    """
 
     # Datetime
     def adapt_datetime(dt: datetime.datetime):

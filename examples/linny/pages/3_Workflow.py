@@ -1,16 +1,7 @@
-"""
-Information
----------------------------------------------------------------------
-Name        : 3_Workflow.py
-Location    : ~/pages
-
-Description
----------------------------------------------------------------------
-Workflow-settings-page of the 'linny' web-application.
-"""
+""" linny.assemblit.org/Workflow """
 
 from assemblit.pages import workflow_settings
-from assemblit.app.structures import Setting
+from assemblit.blocks.structures import Setting
 
 # Initialize the workflow-settings-page content
 Workflow = workflow_settings.Content(

@@ -8,7 +8,7 @@ ENV DEBUG False
 
 # Web-app configuration settings
 ENV NAME "assemblit"
-ENV HOME_PAGE_NAME "Welcome"
+ENV HOME_PAGE_NAME "app"
 ENV GITHUB_REPOSITORY_URL "https://github.com/thomaseleff/assemblit"
 ENV GITHUB_BRANCH_NAME "v0.1.0"
 

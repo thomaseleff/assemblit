@@ -13,10 +13,11 @@ import hashlib
 import json
 import pandas as pd
 import streamlit as st
-from assemblit import data_toolkit, setup
+from assemblit import setup
+from assemblit.toolkit import aggregator, plotter
 from assemblit.pages._components import _core, _selector
-from assemblit.database import sessions, data, generic
-from assemblit.database.structures import Filter, Value
+from assemblit.database import _generic, sessions, data
+from assemblit.database._structures import Filter, Value
 
 # --TODO Remove scope_db_name and scope_query_index from all function(s).
 #       Scope for data is not dynamic, it can only be the sessions-db.
@@ -565,7 +566,7 @@ def display_data_review_summary(
                             parameter='Aggrules'
                         ),
                         label='Metric agg. rule',
-                        options=data_toolkit.AGGRULES.keys(),
+                        options=aggregator.AGGRULES.keys(),
                         default=selected_aggrules,
                         max_selections=1,
                         placeholder="""
@@ -616,7 +617,7 @@ def display_data_review_summary(
                             parameter='Aggrules'
                         ),
                         label='Metric aggregation rule',
-                        options=data_toolkit.AGGRULES.keys(),
+                        options=aggregator.AGGRULES.keys(),
                         default=selected_aggrules,
                         max_selections=1,
                         placeholder="""
@@ -672,7 +673,7 @@ def display_data_review_summary(
 
                     # Display plotly plot
                     st.plotly_chart(
-                        figure_or_data=data_toolkit.Plotter.timeseries_line_plot(
+                        figure_or_data=plotter.timeseries_line_plot(
                             df=df,
                             datetime=selected_datetime_object,
                             dimension=selected_dimensions,
@@ -697,7 +698,7 @@ def display_data_review_summary(
 
                 # Display plotly table
                 st.plotly_chart(
-                    figure_or_data=data_toolkit.Plotter.descriptives_table(
+                    figure_or_data=plotter.descriptives_table(
                         df=df,
                         dimension=selected_dimensions,
                         metrics=selected_metrics,
@@ -831,7 +832,7 @@ def retrieve_data_from_database(
                 ),
                 multi=True
             )
-        except generic.NullReturnValue:
+        except _generic.NullReturnValue:
             ids = []
 
         if dataset_id in ids:
@@ -892,7 +893,7 @@ def retrieve_data_from_database(
                     ),
                     return_dtype='list'
                 )
-            except generic.NullReturnValue:
+            except _generic.NullReturnValue:
                 selected_datetime = []
             selected_dimensions = Data.select_generic_query(
                 query="""

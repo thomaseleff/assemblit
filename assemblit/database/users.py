@@ -1,27 +1,26 @@
-"""
-Information
----------------------------------------------------------------------
-Name        : users.py
-Location    : ~/database
-
-Description
----------------------------------------------------------------------
-Database schema and connection `class` objects for retrieving
-information from the `users` sqlite3-database.
-"""
+""" Database table """
 
 from dataclasses import dataclass
 import pandera
 from assemblit import setup
-from assemblit.database import generic
+from assemblit.database import _generic
 
 
 # Define the `users` database table schemas
 @dataclass
 class Schemas():
+    """ A `class` that represents the `users` database schemas.
+
+    Attributes
+    ----------
+    credentials : `assemblit.database._generic.Schema`
+        The `users.credentials` database table schema.
+    sessions : `assemblit.database._generic.Schema`
+        The `users.sessions` database table schema.
+    """
 
     # The `credentials` table Schema.
-    credentials: generic.Schema = generic.Schema(
+    credentials: _generic.Schema = _generic.Schema(
         name='credentials',
         columns={
             setup.USERS_DB_QUERY_INDEX: pandera.Column(
@@ -49,7 +48,7 @@ class Schemas():
     )
 
     # The `sessions` table Schema
-    sessions: generic.Schema = generic.Schema(
+    sessions: _generic.Schema = _generic.Schema(
         name=setup.SESSIONS_DB_NAME,
         columns={
             setup.USERS_DB_QUERY_INDEX: pandera.Column(
@@ -69,13 +68,14 @@ class Schemas():
 
 
 # Define the `users` database connection
-class Connection(generic.Connection):
+class Connection(_generic.Connection):
+    """ The `users` sqlite3-database Connection. """
 
     def __init__(
         self
     ):
-        """ The `users` sqlite3-database Connection.
-        """
+        """ Initializes an instance of the `users` sqlite3-database Connection. """
+
         super().__init__(
             db_name=setup.USERS_DB_NAME,
             dir_name=setup.DB_DIR

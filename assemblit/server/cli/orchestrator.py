@@ -3,9 +3,6 @@ Information
 ---------------------------------------------------------------------
 Name        : orchestrator.py
 Location    : ~/server/cli
-Author      : Tom Eleff
-Published   : 2024-06-02
-Revised on  : .
 
 Description
 ---------------------------------------------------------------------

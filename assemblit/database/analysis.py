@@ -1,28 +1,25 @@
-"""
-Information
----------------------------------------------------------------------
-Name        : analysis.py
-Location    : ~/database
-
-Description
----------------------------------------------------------------------
-Database schema and connection `class` objects for retrieving
-information from the `analysis` sqlite3-database.
-"""
+""" Database table """
 
 from dataclasses import dataclass
 import pandera
 import datetime
 from assemblit import setup
-from assemblit.database import generic
+from assemblit.database import _generic
 
 
 # Define the `analysis` database table schemas
 @dataclass
 class Schemas():
+    """ A `class` that represents the `analysis` database schemas.
+
+    Attributes
+    ----------
+    analysis : `assemblit.database._generic.Schema`
+        The `analysis.analysis` database table schema.
+    """
 
     # The `analysis` table Schema
-    analysis: generic.Schema = generic.Schema(
+    analysis: _generic.Schema = _generic.Schema(
         name=setup.ANALYSIS_DB_NAME,
         columns={
             setup.ANALYSIS_DB_QUERY_INDEX: pandera.Column(
@@ -111,13 +108,14 @@ class Schemas():
 
 
 # Define the `analysis` database connection
-class Connection(generic.Connection):
+class Connection(_generic.Connection):
+    """ The `users` sqlite3-database Connection. """
 
     def __init__(
         self
     ):
-        """ The `analysis` sqlite3-database Connection.
-        """
+        """ Initializes an instance of the `analysis` sqlite3-database Connection. """
+
         super().__init__(
             db_name=setup.ANALYSIS_DB_NAME,
             dir_name=setup.DB_DIR

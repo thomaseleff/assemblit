@@ -1,32 +1,53 @@
-"""
-Information
----------------------------------------------------------------------
-Name        : account_settings.py
-Location    : ~/pages
-
-Description
----------------------------------------------------------------------
-Contains the `class` for the account-management user-settings-page.
-"""
+""" Page builder """
 
 import copy
 import streamlit as st
 from assemblit import setup
 from assemblit.auth import vault
-from assemblit.app.structures import Setting
+from assemblit import blocks, database
 from assemblit.pages._components import _key_value, _core
 from assemblit.database import users
-from assemblit.database.structures import Filter
 
 
 class Content():
+    """ A `class` that contains the account settings-page content.
+
+    Parameters
+    ----------
+    headerless : `bool`
+        `True` or `False`, determines whether to display the header & tagline
+    personalize : `bool`
+        `True` or `False`, determines whether to personalize the header,
+            concatenating the user's name, e.g., "Welcome, Jonathan"
+    
+    Notes
+    -----
+    The account settings-page can only be created when the ENV variable `REQUIRE_AUTHENTICATION` = 'True'.
+
+    Examples
+    --------
+
+    ``` python
+
+    # Constructing the account settings-page content
+
+    from assemblit.pages import account_settings
+
+    Settings = account_settings.Content()
+    
+    # Serving the account settings-page content
+
+    Settings.serve()
+
+    ```
+    """
 
     def __init__(
         self,
         headerless: bool = False,
         personalize: bool = True
     ):
-        """ Initializes the content of the account-management user-settings `class`.
+        """ Initializes an instance of the account settings-page content.
 
         Parameters
         ----------
@@ -51,28 +72,28 @@ class Content():
 
         # Assign default session state class variables
         self.settings = [
-            Setting(
+            blocks.structures.Setting(
                 type='text-input',
                 dtype='str',
                 parameter='first_name',
                 name='Name',
                 kwargs={'disabled': True}
             ),
-            Setting(
+            blocks.structures.Setting(
                 type='text-input',
                 dtype='str',
                 parameter='username',
                 name='Username',
                 kwargs={'disabled': True}
             ),
-            Setting(
+            blocks.structures.Setting(
                 type='text-input',
                 dtype='str',
                 parameter='change_username',
                 name='Change username',
                 description='Enter your new email address.'
             ),
-            Setting(
+            blocks.structures.Setting(
                 type='text-input',
                 dtype='str',
                 parameter='change_password0',
@@ -80,7 +101,7 @@ class Content():
                 kwargs={'type': 'password'},
                 description='Enter your new password.'
             ),
-            Setting(
+            blocks.structures.Setting(
                 type='text-input',
                 dtype='str',
                 parameter='change_password1',
@@ -88,7 +109,7 @@ class Content():
                 kwargs={'type': 'password'},
                 description='Re-enter your new password'
             ),
-            Setting(
+            blocks.structures.Setting(
                 type='toggle',
                 dtype='bool',
                 parameter='delete_account',
@@ -124,7 +145,7 @@ class Content():
     def serve(
         self
     ):
-        """ Serves the account-management settings-page content.
+        """ Serves the account settings-page content.
         """
 
         # Manage authentication
@@ -138,7 +159,7 @@ class Content():
                         st.session_state[setup.NAME][self.db_name]['name']
                     )
 
-                # Display web-page header
+                # Display webpage header
                 _core.display_page_header(
                     header=self.header,
                     tagline=self.tagline,
@@ -161,7 +182,7 @@ class Content():
                     Users.select_table_column_value(
                         table_name=users.Schemas.credentials.name,
                         col='first_name',
-                        filtr=Filter(
+                        filtr=database._structures.Filter(
                             col=self.query_index,
                             val=st.session_state[setup.NAME][self.db_name][self.query_index]
                         ),
@@ -172,7 +193,7 @@ class Content():
                     Users.select_table_column_value(
                         table_name=users.Schemas.credentials.name,
                         col='username',
-                        filtr=Filter(
+                        filtr=database._structures.Filter(
                             col=self.query_index,
                             val=st.session_state[setup.NAME][self.db_name][self.query_index]
                         ),

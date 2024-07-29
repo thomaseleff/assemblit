@@ -1,14 +1,4 @@
-"""
-Information
----------------------------------------------------------------------
-Name        : vault.py
-Location    : ~/
-
-Description
----------------------------------------------------------------------
-Utility functions for authenticating, creating, updating and deleting
-user-credentials.
-"""
+""" User authentication """
 
 import hashlib
 import datetime
@@ -16,10 +6,9 @@ import argon2
 from argon2 import PasswordHasher
 from email_validator import validate_email, EmailNotValidError
 import streamlit as st
-from assemblit import setup
+from assemblit import setup, database
 from assemblit.pages._components import _core
 from assemblit.database import users, sessions, data
-from assemblit.database.structures import Filter, Validate, Value, Row
 
 
 # Define generic authentication function(s)
@@ -65,7 +54,7 @@ def authenticate(
         # Check if the user exists
         if Users.table_record_exists(
             table_name=users.Schemas.credentials.name,
-            filtr=Filter(
+            filtr=database._structures.Filter(
                 col='username',
                 val=username
             )
@@ -77,7 +66,7 @@ def authenticate(
                         Users.select_table_column_value(
                             table_name=users.Schemas.credentials.name,
                             col='password',
-                            filtr=Filter(
+                            filtr=database._structures.Filter(
                                 col='username',
                                 val=username
                             )
@@ -90,7 +79,7 @@ def authenticate(
                     'name': Users.select_table_column_value(
                         table_name=users.Schemas.credentials.name,
                         col='first_name',
-                        filtr=Filter(
+                        filtr=database._structures.Filter(
                             col='username',
                             val=username
                         )
@@ -99,7 +88,7 @@ def authenticate(
                         Users.select_table_column_value(
                             table_name=users.Schemas.credentials.name,
                             col=setup.USERS_DB_QUERY_INDEX,
-                            filtr=Filter(
+                            filtr=database._structures.Filter(
                                 col='username',
                                 val=username
                             )
@@ -188,7 +177,7 @@ def add_credentials(
             try:
                 Users.insert(
                     table_name=users.Schemas.credentials.name,
-                    row=Row(
+                    row=database._structures.Row(
                         cols=users.Schemas.credentials.cols(),
                         vals=[
                             user_id,
@@ -197,7 +186,7 @@ def add_credentials(
                             first_name
                         ]
                     ),
-                    validate=Validate(
+                    validate=database._structures.Validate(
                         col='username',
                         val=username
                     )
@@ -350,7 +339,7 @@ def update_username(
         # Check if the user exists
         if not Users.table_record_exists(
             table_name=users.Schemas.credentials.name,
-            filtr=Filter(
+            filtr=database._structures.Filter(
                 col='username',
                 val=username
             )
@@ -359,11 +348,11 @@ def update_username(
             # Update username
             Users.update(
                 table_name=users.Schemas.credentials.name,
-                values=Value(
+                values=database._structures.Value(
                     col='username',
                     val=username
                 ),
-                filtr=Filter(
+                filtr=database._structures.Filter(
                     col=setup.USERS_DB_QUERY_INDEX,
                     val=user_id
                 )
@@ -418,11 +407,11 @@ def update_password(
         # Add the user
         Users.update(
             table_name=users.Schemas.credentials.name,
-            values=Value(
+            values=database._structures.Value(
                 col='password',
                 val=hashkey
             ),
-            filtr=Filter(
+            filtr=database._structures.Filter(
                 col=setup.USERS_DB_QUERY_INDEX,
                 val=user_id
             )

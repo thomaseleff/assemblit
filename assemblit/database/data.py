@@ -1,28 +1,25 @@
-"""
-Information
----------------------------------------------------------------------
-Name        : data.py
-Location    : ~/database
-
-Description
----------------------------------------------------------------------
-Database schema and connection `class` objects for retrieving
-information from the `data` sqlite3-database.
-"""
+""" Database table """
 
 from dataclasses import dataclass
 import pandera
 import datetime
 from assemblit import setup
-from assemblit.database import generic
+from assemblit.database import _generic
 
 
 # Define the `data` database table schemas
 @dataclass
 class Schemas():
+    """ A `class` that represents the `data` database schemas.
+
+    Attributes
+    ----------
+    data : `assemblit.database._generic.Schema`
+        The `data.data` database table schema.
+    """
 
     # The `data` table Schema.
-    data: generic.Schema = generic.Schema(
+    data: _generic.Schema = _generic.Schema(
         name=setup.DATA_DB_NAME,
         columns={
             setup.DATA_DB_QUERY_INDEX: pandera.Column(
@@ -111,13 +108,14 @@ class Schemas():
 
 
 # Define the `data` database connection
-class Connection(generic.Connection):
+class Connection(_generic.Connection):
+    """ The `data` sqlite3-database Connection. """
 
     def __init__(
         self
     ):
-        """ The `data` sqlite3-database Connection.
-        """
+        """ Initializes an instance of the `data` sqlite3-database Connection. """
+
         super().__init__(
             db_name=setup.DATA_DB_NAME,
             dir_name=setup.DB_DIR
