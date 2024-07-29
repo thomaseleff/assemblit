@@ -4,7 +4,7 @@ __pycache__
 .vscode
 .regression
 .assemblit
-assemblit.*
+assemblit.egg-info
 build
 analysis
 db

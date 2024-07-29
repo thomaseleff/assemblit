@@ -13,8 +13,8 @@ import pandas as pd
 import streamlit as st
 from assemblit import setup
 from assemblit.pages._components import _core, _selector
-from assemblit.database import sessions, analysis, generic
-from assemblit.database.structures import Filter, Value
+from assemblit.database import _generic, sessions, analysis
+from assemblit.database._structures import Filter, Value
 from assemblit.server import layer
 from assemblit.server import setup as server_setup
 
@@ -107,7 +107,7 @@ def display_run_listing_table(
             df['start_time'] = pd.to_datetime(df['start_time'], errors='coerce')
             df['end_time'] = pd.to_datetime(df['end_time'], errors='coerce')
             df['run_time'] = pd.to_datetime(df['run_time'], unit='s', errors='coerce')
-        except generic.NullReturnValue:
+        except _generic.NullReturnValue:
             df = pd.DataFrame(
                 columns=[
                     'created_on',
@@ -543,7 +543,7 @@ def refresh_run_listing_table(
                 order='DESC',
                 contains=False
             )
-        except generic.NullReturnValue:
+        except _generic.NullReturnValue:
             run_ids = []
 
         # Poll the status of each run-id

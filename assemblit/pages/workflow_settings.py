@@ -1,22 +1,50 @@
-"""
-Information
----------------------------------------------------------------------
-Name        : workflow_settings.py
-Location    : ~/pages
-
-Description
----------------------------------------------------------------------
-Contains the `class` for the session-settings-page.
-"""
+""" Page builder """
 
 import copy
 import streamlit as st
-from assemblit import setup
-from assemblit.app.structures import Setting
+from assemblit import setup, blocks
 from assemblit.pages._components import _key_value, _core
 
 
 class Content():
+    """ A `class` that contains the workflow settings-page content.
+
+    Parameters
+    ----------
+    header : `str`
+        String to display as the webpage header
+    tagline : `str`
+        String to display as the webpage tagline
+    content_info : `str`
+        String to display as `streamlit.info()` when there is no active session
+    settings : `list[Setting]`
+        List of `assemblit.app.structures.Setting` objects containing the setting(s) parameters & values
+    headerless : `bool`
+        `True` or `False`, determines whether to display the header & tagline
+    clear_on_submit : `bool`
+        `True` or `False`, determines whether to clear the form-submission responses
+            after submission
+
+    Examples
+    --------
+
+    ``` python
+
+    # Constructing the workflow settings-page content
+
+    from assemblit.pages import workflow_settings
+
+    Workflow = workflow_settings.Content(
+        header='Workflow',
+        tagline='Configure the parameters essential to the workflow.'
+    )
+    
+    # Serving the workflow settings-page content
+
+    Workflow.serve()
+
+    ```
+    """
 
     def __init__(
         self,
@@ -30,8 +58,8 @@ class Content():
                 ])
             )
         ),
-        settings: list[Setting] = [
-            Setting(
+        settings: list[blocks.structures.Setting] = [
+            blocks.structures.Setting(
                 type='text-input',
                 dtype='str',
                 parameter='y',
@@ -43,14 +71,14 @@ class Content():
         clear_on_submit: bool = False,
         # table_name: str = 'workflow'
     ):
-        """ Initializes the content of the workflow-settings `class`.
+        """ Initializes an instance of the workflow settings-page content.
 
         Parameters
         ----------
         header : `str`
-            String to display as the web-page header
+            String to display as the webpage header
         tagline : `str`
-            String to display as the web-page tagline
+            String to display as the webpage tagline
         content_info : `str`
             String to display as `streamlit.info()` when there is no active session
         settings : `list[Setting]`
@@ -103,13 +131,13 @@ class Content():
     def serve(
         self
     ):
-        """ Serves the workflow-settings-page content.
+        """ Serves the workflow settings-page content.
         """
 
         # Manage authentication
         if st.session_state[setup.NAME][setup.AUTH_NAME][setup.AUTH_QUERY_INDEX]:
 
-            # Display web-page header
+            # Display webpage header
             _core.display_page_header(
                 header=self.header,
                 tagline=self.tagline,
@@ -126,7 +154,7 @@ class Content():
                     table_name=self.table_name
                 )
 
-                # Update the workflow-settings database
+                # Update the workflow settings database
                 if response:
                     _key_value.update_settings(
                         db_name=self.db_name,

@@ -1,4 +1,4 @@
-""" Data objects for building `assemblit` web-applications. """
+""" Data objects for assembling web-pages """
 
 from __future__ import annotations
 from dataclasses import dataclass
@@ -19,7 +19,7 @@ _DTYPE_MAP = {
 
 @dataclass
 class Setting():
-    """ A class representing parameter settings.
+    """ A `class` that represents a settings parameter.
 
     Attributes
     ----------
@@ -134,6 +134,18 @@ class Setting():
 
 @dataclass
 class Selector():
+    """ A `class` that represents a selector parameter.
+
+    Attributes
+    ----------
+    parameter : `str`
+        The name used to represent the parameter in the database and the session-state.
+    name : `str` | `None`
+        The display name used to represent the parameter.
+    description : `str` | `None`
+        The short summary of the parameter or instructions on setting the parameter value.
+    """
+
     parameter: str
     name: str | None = None
     description: str | None = None

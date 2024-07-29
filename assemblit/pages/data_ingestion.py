@@ -1,24 +1,50 @@
-"""
-Information
----------------------------------------------------------------------
-Name        : data_ingestion.py
-Location    : ~/pages
-
-Description
----------------------------------------------------------------------
-Contains the `class` for the data-ingestion-page.
-"""
+""" Page builder """
 
 import copy
 import streamlit as st
 import pandas as pd
-from assemblit import setup
-from assemblit.app.structures import Selector
+from assemblit import setup, blocks
 from assemblit.pages._components import _core, _data_uploader, _data_review
 from assemblit.database import sessions, data
 
 
 class Content():
+    """ A `class` that contains the data ingestion-page content.
+
+    Parameters
+    ----------
+    header : `str`
+        String to display as the webpage header.
+    tagline : `str`
+        String to display as the webpage tagline.
+    content_info : `str`
+        String to display as `streamlit.info()` when there is no selected session.
+    data_dictionary : `pd.DataFrame`
+        An optional data dictionary that describes the structure and format of the
+            expected datafile.
+    data_example : `pd.DataFrame`
+        An optional dataframe that provides a reference for a valid datafile.
+    
+    Examples
+    --------
+
+    ``` python
+
+    # Constructing the data ingestion-page content
+
+    from assemblit.pages import data_ingestion
+
+    Data = data_ingestion.Content(
+        header='Data',
+        tagline='Upload, review and finalize the input data for the session.'
+    )
+
+    # Serving the data ingestion-page content
+
+    Data.serve()
+
+    ```
+    """
 
     def __init__(
         self,
@@ -36,14 +62,14 @@ class Content():
         data_dictionary: pd.DataFrame = pd.DataFrame(),
         data_example: pd.DataFrame = pd.DataFrame()
     ):
-        """ Initializes an instance of the data-ingestion-page `class`.
+        """ Initializes an instance of the data ingestion-page content.
 
         Parameters
         ----------
         header : `str`
-            String to display as the web-page header.
+            String to display as the webpage header.
         tagline : `str`
-            String to display as the web-page tagline.
+            String to display as the webpage tagline.
         content_info : `str`
             String to display as `streamlit.info()` when there is no selected session.
         data_dictionary : `pd.DataFrame`
@@ -71,7 +97,7 @@ class Content():
         self.query_index = setup.DATA_DB_QUERY_INDEX
 
         # Assign default session state class variables
-        self.selector = Selector(
+        self.selector = blocks.structures.Selector(
             parameter='file_name',
             name='Datafile name',
             description='Select a datafile to review.'
@@ -101,13 +127,13 @@ class Content():
         )
 
     def serve(self):
-        """ Serves the data-ingestion-page content.
+        """ Serves the data ingestion-page content.
         """
 
         # Manage authentication
         if st.session_state[setup.NAME][setup.AUTH_NAME][setup.AUTH_QUERY_INDEX]:
 
-            # Display web-page header
+            # Display webpage header
             _core.display_page_header(
                 header=self.header,
                 tagline=self.tagline,

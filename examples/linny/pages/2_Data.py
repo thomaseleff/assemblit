@@ -1,13 +1,4 @@
-"""
-Information
----------------------------------------------------------------------
-Name        : 2_Data.py
-Location    : ~/pages
-
-Description
----------------------------------------------------------------------
-Data-ingestion-page of the 'linny' web-application.
-"""
+""" linny.assemblit.org/Data """
 
 import os
 import pandas as pd

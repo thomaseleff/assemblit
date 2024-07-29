@@ -13,10 +13,10 @@ from typing import List
 import hashlib
 import streamlit as st
 from assemblit import setup
-from assemblit.app.structures import Setting, Selector
+from assemblit.blocks.structures import Setting, Selector
 from assemblit.pages._components import _core, _key_value
-from assemblit.database import users, sessions, data, generic
-from assemblit.database.structures import Filter, Value, Row
+from assemblit.database import _generic, users, sessions, data
+from assemblit.database._structures import Filter, Value, Row
 from pytensils import utils
 
 
@@ -152,13 +152,13 @@ def select_selector_dropdown_options(
     """
 
     # Initialize connection to the scope-database
-    Scope = generic.Connection(
+    Scope = _generic.Connection(
         db_name=scope_db_name,
         dir_name=setup.DB_DIR
     )
 
     # Initialize the connection to the session-selector database
-    Database = generic.Connection(
+    Database = _generic.Connection(
         db_name=db_name,
         dir_name=setup.DB_DIR
     )
@@ -349,13 +349,13 @@ def select_query_index_value(
     """
 
     # Initialize connection to the scope-database
-    Scope = generic.Connection(
+    Scope = _generic.Connection(
         db_name=scope_db_name,
         dir_name=setup.DB_DIR
     )
 
     # Initialize connection to the session-selector database
-    Database = generic.Connection(
+    Database = _generic.Connection(
         db_name=db_name,
         dir_name=setup.DB_DIR
     )
@@ -383,7 +383,7 @@ def select_query_index_value(
                 )]
             ),
             str(filtr.col),
-            generic.normalize(string=filtr.val)
+            _generic.normalize(string=filtr.val)
         )
     ).fetchall()
 
@@ -441,13 +441,13 @@ def create_session(
     """
 
     # Initialize connection to the scope-database
-    Scope = generic.Connection(
+    Scope = _generic.Connection(
         db_name=scope_db_name,
         dir_name=setup.DB_DIR
     )
 
     # Initialize connection to the session-selector database
-    Database = generic.Connection(
+    Database = _generic.Connection(
         db_name=db_name,
         dir_name=setup.DB_DIR
     )
@@ -484,7 +484,7 @@ def create_session(
                 ),
                 multi=True
             )
-        except generic.NullReturnValue:
+        except _generic.NullReturnValue:
             ids = []
 
         if id not in ids:
@@ -569,7 +569,7 @@ def update_session(
     """
 
     # Initialize connection to the session-selector database
-    Database = generic.Connection(
+    Database = _generic.Connection(
         db_name=db_name,
         dir_name=setup.DB_DIR
     )

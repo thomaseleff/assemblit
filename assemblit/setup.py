@@ -1,13 +1,4 @@
-"""
-Information
----------------------------------------------------------------------
-Name        : setup.py
-Location    : ~/
-
-Description
----------------------------------------------------------------------
-Contains the generic static variables and methods for a getstreamy app.
-"""
+""" Environment variables """
 
 import os
 import copy
@@ -51,6 +42,7 @@ INITIAL_SIDEBAR_STATE: str = 'expanded'
 HEADER_COLUMNS: List[Union[int, float]] = [.05, .625, .1, .175, .05]
 TAGLINE_COLUMNS: List[Union[int, float]] = [.05, .9, .05]
 CONTENT_COLUMNS: List[Union[int, float]] = [.075, .875, .05]
+METHODS_COLUMNS: List[Union[int, float]] = [.1, .85, .05]
 
 # Authentication settings
 AUTH_NAME: str = 'auth'

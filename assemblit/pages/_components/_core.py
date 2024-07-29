@@ -14,7 +14,7 @@ import copy
 import streamlit as st
 from assemblit import setup
 from assemblit.auth import vault
-from assemblit.app.structures import Setting
+from assemblit.blocks.structures import Setting
 
 
 # Define generic initialization function(s)
@@ -93,6 +93,7 @@ def display_page_header(
 
     # Configure
     st.set_page_config(
+        page_title='%s ― %s' % (header, setup.NAME),
         layout=setup.LAYOUT,
         initial_sidebar_state=setup.INITIAL_SIDEBAR_STATE
     )
@@ -172,7 +173,7 @@ def display_page_header(
         _, col2, _ = st.columns(setup.TAGLINE_COLUMNS)
 
         # Display the tagline
-        col2.markdown('%s' % tagline)
+        col2.markdown(tagline, unsafe_allow_html=True)
 
     # Debug
     if setup.DEBUG:

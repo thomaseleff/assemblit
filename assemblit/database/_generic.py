@@ -1,14 +1,4 @@
-"""
-Information
----------------------------------------------------------------------
-Name        : generic.py
-Location    : ~/database
-
-Description
----------------------------------------------------------------------
-Generic database schema and connection `class` objects for retrieving
-information from a sqlite3-database.
-"""
+""" Database table """
 
 from __future__ import annotations
 from typing import List, Literal
@@ -16,28 +6,29 @@ import os
 import sqlite3
 import contextlib
 import pandera
-from assemblit.app.structures import Setting
-from assemblit.database import datatypes, syntax
-from assemblit.database.structures import DBMS, Filter, Validate, Value, Table, Row
+from assemblit.blocks.structures import Setting
+from assemblit.database import _datatypes, _syntax
+from assemblit.database._structures import DBMS, Filter, Validate, Value, Table, Row
 from pytensils import utils
 
 
 # Define the generic database schema `class`
 class Schema(pandera.DataFrameSchema):
+    """ A `class` that represents a database table schema. """
 
     def from_settings(
         name: str,
         settings_object: List[Setting],
         primary_key: str | None = None
     ) -> Schema:
-        """ Returns a `Schema` from a list of `assemblit.app.structures.Setting` objects.
+        """ Returns a `Schema` from a list of `assemblit.blocks.structures.Setting` objects.
 
         Parameters
         ----------
         name : `str`
             The name of the schema.
         settings : `List[Setting]`
-            List of `assemblit.app.structures.Setting` objects.
+            List of `assemblit.blocks.structures.Setting` objects.
         primary_key : `str | None`
             The primary key of the schema.
         """
@@ -49,7 +40,7 @@ class Schema(pandera.DataFrameSchema):
         # Assert object item type
         for setting in settings_object:
             if not isinstance(setting, Setting):
-                raise TypeError('Object must be a list of `assemblit.app.structures.Setting` objects.')
+                raise TypeError('Object must be a list of `assemblit.blocks.structures.Setting` objects.')
 
         # Construct schema
         if primary_key:
@@ -87,8 +78,7 @@ class Schema(pandera.DataFrameSchema):
         raise NotImplementedError
 
     def to_sqlite(self) -> str:
-        """ Returns a sqlite3-column schema definition.
-        """
+        """ Returns a sqlite3-column schema definition. """
         column_name: str
         column_schema: pandera.Column
         columns: list[str] = []
@@ -116,7 +106,7 @@ class Schema(pandera.DataFrameSchema):
                     ', '.join(primary_keys),
                     ')',
                     ' ',
-                    syntax.Conflict.primary_key_clause(),
+                    _syntax.Conflict.primary_key_clause(),
                     ')'
                 ]
             )
@@ -145,21 +135,22 @@ class Schema(pandera.DataFrameSchema):
         """
         column_def = ' '.join([
             column_name,
-            datatypes.from_pandera(column_schema.dtype).to_sqlite()
+            _datatypes.from_pandera(column_schema.dtype).to_sqlite()
         ])
 
         if not column_schema.nullable:
-            column_def = ' '.join([column_def, 'NOT NULL', syntax.Conflict.nullable_clause()])
+            column_def = ' '.join([column_def, 'NOT NULL', _syntax.Conflict.nullable_clause()])
         if column_schema.unique:
-            column_def = ' '.join([column_def, 'UNIQUE', syntax.Conflict.unique_clause()])
+            column_def = ' '.join([column_def, 'UNIQUE', _syntax.Conflict.unique_clause()])
         if column_schema.default is not None:
-            column_def = ' '.join([column_def, 'DEFAULT', syntax.Literal.value(column_schema.default)])
+            column_def = ' '.join([column_def, 'DEFAULT', _syntax.Literal.value(column_schema.default)])
 
         return column_def
 
 
 # Define the generic database connection `class`
 class Connection():
+    """ A `class` that represents a database connection. """
 
     def __init__(
         self,

@@ -1,1 +1,0 @@
-""" `assemblit.app` contains the data objects for building `assemblit` web-applications. """

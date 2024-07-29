@@ -1,23 +1,46 @@
-"""
-Information
----------------------------------------------------------------------
-Name        : run_analysis.py
-Location    : ~/pages
-
-Description
----------------------------------------------------------------------
-Contains the `class` for the run-analysis-page.
-"""
+""" Page builder """
 
 import copy
 import streamlit as st
-from assemblit import setup
-from assemblit.app.structures import Setting
+from assemblit import setup, blocks
 from assemblit.pages._components import _core, _run_analysis
 from assemblit.database import sessions, data, analysis
 
 
 class Content():
+    """ A `class` that contains the run analysis-page content.
+
+    Parameters
+    ----------
+    header : `str`
+        String to display as the webpage header.
+    tagline : `str`
+        String to display as the webpage tagline.
+    content_info : `str`
+        String to display as `streamlit.info()` when there is no active session.
+    headerless : `bool`
+        `True` or `False`, determines whether to display the header & tagline.
+
+    Examples
+    --------
+
+    ``` python
+
+    # Constructing the run analysis-page content
+
+    from assemblit.pages import run_analysis
+
+    Analysis = run_analysis.Content(
+        header='Analysis',
+        tagline='Configure and submit a model analysis.'
+    )
+    
+    # Serving the run analysis-page content
+
+    Analysis.serve()
+
+    ```
+    """
 
     def __init__(
         self,
@@ -33,14 +56,14 @@ class Content():
         ),
         headerless: bool = False
     ):
-        """ Initializes the content of the run-analysis `class`.
+        """ Initializes an instance of the run analysis-page content.
 
         Parameters
         ----------
         header : `str`
-            String to display as the web-page header.
+            String to display as the webpage header.
         tagline : `str`
-            String to display as the web-page tagline.
+            String to display as the webpage tagline.
         content_info : `str`
             String to display as `streamlit.info()` when there is no active session.
         headerless : `bool`
@@ -53,7 +76,7 @@ class Content():
         self.content_info = content_info
         self.headerless = headerless
 
-        # Assign database class variables to set the scope for run-analysis
+        # Assign database class variables to set the scope for run analysis
         self.scope_db_name = setup.SESSIONS_DB_NAME
         self.scope_query_index = setup.SESSIONS_DB_QUERY_INDEX
 
@@ -64,14 +87,14 @@ class Content():
 
         # Assign default session state class variables
         self.settings = [
-            Setting(
+            blocks.structures.Setting(
                 type='multiselect',
                 dtype='str',
                 parameter='dataset',
                 name='Dataset',
                 description='Select a dataset for the model analysis.'
             ),
-            Setting(
+            blocks.structures.Setting(
                 type='text-input',
                 dtype='str',
                 parameter='run_information',
@@ -79,9 +102,7 @@ class Content():
                 description='Enter context about the model analysis run.'
             )
         ]
-        self.selector = Setting(
-            type='selectbox',
-            dtype='str',
+        self.selector = blocks.structures.Selector(
             parameter='file_name',
             name='Datafile name',
             description='Select a datafile to review.'
@@ -128,13 +149,13 @@ class Content():
     def serve(
         self
     ):
-        """ Serves the run-analysis-page content.
+        """ Serves the run analysis-page content.
         """
 
         # Manage authentication
         if st.session_state[setup.NAME][setup.AUTH_NAME][setup.AUTH_QUERY_INDEX]:
 
-            # Display web-page header
+            # Display webpage header
             _core.display_page_header(
                 header=self.header,
                 tagline=self.tagline,
@@ -151,7 +172,7 @@ class Content():
                     table_name=self.table_name
                 )
 
-                # Run an analysis and update the run-analysis-settings database
+                # Run an analysis and update the run analysis-settings database
                 if response:
                     _run_analysis.run_job(
                         db_name=self.db_name,
@@ -174,7 +195,7 @@ class Content():
                     schema=analysis.Schemas.analysis
                 )
 
-                # Display the run-analysis submission form
+                # Display the run analysis submission form
                 _run_analysis.display_run_analysis_form(
                     db_name=self.db_name,
                     table_name=self.table_name,

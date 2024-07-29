@@ -1,33 +1,62 @@
-"""
-Information
----------------------------------------------------------------------
-Name        : session_selector.py
-Location    : ~/pages
-
-Description
----------------------------------------------------------------------
-Contains the `class` for the session-selector-page.
-"""
+""" Page builder """
 
 import copy
 import streamlit as st
-from assemblit import setup
-from assemblit.app.structures import Setting, Selector
+from assemblit import setup, blocks
 from assemblit.pages._components import _core, _key_value, _selector
 from assemblit.database import users
 
 
 class Content():
+    """ A `class` that contains the session selector-page content.
+
+    Parameters
+    ----------
+    header : `str`
+        String to display as the webpage header.
+    tagline : `str`
+        String to display as the webpage tagline.
+    selector : `Selector`
+        `assemblit.app.structures.Selector` object containing the setting parameter & value to populate the
+            drop-down selection options.
+    settings : `list[Setting]`
+        List of `assemblit.app.structures.Setting` objects containing the setting(s) parameters & values.
+    headerless : `bool`
+        `True` or `False`, determines whether to display the header & tagline.
+    clear_on_submit : `bool`
+        `True` or `False`, determines whether to clear the form-submission responses
+            after submission.
+
+    Examples
+    --------
+
+    ``` python
+
+    # Constructing the session selector-page content
+
+    from assemblit.pages import session_selector
+
+    Sessions = session_selector.Content(
+        header='Sessions',
+        tagline='Select a session.'
+    )
+    
+    # Serving the session selector-page content
+
+    Sessions.serve()
+
+    ```
+    """
 
     def __init__(
         self,
         header: str = 'Sessions',
         tagline: str = 'Select a session.',
-        selector: Selector = Selector(
+        selector: blocks.structures.Selector = blocks.structures.Selector(
             parameter='session_name'
         ),
-        settings: list[Setting] = [
-            Setting(
+        settings: list[blocks.structures.Setting] = [
+            blocks.structures.Setting(
                 type='text-input',
                 dtype='str',
                 parameter='session_name',
@@ -38,14 +67,14 @@ class Content():
         headerless: bool = False,
         clear_on_submit: bool = True
     ):
-        """ Initializes an instance of the session-selector `class`.
+        """ Initializes an instance of the session selector-page content.
 
         Parameters
         ----------
         header : `str`
-            String to display as the web-page header.
+            String to display as the webpage header.
         tagline : `str`
-            String to display as the web-page tagline.
+            String to display as the webpage tagline.
         selector : `Selector`
             `assemblit.app.structures.Selector` object containing the setting parameter & value to populate the
                 drop-down selection options.
@@ -83,7 +112,7 @@ class Content():
         # Initialize session state defaults
         _core.initialize_session_state_defaults()
 
-        # Assign session-selector defaults
+        # Assign session selector defaults
         if self.db_name not in st.session_state[setup.NAME]:
             st.session_state[setup.NAME][self.db_name] = {
                 self.table_name: {
@@ -108,13 +137,13 @@ class Content():
         )
 
     def serve(self):
-        """ Serves the session-selector-page content.
+        """ Serves the session selector-page content.
         """
 
         # Manage authentication
         if st.session_state[setup.NAME][setup.AUTH_NAME][setup.AUTH_QUERY_INDEX]:
 
-            # Display web-page header
+            # Display webpage header
             _core.display_page_header(
                 header=self.header,
                 tagline=self.tagline,
@@ -203,8 +232,8 @@ class Content():
             # Display spacing
             col2.write('')
 
-            # Display the session-selector drop-down
-            self.display_session_selector(
+            # Display the session selector drop-down
+            self._display_session_selector(
                 options=options,
                 index=index
             )
@@ -227,7 +256,7 @@ class Content():
             # Display the sessions-key-value-pair-settings configuration form for a new session
             else:
 
-                # Reset session-selector settings defaults
+                # Reset session selector settings defaults
                 st.session_state[setup.NAME][self.db_name][self.table_name]['settings'] = copy.deepcopy(self.settings)
 
                 # Display
@@ -252,7 +281,7 @@ class Content():
             st.switch_page(st.session_state[setup.NAME]['pages']['home'])
 
     # Define generic sessions-selector service function(s)
-    def display_session_selector(
+    def _display_session_selector(
         self,
         options: list,
         index: int
@@ -270,13 +299,13 @@ class Content():
         # Layout columns
         col1, col2, col3 = st.columns(setup.CONTENT_COLUMNS)
 
-        # Display the session-selector drop-down
+        # Display the session selector drop-down
         with col2:
 
-            # Layout session-selector columns
+            # Layout session selector columns
             col1, col2, col3 = st.columns([.6, .2, .2])
 
-            # Display the session-selector
+            # Display the session selector
             if not st.session_state[setup.NAME][self.db_name][self.table_name]['set-up']:
                 with col1:
                     _selector.display_selector(
@@ -290,11 +319,11 @@ class Content():
                         disabled=False
                     )
                 with col2:
-                    self.display_session_delete_button(
+                    self._display_session_delete_button(
                         disabled=False
                     )
                 with col3:
-                    self.display_session_new_button(
+                    self._display_session_new_button(
                         disabled=False
                     )
             else:
@@ -310,21 +339,21 @@ class Content():
                         disabled=True
                     )
                 with col2:
-                    self.display_session_delete_button(
+                    self._display_session_delete_button(
                         disabled=True
                     )
 
                 with col3:
                     if options:
-                        self.display_session_edit_button(
+                        self._display_session_edit_button(
                             disabled=False
                         )
                     else:
-                        self.display_session_edit_button(
+                        self._display_session_edit_button(
                             disabled=True
                         )
 
-    def display_session_delete_button(
+    def _display_session_delete_button(
         self,
         disabled: bool
     ):
@@ -353,7 +382,7 @@ class Content():
             use_container_width=True
         )
 
-    def display_session_edit_button(
+    def _display_session_edit_button(
         self,
         disabled: bool
     ):
@@ -384,7 +413,7 @@ class Content():
             use_container_width=True
         )
 
-    def display_session_new_button(
+    def _display_session_new_button(
         self,
         disabled: bool
     ):

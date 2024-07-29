@@ -11,9 +11,9 @@ Contains the generic methods for a key-value pair settings-page.
 
 import streamlit as st
 from assemblit import setup
-from assemblit.app.structures import Setting
-from assemblit.database import generic
-from assemblit.database.structures import Filter, Validate, Value, Row
+from assemblit.blocks.structures import Setting
+from assemblit.database import _generic
+from assemblit.database._structures import Filter, Validate, Value, Row
 from pytensils import utils
 
 
@@ -40,13 +40,13 @@ def initialize_key_value_pair_table(
     """
 
     # Initialize the key-value database
-    Database = generic.Connection(
+    Database = _generic.Connection(
         db_name=db_name,
         dir_name=setup.DB_DIR
     )
 
     # Construct key-value settings schema
-    schema: generic.Schema = generic.Schema.from_settings(
+    schema: _generic.Schema = _generic.Schema.from_settings(
         name=table_name,
         settings_object=settings,
         primary_key=query_index
@@ -421,7 +421,7 @@ def display_key_value_pair_setting(
                 ),
                 return_dtype=setting.dtype
             )
-        except generic.NullReturnValue:
+        except _generic.NullReturnValue:
             setting.value = ''
 
     # Parse null value
@@ -519,7 +519,7 @@ def select_setting_table_column_value(
     """
 
     # Initialize the connection to the Database
-    Database = generic.Connection(
+    Database = _generic.Connection(
         db_name=db_name,
         dir_name=setup.DB_DIR
     )
@@ -558,7 +558,7 @@ def update_settings(
     if response:
 
         # Initialize connection to the database
-        Database = generic.Connection(
+        Database = _generic.Connection(
             db_name=db_name,
             dir_name=setup.DB_DIR
         )

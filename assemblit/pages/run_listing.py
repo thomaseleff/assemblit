@@ -1,13 +1,4 @@
-"""
-Information
----------------------------------------------------------------------
-Name        : run_listing.py
-Location    : ~/pages
-
-Description
----------------------------------------------------------------------
-Contains the `class` for the run-listing-page.
-"""
+""" Page builder """
 
 import streamlit as st
 from assemblit import setup
@@ -16,6 +7,39 @@ from assemblit.database import sessions, analysis
 
 
 class Content():
+    """ A `class` that contains the run listing-page content.
+
+    Parameters
+    ----------
+    header : `str`
+        String to display as the webpage header.
+    tagline : `str`
+        String to display as the webpage tagline.
+    content_info : `str`
+        String to display as `streamlit.info()` when there is no active session.
+    headerless : `bool`
+        `True` or `False`, determines whether to display the header & tagline.
+
+    Examples
+    --------
+
+    ``` python
+
+    # Constructing the run listing-page content
+
+    from assemblit.pages import run_listing
+
+    Listing = run_analysis.Content(
+        header='Listing',
+        tagline='Browse submitted analysis runs, review status and navigate to outputs.'
+    )
+    
+    # Serving the run listing-page content
+
+    Listing.serve()
+
+    ```
+    """
 
     def __init__(
         self,
@@ -31,27 +55,26 @@ class Content():
         ),
         headerless: bool = False
     ):
-        """ Initializes the content of the run-analysis `class`.
+        """ Initializes an instance of the run listing-page content.
 
         Parameters
         ----------
         header : `str`
-            String to display as the web-page header.
+            String to display as the webpage header.
         tagline : `str`
-            String to display as the web-page tagline.
+            String to display as the webpage tagline.
         content_info : `str`
             String to display as `streamlit.info()` when there is no active session.
         headerless : `bool`
             `True` or `False`, determines whether to display the header & tagline.
         """
-
         # Assign content class variables
         self.header = header
         self.tagline = tagline
         self.content_info = content_info
         self.headerless = headerless
 
-        # Assign database class variables to set the scope for run-analysis
+        # Assign database class variables to set the scope for run listing
         self.scope_db_name = setup.SESSIONS_DB_NAME
         self.scope_query_index = setup.SESSIONS_DB_QUERY_INDEX
 
@@ -71,7 +94,7 @@ class Content():
     def serve(
         self
     ):
-        """ Serves the run-analysis-page content.
+        """ Serves the run listing-page content.
         """
 
         # Manage authentication

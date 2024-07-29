@@ -1,44 +1,75 @@
-"""
-Information
----------------------------------------------------------------------
-Name        : home.py
-Location    : ~/pages
+""" Page builder """
 
-Description
----------------------------------------------------------------------
-Contains the `class` for the home-page.
-"""
-
+import os
 import streamlit as st
-from assemblit import setup, web
+from assemblit import setup, toolkit
 from assemblit.auth import vault
 from assemblit.pages._components import _core
 
 
 class Content():
+    """ A `class` that contains the home-page content.
+
+    Parameters
+    ----------
+        header : `str`
+            String to display as the webpage header
+        tagline : `str`
+            String to display as the webpage tagline
+        file_path : `str`
+            URL of the README.md document to display as the webpage content
+        content_file_path : `str`
+            The relative or absolute path of the markdown document to display as the
+                webpage content.
+        content_info : `str`
+            String to display as `streamlit.info()` when `content_url = None`
+
+    Examples
+    --------
+
+    ``` python
+
+    # Constructing the home-page content
+
+    from assemblit.pages import home
+
+    Home = home.Content(
+        header='Welcome',
+        tagline='A web-application for data-analytics'
+    )
+
+    # Serving the home-page content
+
+    Home.serve()
+
+    # Adding `streamlit` widgets after serving the home-page content
+
+    import streamlit as st
+    st.balloons()
+
+    ```
+    """
 
     def __init__(
         self,
         header: str = 'Welcome',
         tagline: str = 'An `assemblit` web-application for analytics projects.',
-        content_url: str | None = None,
-        content_file_name: str | None = 'README.md',
+        content_file_path: str | os.PathLike = None,
         content_info: str | None = 'For more information, visit the GitHub repository.'
     ):
-        """ Initializes an instance of the home-page `class`.
+        """ Initializes an instance of the home-page content.
 
         Parameters
         ----------
         header : `str`
-            String to display as the web-page header
+            String to display as the webpage header
         tagline : `str`
-            String to display as the web-page tagline
-        content_url : `str`
-            URL of the README.md document to display as the web-page content
-        content_file_name : `str`
-            Name of the README.md document to display as the web-page content. By
-                default the README.md of the Github repository will be used when
-                `content_url` is provided.
+            String to display as the webpage tagline
+        file_path : `str`
+            URL of the README.md document to display as the webpage content
+        content_file_path : `str`
+            T relative or absolute path of the markdown document to display as the
+                webpage content.
         content_info : `str`
             String to display as `streamlit.info()` when `content_url = None`
         """
@@ -46,8 +77,7 @@ class Content():
         # Assign content class variables
         self.header = header
         self.tagline = tagline
-        self.content_url = content_url
-        self.content_file_name = content_file_name
+        self.content_file_path = content_file_path
         self.content_info = content_info
 
         # Initialize database class variables
@@ -79,11 +109,10 @@ class Content():
             col2.write('')
 
             # Display content
-            if self.content_url:
+            if self.content_file_path:
 
-                # Display readme
-                Github = web.Handler(url=self.content_url)
-                readme = Github.get_readme(name=self.content_file_name)
+                # Display markdown content
+                readme = toolkit.content.from_markdown(file_path=self.content_file_path)
 
                 if readme is not None:
                     col2.markdown(readme)
@@ -97,13 +126,13 @@ class Content():
         else:
 
             # Display the authentication-page
-            self.display_user_authentication(
+            self._display_user_authentication(
                 header=self.header,
                 tagline=self.tagline
             )
 
     # Define generic service function(s)
-    def display_user_authentication(
+    def _display_user_authentication(
         self,
         header: str = 'Welcome',
         tagline: str = 'Please login or sign-up.'
@@ -113,9 +142,9 @@ class Content():
         Parameters
         ----------
         header : `str`
-            String to display as the web-page header
+            String to display as the webpage header
         tagline : `str`
-            String to display as the web-page tagline
+            String to display as the webpage tagline
         """
 
         # Configure
@@ -171,7 +200,7 @@ class Content():
                 col3.form_submit_button(
                     label='Sign-up',
                     type='secondary',
-                    on_click=self.display_sign_up_form,
+                    on_click=self._display_sign_up_form,
                     kwargs={
                         'value': True
                     },
@@ -236,7 +265,7 @@ class Content():
                 col3.form_submit_button(
                     label='Return to login',
                     type='secondary',
-                    on_click=self.display_sign_up_form,
+                    on_click=self._display_sign_up_form,
                     kwargs={
                         'value': False
                     },
@@ -253,7 +282,7 @@ class Content():
             # Reset sign-up form-submission errors
             st.session_state[setup.NAME][setup.AUTH_NAME]['sign-up-error'] = False
 
-    def display_sign_up_form(
+    def _display_sign_up_form(
         self,
         value: bool
     ):
