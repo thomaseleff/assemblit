@@ -1,13 +1,4 @@
-"""
-Information
----------------------------------------------------------------------
-Name        : layer.py
-Location    : ~/server
-Description
----------------------------------------------------------------------
-The orchestration server abstraction layer for starting, managing
-and interacting with the orchestration server.
-"""
+""" Workflow orchestrator server """
 
 import requests
 from typing import List, Tuple
@@ -110,7 +101,7 @@ def load_orchestrator_environment(
     deployment_name: str,
     deployment_version: str,
     root_dir: str
-) -> Tuple[str, str, str, str]:
+) -> Tuple[str, str, str, str, str, str, str, str, str, str]:
     """ Loads and validates the orchestration server environment variables and returns the values in the following order,
            - `SERVER_NAME`
            - `SERVER_TYPE`

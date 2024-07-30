@@ -12,7 +12,7 @@ ENV HOME_PAGE_NAME "app"
 ENV GITHUB_REPOSITORY_URL "https://github.com/thomaseleff/assemblit"
 ENV GITHUB_BRANCH_NAME "v0.1.0"
 
-# Streamlit configuration settings
+# Port configuration settings
 ENV CLIENT_PORT 8501
 ENV PORT ${CLIENT_PORT}
 
@@ -66,7 +66,6 @@ RUN pip3 install -r requirements.txt --no-cache-dir
 
 # Expose the network port(s)
 EXPOSE $CLIENT_PORT
-# EXPOSE $SERVER_PORT
 
 # Run
 CMD streamlit run ${HOME_PAGE_NAME}.py --server.port=${CLIENT_PORT} --server.headless=true

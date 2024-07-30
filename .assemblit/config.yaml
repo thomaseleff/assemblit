@@ -1,0 +1,23 @@
+# Developer configuration settings
+ASSEMBLIT.ENV: "PROD"
+ASSEMBLIT.VERSION: "v0.1.0"
+ASSEMBLIT.DEBUG: False
+
+# Authentication settings
+ASSEMBLIT.REQUIRE_AUTHENTICATION: False
+
+# Web-application configuration settings
+ASSEMBLIT.NAME: "assemblit"
+ASSEMBLIT.HOME_PAGE_NAME: "app"
+ASSEMBLIT.GITHUB_REPOSITORY_URL: "https://github.com/thomaseleff/assemblit"
+ASSEMBLIT.GITHUB_BRANCH_NAME: "v0.1.0"
+ASSEMBLIT.CLIENT_PORT: 8501
+
+# Orchestration server configuration settings
+ASSEMBLIT.SERVER_PORT: 4200
+ASSEMBLIT.SERVER_JOB_NAME: ""
+ASSEMBLIT.SERVER_JOB_ENTRYPOINT: ""
+ASSEMBLIT.SERVER_DEPLOYMENT_NAME: ""
+
+# Database configuration settings
+ASSEMBLIT.DIR: "/assemblit"

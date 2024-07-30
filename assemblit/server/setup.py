@@ -1,17 +1,4 @@
-
-"""
-Information
----------------------------------------------------------------------
-Name        : setup.py
-Location    : ~/server
-
-Description
----------------------------------------------------------------------
-Initializes the orchestration server abstraction layer for
-starting, managing and interacting with the orchestration server.
-
-Contains the static variables essential to the orchestration server.
-"""
+""" Essential orchestration server settings """
 
 import os
 from assemblit.server import layer

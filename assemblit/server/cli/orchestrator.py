@@ -1,11 +1,5 @@
-"""
-Information
----------------------------------------------------------------------
-Name        : orchestrator.py
-Location    : ~/server/cli
+""" Workflow orchestrator CLI-tool
 
-Description
----------------------------------------------------------------------
 usage: orchestrator [-h] {start} ...
 
 CLI application for starting, mnanaging and interacting with the

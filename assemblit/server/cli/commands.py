@@ -1,13 +1,4 @@
-"""
-Information
----------------------------------------------------------------------
-Name        : commands.py
-Location    : ~/server/cli
-
-Description
----------------------------------------------------------------------
-The sub-commands available via the `orchestrator` CLI application.
-"""
+""" Workflow orchestrator CLI-tool commands """
 
 from assemblit.server import layer
 

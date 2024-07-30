@@ -1,4 +1,4 @@
-""" Environment variables """
+""" Essential web-application settings """
 
 import os
 import copy

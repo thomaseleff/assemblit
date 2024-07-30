@@ -1,14 +1,4 @@
-"""
-Information
----------------------------------------------------------------------
-Name        : status.py
-Location    : ~/server
-
-Description
----------------------------------------------------------------------
-Contains the static variables for classifying the status of
-orchestration server job-runs.
-"""
+""" Job-run statuses """
 
 SCHEDULED: str = '📅 Scheduled'
 LATE: str = '⏳ Late'
