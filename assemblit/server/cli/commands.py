@@ -1,4 +1,4 @@
-""" Workflow orchestrator CLI-tool commands """
+""" Workflow orchestrator commands """
 
 from assemblit.server import layer
 

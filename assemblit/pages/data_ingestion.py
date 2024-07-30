@@ -24,7 +24,7 @@ class Content():
             expected datafile.
     data_example : `pd.DataFrame`
         An optional dataframe that provides a reference for a valid datafile.
-    
+
     Examples
     --------
 

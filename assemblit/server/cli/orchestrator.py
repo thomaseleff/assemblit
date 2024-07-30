@@ -1,21 +1,4 @@
-""" Workflow orchestrator CLI-tool
-
-usage: orchestrator [-h] {start} ...
-
-CLI application for starting, mnanaging and interacting with the
-orchestration server.
-
-options:
-  -h, --help  Show this help message and exit
-
-subcommands:
-  The orchestration server command options.
-
-  {start}
-    start     The orchestration server start command.
-
-Execute `orchestrator {subcommand} --help` for help.
-"""
+""" Workflow orchestrator """
 
 import sys
 import errno
@@ -26,22 +9,40 @@ from assemblit.server.cli import commands
 
 # Define orchestrator CLI tool function(s)
 def main():
+    """
+    usage: orchestrator [-h] {start} ...
+
+    CLI application for starting, mnanaging and interacting with the
+    orchestration server.
+
+    options:
+    -h, --help  Show this help message and exit
+
+    commands:
+    The orchestration server command options.
+
+    {start}
+        start     Starts the workflow orchestration server.
+
+    Execute `orchestrator {command} --help` for help.
+    """
 
     # Setup CLI argument option(s)
     _ARG_PARSER = argparse.ArgumentParser(
         prog='orchestrator',
         description='CLI application for starting, mnanaging and interacting with the orchestration server.',
-        epilog="Execute `orchestrator {subcommand} --help` for more help."
+        epilog="Execute `orchestrator {command} --help` for more help."
     )
 
     # Setup `start` command CLI argument option(s)
     _ARG_SUBPARSER = _ARG_PARSER.add_subparsers(
+        title='commands',
         prog='orchestrator',
         description='The orchestration server command options.'
     )
     _START_ARG_PARSER = _ARG_SUBPARSER.add_parser(
         name='start',
-        help='The orchestration server start command.',
+        help='Starts the workflow orchestration server.',
         epilog="Execute `orchestrator start --help` for help."
     )
     _START_ARG_PARSER.add_argument(

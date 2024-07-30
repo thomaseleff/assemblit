@@ -33,7 +33,7 @@ class Content():
         header='Listing',
         tagline='Browse submitted analysis runs, review status and navigate to outputs.'
     )
-    
+
     # Serving the run listing-page content
 
     Listing.serve()

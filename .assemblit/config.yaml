@@ -1,23 +1,18 @@
-# Developer configuration settings
-ASSEMBLIT.ENV: "PROD"
-ASSEMBLIT.VERSION: "v0.1.0"
-ASSEMBLIT.DEBUG: False
+assemblit:
+  type: "wiki"
+  env:
 
-# Authentication settings
-ASSEMBLIT.REQUIRE_AUTHENTICATION: False
+    # Developer configuration settings
+    ASSEMBLIT_ENV: "PROD"
+    ASSEMBLIT_VERSION: "v0.1.0"
+    ASSEMBLIT_DEBUG: False
 
-# Web-application configuration settings
-ASSEMBLIT.NAME: "assemblit"
-ASSEMBLIT.HOME_PAGE_NAME: "app"
-ASSEMBLIT.GITHUB_REPOSITORY_URL: "https://github.com/thomaseleff/assemblit"
-ASSEMBLIT.GITHUB_BRANCH_NAME: "v0.1.0"
-ASSEMBLIT.CLIENT_PORT: 8501
+    # Web-application configuration settings
+    ASSEMBLIT_NAME: "assemblit"
+    ASSEMBLIT_HOME_PAGE_NAME: "app"
+    ASSEMBLIT_GITHUB_REPOSITORY_URL: "https://github.com/thomaseleff/assemblit"
+    ASSEMBLIT_GITHUB_BRANCH_NAME: "v0.1.0"
+    ASSEMBLIT_CLIENT_PORT: 8501
 
-# Orchestration server configuration settings
-ASSEMBLIT.SERVER_PORT: 4200
-ASSEMBLIT.SERVER_JOB_NAME: ""
-ASSEMBLIT.SERVER_JOB_ENTRYPOINT: ""
-ASSEMBLIT.SERVER_DEPLOYMENT_NAME: ""
-
-# Database configuration settings
-ASSEMBLIT.DIR: "/assemblit"
+    # Database configuration settings
+    ASSEMBLIT_DIR: "/assemblit"

@@ -44,7 +44,7 @@ def parse_server_port(
 ) -> str:
     """ Validates the orchestration server port. Returns the server port as a `str`
     if a valid server port is provided, otherwise raises a `ValueError` when the
-    same port has been configured as both the `streamlit` client-port as well as the
+    same port has been configured as both the `assemblit` client-port as well as the
     orchestration server-port and raises a `TypeError` when the port is not an
     integer as a string.
 
@@ -53,7 +53,7 @@ def parse_server_port(
     server_port : `str`
         The registered port address of the orchestration server.
     client_port : `str`
-        The registered port address of the `streamlit` client server.
+        The registered port address of the `assemblit` client server.
     """
 
     # Ensure the server-port is an integer as a string
@@ -78,12 +78,12 @@ def parse_server_port(
             ])
         )
 
-    # Ensure the server-port is unique and does not conflict with the `assemblit` streamlit port
+    # Ensure the server-port is unique and does not conflict with the `assemblit` assemblit port
     if server_port_int == utils.as_type(value=str(client_port), return_dtype='int'):
         raise ValueError(
             ''.join([
                 'Invalid server-port argument value {%s}.' % (server_port),
-                ' The server-port value cannot be the same as the `streamlit` web-application port.'
+                ' The server-port value cannot be the same as the `assemblit` web-application port.'
             ])
         )
 
@@ -103,16 +103,17 @@ def load_orchestrator_environment(
     root_dir: str
 ) -> Tuple[str, str, str, str, str, str, str, str, str, str]:
     """ Loads and validates the orchestration server environment variables and returns the values in the following order,
-           - `SERVER_NAME`
-           - `SERVER_TYPE`
-           - `SERVER_HOST`
-           - `SERVER_PORT`
-           - `SERVER_API_URL`
-           - `SERVER_API_DOCS`
-           - `SERVER_JOB_NAME`
-           - `SERVER_JOB_ENTRYPOINT`
-           - `SERVER_DEPLOYMENT_NAME`
-           - `SERVER_DEPLOYMENT_VERSION`
+
+    - `ASSEMBLIT_SERVER_NAME`
+    - `ASSEMBLIT_SERVER_TYPE`
+    - `ASSEMBLIT_SERVER_HOST`
+    - `ASSEMBLIT_SERVER_PORT`
+    - `ASSEMBLIT_SERVER_API_URL`
+    - `ASSEMBLIT_SERVER_API_DOCS`
+    - `ASSEMBLIT_SERVER_JOB_NAME`
+    - `ASSEMBLIT_SERVER_JOB_ENTRYPOINT`
+    - `ASSEMBLIT_SERVER_DEPLOYMENT_NAME`
+    - `ASSEMBLIT_SERVER_DEPLOYMENT_VERSION`
 
     Parameters
     ----------
@@ -123,7 +124,7 @@ def load_orchestrator_environment(
     server_port : `str`
         The registered port address of the orchestration server.
     client_port : `str`
-        The registered port address of the `streamlit` client server.
+        The registered port address of the `assemblit` client server.
     job_name : `str`
         The name of the job.
     job_entrypoint : `str`

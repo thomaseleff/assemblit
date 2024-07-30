@@ -38,7 +38,7 @@ class Content():
         header='Workflow',
         tagline='Configure the parameters essential to the workflow.'
     )
-    
+
     # Serving the workflow settings-page content
 
     Workflow.serve()

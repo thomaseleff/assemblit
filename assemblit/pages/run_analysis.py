@@ -34,7 +34,7 @@ class Content():
         header='Analysis',
         tagline='Configure and submit a model analysis.'
     )
-    
+
     # Serving the run analysis-page content
 
     Analysis.serve()
