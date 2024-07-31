@@ -24,7 +24,7 @@ class Content():
             expected datafile.
     data_example : `pd.DataFrame`
         An optional dataframe that provides a reference for a valid datafile.
-    
+
     Examples
     --------
 
@@ -50,14 +50,7 @@ class Content():
         self,
         header: str = 'Data',
         tagline: str = 'Upload, review and finalize the model input data for the session.',
-        content_info: str = (
-            'Navigate to the **%s** page to load a session.' % (
-                ''.join([
-                    setup.SESSIONS_DB_NAME[0].upper(),
-                    setup.SESSIONS_DB_NAME[1:].lower()
-                ])
-            )
-        ),
+        content_info: str = 'Navigate to the **scope-selector** page to load a session.',
         headerless: bool = False,
         data_dictionary: pd.DataFrame = pd.DataFrame(),
         data_example: pd.DataFrame = pd.DataFrame()

@@ -1,13 +1,4 @@
-"""
-Information
----------------------------------------------------------------------
-Name        : orchestrators.py
-Location    : ~/server
-
-Description
----------------------------------------------------------------------
-The orchestration server `class` options.
-"""
+""" Workflow orchestrator options """
 
 import os
 import sys

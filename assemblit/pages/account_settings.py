@@ -19,7 +19,7 @@ class Content():
     personalize : `bool`
         `True` or `False`, determines whether to personalize the header,
             concatenating the user's name, e.g., "Welcome, Jonathan"
-    
+
     Notes
     -----
     The account settings-page can only be created when the ENV variable `REQUIRE_AUTHENTICATION` = 'True'.
@@ -34,7 +34,7 @@ class Content():
     from assemblit.pages import account_settings
 
     Settings = account_settings.Content()
-    
+
     # Serving the account settings-page content
 
     Settings.serve()

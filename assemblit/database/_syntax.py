@@ -9,7 +9,7 @@ from assemblit.database import _adapters
 @dataclass
 class Conflict():
     """ A `class` that contains database conflict-clause defaults.
-    
+
     Attributes
     ----------
     rollback : `str`

@@ -122,7 +122,7 @@ def display_page_header(
 
         # Display context pop-over
         if show_context and st.session_state[setup.NAME][setup.SESSIONS_DB_NAME]['name']:
-            col3.subheader('')
+            col3.write('')
             with col3.popover(label='🔍', use_container_width=True):
 
                 # Display subheader
@@ -161,7 +161,7 @@ def display_page_header(
 
         # Display 'Logout' button
         if setup.REQUIRE_AUTHENTICATION:
-            col4.subheader('')
+            col4.write('')
             col4.button(
                 label='Logout',
                 on_click=vault.logout,

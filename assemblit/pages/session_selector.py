@@ -40,7 +40,7 @@ class Content():
         header='Sessions',
         tagline='Select a session.'
     )
-    
+
     # Serving the session selector-page content
 
     Sessions.serve()

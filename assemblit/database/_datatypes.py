@@ -15,7 +15,7 @@ import numpy as np
 @dataclass
 class _DATATYPE():
     """ A `class` that represents a database datatype.
-    
+
     Attributes
     ----------
     kinds : `list[str]`
@@ -51,7 +51,7 @@ class _DATATYPE():
 @dataclass
 class BLOB(_DATATYPE):
     """ A `class` that represents a `blob` database datatype.
-    
+
     Attributes
     ----------
     kinds : `list[str]`
@@ -70,7 +70,7 @@ class BLOB(_DATATYPE):
 
     def check(kind: str):
         """ Returns `True` when the provided `numpy.dtype().kind` corresponds to the datatype.
-        
+
         Parameters
         ----------
         kind : `str`
@@ -82,7 +82,7 @@ class BLOB(_DATATYPE):
 @dataclass
 class INTEGER(_DATATYPE):
     """ A `class` that represents a `integer` database datatype.
-    
+
     Attributes
     ----------
     kinds : `list[str]`
@@ -102,7 +102,7 @@ class INTEGER(_DATATYPE):
 
     def check(kind: str):
         """ Returns `True` when the provided `numpy.dtype().kind` corresponds to the datatype.
-        
+
         Parameters
         ----------
         kind : `str`
@@ -114,7 +114,7 @@ class INTEGER(_DATATYPE):
 @dataclass
 class REAL(_DATATYPE):
     """ A `class` that represents a `real` database datatype.
-    
+
     Attributes
     ----------
     kinds : `list[str]`
@@ -134,7 +134,7 @@ class REAL(_DATATYPE):
 
     def check(kind: str):
         """ Returns `True` when the provided `numpy.dtype().kind` corresponds to the datatype.
-        
+
         Parameters
         ----------
         kind : `str`
@@ -146,7 +146,7 @@ class REAL(_DATATYPE):
 @dataclass
 class TEXT(_DATATYPE):
     """ A `class` that represents a `text` database datatype.
-    
+
     Attributes
     ----------
     kinds : `list[str]`
@@ -168,7 +168,7 @@ class TEXT(_DATATYPE):
 
     def check(kind: str):
         """ Returns `True` when the provided `numpy.dtype().kind` corresponds to the datatype.
-        
+
         Parameters
         ----------
         kind : `str`
@@ -180,7 +180,7 @@ class TEXT(_DATATYPE):
 @dataclass
 class DATETIME(_DATATYPE):
     """ A `class` that represents a `datetime` database datatype.
-    
+
     Attributes
     ----------
     kinds : `list[str]`
@@ -199,7 +199,7 @@ class DATETIME(_DATATYPE):
 
     def check(kind: str):
         """ Returns `True` when the provided `numpy.dtype().kind` corresponds to the datatype.
-        
+
         Parameters
         ----------
         kind : `str`
@@ -211,7 +211,7 @@ class DATETIME(_DATATYPE):
 @dataclass
 class TIMEDELTA(_DATATYPE):
     """ A `class` that represents a `timedelta` database datatype.
-    
+
     Attributes
     ----------
     kinds : `list[str]`
@@ -230,7 +230,7 @@ class TIMEDELTA(_DATATYPE):
 
     def check(kind: str):
         """ Returns `True` when the provided `numpy.dtype().kind` corresponds to the datatype.
-        
+
         Parameters
         ----------
         kind : `str`
@@ -241,7 +241,7 @@ class TIMEDELTA(_DATATYPE):
 
 def from_pandera(datatype: pandera.DataType) -> _DATATYPE:
     """ Converts a `pandera.DataType` to an `assemblit.database.datatype`.
-    
+
     Parameters
     ----------
     datatype : `pandera.DataType`

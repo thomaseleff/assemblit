@@ -20,5 +20,5 @@
 			]
 		}
 	},
-    "postCreateCommand": "pip3 install -r /workspaces/Assemblit/requirements.txt"
+    "postCreateCommand": "pip3 install /workspaces/Assemblit && pip3 install -r /workspaces/Assemblit/requirements.txt"
 }

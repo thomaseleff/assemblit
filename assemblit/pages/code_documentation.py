@@ -31,7 +31,7 @@ class Content():
         package=assemblit,
         package_or_module=pages  # Generates this documentation page
     )
-    
+
     # Serving the code documentation-page content
 
     Documentation.serve()
@@ -91,7 +91,10 @@ class Content():
                 if subpackages_or_modules := _contains_modules(self.package, self.package_or_module):
 
                     # Display `package` table of contents
-                    self._display_package_table_of_contents(obj=self.package_or_module, subpackages_or_modules=subpackages_or_modules)
+                    self._display_package_table_of_contents(
+                        obj=self.package_or_module,
+                        subpackages_or_modules=subpackages_or_modules
+                    )
 
                     # Display `module` documentation
                     for name, module in subpackages_or_modules:
@@ -132,7 +135,6 @@ class Content():
             unsafe_allow_html=True
         )
 
-
     def _display_module_table_of_contents(
         self,
         module_name: str | None,
@@ -159,7 +161,12 @@ class Content():
             relative_path = _get_relative_path(inspect.getfile(obj), inspect.getfile(self.package))
 
             module_table_of_contents.append(
-                _parse_object_table_of_contents_information(name=name, obj=obj, relative_path=relative_path, line=_get_source_line(obj))
+                _parse_object_table_of_contents_information(
+                    name=name,
+                    obj=obj,
+                    relative_path=relative_path,
+                    line=_get_source_line(obj)
+                )
             )
 
         # Display `module` table of contents
@@ -169,7 +176,6 @@ class Content():
             ),
             unsafe_allow_html=True
         )
-
 
     def _display_class_documentation(self, class_name: str, obj: Any):
 
@@ -188,7 +194,6 @@ class Content():
 
         if doc := inspect.getdoc(obj):
             col2.code(doc, language='markdown')
-
 
     def _display_method_documentation(self, methods: Any):
 
@@ -211,7 +216,6 @@ class Content():
                 if doc := inspect.getdoc(method):
                     st.code(doc, language='markdown')
 
-
     def _display_function_documentation(self, functions: Any):
 
         # Layout columns
@@ -233,7 +237,6 @@ class Content():
                 if doc := inspect.getdoc(fn):
                     st.code(doc, language='markdown')
 
-
     def _display_exception_documentation(self, exceptions: Any):
 
         # Layout columns
@@ -254,7 +257,6 @@ class Content():
 
                 if doc := inspect.getdoc(exception):
                     st.code(doc, language='markdown')
-
 
     def _display_module_documentation(self, obj: Any, module_name: str | None = None):
         if classes := _contains_classes(self.package, obj):
@@ -389,7 +391,7 @@ def _parse_object_tagline_information(relative_path: str) -> str:
             <span style="font-family: 'Source Code Pro', monospace; font-size: 14px;">%s</span>
             <a href="%s">[source]</a>
         </p>
-    """% (
+    """ % (
         relative_path,
         _get_source_path(relative_path)
     )
@@ -473,7 +475,7 @@ def _parse_object_information(obj: Any, relative_path: str) -> str:
 def _is_package(obj: Any) -> bool:
     """ Returns `True` when `obj` is a package. A package is any object that
     contains '__init__.py`.
-    
+
     Parameters
     ----------
     obj : `Any`
@@ -487,7 +489,7 @@ def _is_package(obj: Any) -> bool:
 
 def _is_in_package(package: Any, obj: Any) -> bool:
     """ Returns `True` when `obj` is in the `package` namespace.
-    
+
     Parameters
     ----------
     package : `Any`
@@ -500,14 +502,15 @@ def _is_in_package(package: Any, obj: Any) -> bool:
     obj_path = os.path.abspath(inspect.getabsfile(obj))
 
     # Get the common-path
-    common_path = os.path.commonpath([obj_path, base_path])
-
-    return common_path == base_path
+    try:
+        return os.path.commonpath([obj_path, base_path]) == base_path
+    except ValueError:
+        return False
 
 
 def _contains_modules(package: Any, obj: Any) -> list[tuple[str, Any]] | None:
     """ Returns all public modules of object.
-    
+
     Parameters
     ----------
     obj : `Any`
@@ -517,8 +520,8 @@ def _contains_modules(package: Any, obj: Any) -> list[tuple[str, Any]] | None:
     if modules:
         return [
             (name, module) for name, module in modules if
-                not name.startswith('_')
-                and _is_in_package(package=package, obj=module)
+            not name.startswith('_')
+            and _is_in_package(package=package, obj=module)
         ]
     else:
         return None
@@ -527,7 +530,7 @@ def _contains_modules(package: Any, obj: Any) -> list[tuple[str, Any]] | None:
 def _contains_classes(package: Any, obj: Any) -> list[tuple[str, Any]] | None:
     """ Returns all public classes of object. A class is any object that
     is not an instance or subclass of `Exception`.
-    
+
     Parameters
     ----------
     obj : `Any`
@@ -537,10 +540,10 @@ def _contains_classes(package: Any, obj: Any) -> list[tuple[str, Any]] | None:
     if classes:
         return [
             (name, clss) for name, clss in classes if
-                not name.startswith('_')
-                and not isinstance(clss, Exception)
-                and not issubclass(clss, Exception)
-                and _is_in_package(package=package, obj=clss)
+            not name.startswith('_')
+            and not isinstance(clss, Exception)
+            and not issubclass(clss, Exception)
+            and _is_in_package(package=package, obj=clss)
         ]
     else:
         return None
@@ -548,7 +551,7 @@ def _contains_classes(package: Any, obj: Any) -> list[tuple[str, Any]] | None:
 
 def _contains_methods(package: Any, obj: Any) -> list[tuple[str, Any]] | None:
     """ Returns all public methods of an object.
-    
+
     Parameters
     ----------
     obj : `Any`
@@ -558,8 +561,8 @@ def _contains_methods(package: Any, obj: Any) -> list[tuple[str, Any]] | None:
     if methods:
         return [
             (name, method) for name, method in methods if
-                not name.startswith('_')
-                and _is_in_package(package=package, obj=method)
+            not name.startswith('_')
+            and _is_in_package(package=package, obj=method)
         ]
     else:
         return None
@@ -567,7 +570,7 @@ def _contains_methods(package: Any, obj: Any) -> list[tuple[str, Any]] | None:
 
 def _contains_init(package: Any, obj: Any) -> list[tuple[str, Any]] | None:
     """ Returns `True` if an object has an __init__ method.
-    
+
     Parameters
     ----------
     obj : `Any`
@@ -587,7 +590,7 @@ def _contains_init(package: Any, obj: Any) -> list[tuple[str, Any]] | None:
 def _contains_exceptions(package: Any, obj: Any) -> list[tuple[str, Any]] | None:
     """ Returns all public exceptions of object. An exception is any object that
     is an instance or subclass of `Exception`.
-    
+
     Parameters
     ----------
     obj : `Any`
@@ -597,12 +600,12 @@ def _contains_exceptions(package: Any, obj: Any) -> list[tuple[str, Any]] | None
     if exceptions:
         return [
             (name, exception) for name, exception in exceptions if
-                not name.startswith('_')
-                and (
-                    isinstance(exception, Exception)
-                    or issubclass(exception, Exception)
-                )
-                and _is_in_package(package=package, obj=exception)
+            not name.startswith('_')
+            and (
+                isinstance(exception, Exception)
+                or issubclass(exception, Exception)
+            )
+            and _is_in_package(package=package, obj=exception)
         ]
     else:
         return None

@@ -43,5 +43,5 @@ def _from_text_content(
     if not os.path.isfile(os.path.abspath(file_path)):
         raise FileNotFoundError('{%s} does not exist.' % os.path.abspath(file_path))
 
-    with open(os.path.abspath(file_path), 'r') as text_content:
+    with open(os.path.abspath(file_path), 'r', encoding='utf-8') as text_content:
         return text_content.read()

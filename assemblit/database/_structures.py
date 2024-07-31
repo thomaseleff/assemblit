@@ -9,7 +9,7 @@ from typing import ClassVar
 @dataclass
 class DBMS():
     """ A `class` that contains the default database management system options.
-    
+
     Attributes
     ----------
     OPTIONS : `list[str]`
@@ -43,7 +43,7 @@ class DBMS():
 @dataclass
 class Filter():
     """ A `class` that represents database query filter parameters.
-    
+
     Attributes
     ----------
     col : `str | list[str]`
@@ -59,7 +59,7 @@ class Filter():
 @dataclass
 class Validate(Filter):
     """ A `class` that represents database query validation parameters.
-    
+
     Attributes
     ----------
     col : `str | list[str]`
@@ -74,7 +74,7 @@ class Validate(Filter):
 @dataclass
 class Value(Filter):
     """ A `class` that represents database query value parameters.
-    
+
     Attributes
     ----------
     col : `str | list[str]`
@@ -88,7 +88,7 @@ class Value(Filter):
 @dataclass
 class Row():
     """ A `class` that contains a database table row.
-    
+
     Attributes
     ----------
     cols : `list[str]`
@@ -104,7 +104,7 @@ class Row():
 @dataclass
 class Table():
     """ A `class` that represents a database table view.
-    
+
     Attributes
     ----------
     table_name : `str`

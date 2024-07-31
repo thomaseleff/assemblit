@@ -1,0 +1,18 @@
+assemblit:
+  type: "wiki"
+  env:
+
+    # Developer configuration settings
+    ASSEMBLIT_ENV: "PROD"
+    ASSEMBLIT_VERSION: "v0.1.0"
+    ASSEMBLIT_DEBUG: False
+
+    # Web-application configuration settings
+    ASSEMBLIT_NAME: "assemblit"
+    ASSEMBLIT_HOME_PAGE_NAME: "app"
+    ASSEMBLIT_GITHUB_REPOSITORY_URL: "https://github.com/thomaseleff/assemblit"
+    ASSEMBLIT_GITHUB_BRANCH_NAME: "v0.1.0"
+    ASSEMBLIT_CLIENT_PORT: 8501
+
+    # Database configuration settings
+    ASSEMBLIT_DIR: "/assemblit"

@@ -34,7 +34,7 @@ class Content():
         header='Analysis',
         tagline='Configure and submit a model analysis.'
     )
-    
+
     # Serving the run analysis-page content
 
     Analysis.serve()
@@ -46,14 +46,7 @@ class Content():
         self,
         header: str = 'Analysis',
         tagline: str = 'Configure and submit a model analysis.',
-        content_info: str = (
-            'Navigate to the **%s** page to load a session.' % (
-                ''.join([
-                    setup.SESSIONS_DB_NAME[0].upper(),
-                    setup.SESSIONS_DB_NAME[1:].lower()
-                ])
-            )
-        ),
+        content_info: str = 'Navigate to the **scope-selector** page to load a session.',
         headerless: bool = False
     ):
         """ Initializes an instance of the run analysis-page content.

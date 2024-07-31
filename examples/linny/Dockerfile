@@ -2,50 +2,50 @@
 FROM python:3.10-slim
 
 # Developer configuration settings
-ENV ENV "PROD"
-ENV VERSION "v0.1.0"
-ENV DEBUG False
+ENV ASSEMBLIT_ENV "PROD"
+ENV ASSEMBLIT_VERSION "v0.1.0"
+ENV ASSEMBLIT_DEBUG False
 
 # Web-app configuration settings
-ENV NAME "linny"
-ENV HOME_PAGE_NAME "Home"
-ENV GITHUB_REPOSITORY_URL "https://github.com/thomaseleff/assemblit"
-ENV GITHUB_BRANCH_NAME "v0.1.0"
+ENV ASSEMBLIT_NAME "linny"
+ENV ASSEMBLIT_HOME_PAGE_NAME "Home"
+ENV ASSEMBLIT_GITHUB_REPOSITORY_URL "https://github.com/thomaseleff/assemblit"
+ENV ASSEMBLIT_GITHUB_BRANCH_NAME "v0.1.0"
 
 # Streamlit configuration settings
-ENV CLIENT_PORT 8501
+ENV ASSEMBLIT_CLIENT_PORT 8501
 
 # Orchestration server configuration settings
-ENV SERVER_TYPE "prefect"
-ENV SERVER_PORT 4200
-ENV SERVER_JOB_NAME "linear-regression-flow"
-ENV SERVER_JOB_ENTRYPOINT "T:\Documents\Projects\Assemblit\examples\linear-regression\flow.py"
-ENV SERVER_DEPLOYMENT_NAME "v0_1_0"
+ENV ASSEMBLIT_SERVER_TYPE "prefect"
+ENV ASSEMBLIT_SERVER_JOB_NAME "linear-regression-flow"
+ENV ASSEMBLIT_SERVER_JOB_ENTRYPOINT "/examples/${ASSEMBLIT_NAME}/flow.py"
+ENV ASSEMBLIT_SERVER_DEPLOYMENT_NAME "v0_1_0"
+ENV ASSEMBLIT_SERVER_PORT 4200
 
 # Database configuration settings
-ENV DIR "/$NAME"
+ENV ASSEMBLIT_DIR "/examples/${ASSEMBLIT_NAME}"
 
 # Authentication settings
-ENV REQUIRE_AUTHENTICATION True
+ENV ASSEMBLIT_REQUIRE_AUTHENTICATION True
 
 # Users db settings
-ENV USERS_DB_NAME "users"
-ENV USERS_DB_QUERY_INDEX "user_id"
+ENV ASSEMBLIT_USERS_DB_NAME "users"
+ENV ASSEMBLIT_USERS_DB_QUERY_INDEX "user_id"
 
 # Sessions db settings
-ENV SESSIONS_DB_NAME "studies"
-ENV SESSIONS_DB_QUERY_INDEX "study_id"
+ENV ASSEMBLIT_SESSIONS_DB_NAME "studies"
+ENV ASSEMBLIT_SESSIONS_DB_QUERY_INDEX "study_id"
 
 # Data db settings
-ENV DATA_DB_NAME "data"
-ENV DATA_DB_QUERY_INDEX "dataset_id"
+ENV ASSEMBLIT_DATA_DB_NAME "data"
+ENV ASSEMBLIT_DATA_DB_QUERY_INDEX "dataset_id"
 
 # Analysis db settings
-ENV ANALYSIS_DB_NAME "analysis"
-ENV ANALYSIS_DB_QUERY_INDEX "run_id"
+ENV ASSEMBLIT_ANALYSIS_DB_NAME "analysis"
+ENV ASSEMBLIT_ANALYSIS_DB_QUERY_INDEX "run_id"
 
 # Set the working directory (cannot be the root directory for Streamlit)
-WORKDIR "/$NAME"
+WORKDIR "/${ASSEMBLIT_NAME}"
 
 # Update and install
 RUN apt-get update && apt-get install -y \
@@ -58,14 +58,14 @@ RUN apt-get update && apt-get install -y \
 RUN pip3 install --upgrade pip
 
 # Clone from Github
-RUN git clone --branch $GITHUB_BRANCH_NAME "$GITHUB_REPOSITORY_URL.git" .
+RUN git clone --branch ${ASSEMBLIT_GITHUB_BRANCH_NAME} "${ASSEMBLIT_GITHUB_REPOSITORY_URL}.git" .
 
 # Install Python requirements
 RUN pip3 install -r requirements.txt --no-cache-dir
 
 # Expose the network port(s)
-EXPOSE $CLIENT_PORT
-EXPOSE $SERVER_PORT
+EXPOSE ${ASSEMBLIT_CLIENT_PORT}
+EXPOSE ${ASSEMBLIT_SERVER_PORT}
 
 # Run
-CMD streamlit run $HOME_PAGE_NAME.py --server.port=$CLIENT_PORT --server.headless=true && orchestrator start -N "linny" -T "prefect" -P "4200" -D "/linny/db" -E "/workspaces/Assemblit/examples/linear-regression/flow.py"
+CMD assemblit run ${ASSEMBLIT_HOME_PAGE_NAME}.py && orchestrator start -N ${ASSEMBLIT_NAME} -T ${ASSEMBLIT_SERVER_TYPE} -P ${ASSEMBLIT_SERVER_PORT} -D "/examples/${ASSEMBLIT_NAME}/db" -E ${ASSEMBLIT_SERVER_JOB_ENTRYPOINT}
