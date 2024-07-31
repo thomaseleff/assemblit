@@ -52,7 +52,7 @@ def main():
             " Currently, `assemblit` supports the following web-application types, [%s]." % (
                 ', '.join(["'%s'" % (i.strip().lower()) for i in layer._APP_TYPES])
             ),
-            " If not provided, 'type' must be configured within /.assemblit/config.yaml."
+            " If not provided, 'type' must be configured within '/.assemblit/config.yaml'."
         ]),
         dest='app_type',
         choices=layer._APP_TYPES,
