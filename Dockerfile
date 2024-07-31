@@ -17,10 +17,10 @@ ENV ASSEMBLIT_CLIENT_PORT 8501
 ENV PORT ${ASSEMBLIT_CLIENT_PORT}
 
 # Database configuration settings
-ENV ASSEMBLIT_DIR "/${NAME}"
+ENV ASSEMBLIT_DIR "/${ASSEMBLIT_NAME}"
 
 # Set the working directory (cannot be the root directory for Streamlit)
-WORKDIR "/${NAME}"
+WORKDIR "/${ASSEMBLIT_NAME}"
 
 # Update and install
 RUN apt-get update && apt-get install -y \
