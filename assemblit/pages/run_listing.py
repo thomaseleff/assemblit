@@ -45,14 +45,7 @@ class Content():
         self,
         header: str = 'Listing',
         tagline: str = 'Browse submitted analysis runs, review status and navigate to outputs.',
-        content_info: str = (
-            'Navigate to the **%s** page to load a session.' % (
-                ''.join([
-                    setup.SESSIONS_DB_NAME[0].upper(),
-                    setup.SESSIONS_DB_NAME[1:].lower()
-                ])
-            )
-        ),
+        content_info: str = 'Navigate to the **scope-selector** page to load a session.',
         headerless: bool = False
     ):
         """ Initializes an instance of the run listing-page content.

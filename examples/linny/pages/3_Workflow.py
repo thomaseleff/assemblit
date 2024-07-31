@@ -5,6 +5,9 @@ from assemblit.blocks.structures import Setting
 
 # Initialize the workflow-settings-page content
 Workflow = workflow_settings.Content(
+    header='Workflow',
+    tagline='Configure the parameters essential to the model workflow.',
+    content_info='Navigate to the **Studies** page and select a session.',
     settings=[
         Setting(
             type='text-input',

@@ -50,14 +50,7 @@ class Content():
         self,
         header: str = 'Workflow',
         tagline: str = 'Configure the parameters essential to the workflow.',
-        content_info: str = (
-            'Navigate to the **%s** page to load a session.' % (
-                ''.join([
-                    setup.SESSIONS_DB_NAME[0].upper(),
-                    setup.SESSIONS_DB_NAME[1:].lower()
-                ])
-            )
-        ),
+        content_info: str = 'Navigate to the **scope-selector** page to load a session.',
         settings: list[blocks.structures.Setting] = [
             blocks.structures.Setting(
                 type='text-input',
