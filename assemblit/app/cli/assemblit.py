@@ -3,7 +3,7 @@
 import sys
 import errno
 import argparse
-from assemblit.app import layer
+from assemblit import app
 from assemblit.app.cli import commands
 
 
@@ -50,12 +50,12 @@ def main():
         help=''.join([
             "[optional] The type of web-application.",
             " Currently, `assemblit` supports the following web-application types, [%s]." % (
-                ', '.join(["'%s'" % (i.strip().lower()) for i in layer._APP_TYPES])
+                ', '.join(["'%s'" % (i.strip().lower()) for i in app.__all__])
             ),
             " If not provided, 'type' must be configured within '/.assemblit/config.yaml'."
         ]),
         dest='app_type',
-        choices=layer._APP_TYPES,
+        choices=app.__all__,
         type=str,
         required=False
     )

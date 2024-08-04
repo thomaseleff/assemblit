@@ -198,7 +198,7 @@ class Content():
     def _display_method_documentation(self, methods: Any):
 
         # Layout columns
-        _, col2, _ = st.columns(setup.METHODS_COLUMNS)
+        _, col2, _ = st.columns(setup.INDENTED_CONTENT_COLUMNS)
 
         # Display `method` documentation
         col2.markdown('#### Methods')

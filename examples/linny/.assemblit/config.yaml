@@ -5,7 +5,7 @@ assemblit:
     # Developer configuration settings
     ASSEMBLIT_ENV: "PROD"
     ASSEMBLIT_VERSION: "v0.1.0"
-    ASSEMBLIT_DEBUG: False
+    ASSEMBLIT_DEBUG: True
 
     # Web-application configuration settings
     ASSEMBLIT_NAME: "linny"
@@ -15,7 +15,6 @@ assemblit:
     ASSEMBLIT_CLIENT_PORT: 8501
 
     # Orchestration server configuration settings
-    ASSEMBLIT_SERVER_TYPE: "prefect"
     ASSEMBLIT_SERVER_JOB_NAME: "linear-regression-flow"
     ASSEMBLIT_SERVER_JOB_ENTRYPOINT: "T:/Documents/Projects/Assemblit/examples/linear-regression/flow.py"
     ASSEMBLIT_SERVER_DEPLOYMENT_NAME: "v0_1_0"

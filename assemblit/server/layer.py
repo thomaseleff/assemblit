@@ -104,16 +104,16 @@ def load_orchestrator_environment(
 ) -> Tuple[str, str, str, str, str, str, str, str, str, str]:
     """ Loads and validates the orchestration server environment variables and returns the values in the following order,
 
-    - `ASSEMBLIT_SERVER_NAME`
-    - `ASSEMBLIT_SERVER_TYPE`
-    - `ASSEMBLIT_SERVER_HOST`
-    - `ASSEMBLIT_SERVER_PORT`
-    - `ASSEMBLIT_SERVER_API_URL`
-    - `ASSEMBLIT_SERVER_API_DOCS`
-    - `ASSEMBLIT_SERVER_JOB_NAME`
-    - `ASSEMBLIT_SERVER_JOB_ENTRYPOINT`
-    - `ASSEMBLIT_SERVER_DEPLOYMENT_NAME`
-    - `ASSEMBLIT_SERVER_DEPLOYMENT_VERSION`
+    - `SERVER_NAME`
+    - `SERVER_TYPE`
+    - `SERVER_HOST`
+    - `SERVER_PORT`
+    - `SERVER_API_URL`
+    - `SERVER_API_DOCS`
+    - `SERVER_JOB_NAME`
+    - `SERVER_JOB_ENTRYPOINT`
+    - `SERVER_DEPLOYMENT_NAME`
+    - `SERVER_DEPLOYMENT_VERSION`
 
     Parameters
     ----------
