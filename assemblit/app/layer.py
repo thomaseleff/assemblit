@@ -284,6 +284,9 @@ def create_app(
             port=application.ASSEMBLIT_CLIENT_PORT
         )
 
+        # Create the orchestration server environment
+        _ = layer.create_orchestrator(config=config)
+
     if app_type == 'wiki':
 
         # Initialize the Python package documentation wiki-application
@@ -317,9 +320,6 @@ def run(
 
     # Create the web-application environment
     application = create_app(config=config)
-
-    # Create the orchestration server environment
-    _ = layer.create_orchestrator(config=config)
 
     # Run the web-application
     subprocess.Popen(
