@@ -1,5 +1,5 @@
 """ Workflow orchestrator """
 
-from assemblit.server.cli import orchestrator
+from assemblit.orchestrator.cli import orchestrator
 
 __all__ = ['orchestrator']

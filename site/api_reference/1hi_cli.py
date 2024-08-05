@@ -1,10 +1,10 @@
-""" assemblit.org/api_reference/assemblit/server/cli
+""" assemblit.org/api_reference/assemblit/orchestrator/cli
 
 Orchestration server management cli-tool.
 """
 
 import assemblit
-from assemblit.server import cli
+from assemblit.orchestrator import cli
 from assemblit.pages import code_documentation
 
 

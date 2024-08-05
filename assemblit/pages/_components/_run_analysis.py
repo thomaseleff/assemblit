@@ -20,8 +20,8 @@ from assemblit.blocks.structures import Setting
 from assemblit.pages._components import _core, _selector
 from assemblit.database import _generic, sessions, data, analysis
 from assemblit.database._structures import Filter, Validate, Row
-from assemblit.server import layer
-from assemblit.server import setup as server_setup
+from assemblit.orchestrator import layer
+from assemblit.orchestrator import setup as server_setup
 
 # --TODO Remove scope_db_name and scope_query_index from all function(s).
 #       Scope for analysis is not dynamic, it can only be the sessions-db.

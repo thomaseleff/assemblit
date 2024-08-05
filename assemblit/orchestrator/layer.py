@@ -4,7 +4,7 @@ import os
 import requests
 from typing import List, Tuple, Union
 from pytensils import utils
-from assemblit import yaml, server
+from assemblit import yaml, orchestrator
 
 
 # Define abstracted orchestration server function(s)
@@ -58,7 +58,7 @@ def load_orchestrator_environment(
     """
 
     # Validate the orchestration server type
-    server_type = yaml.validate_type(env='orchestrator', type_=server_type, supported_types=server.__all__)
+    server_type = yaml.validate_type(env='orchestrator', type_=server_type, supported_types=orchestrator.__all__)
 
     # Validate the orchestration server port
     server_port = yaml.validate_port(env='orchestrator', port=server_port)
@@ -66,7 +66,7 @@ def load_orchestrator_environment(
     if server_type == 'prefect':
 
         # Initialize the `prefect` orchestration server
-        orchestrator = server.prefect.env(
+        server = orchestrator.prefect.env(
             ASSEMBLIT_SERVER_JOB_NAME=job_name,
             ASSEMBLIT_SERVER_JOB_ENTRYPOINT=os.path.abspath(job_entrypoint),
             ASSEMBLIT_SERVER_DEPLOYMENT_NAME=deployment_name,
@@ -75,16 +75,16 @@ def load_orchestrator_environment(
         )
 
         return (
-            orchestrator.ASSEMBLIT_SERVER_NAME,
-            orchestrator.ASSEMBLIT_SERVER_TYPE,
-            orchestrator.ASSEMBLIT_SERVER_HOST,
-            orchestrator.ASSEMBLIT_SERVER_PORT,
-            orchestrator.api_endpoint(),
-            orchestrator.docs_endpoint(),
-            orchestrator.ASSEMBLIT_SERVER_JOB_NAME,
-            orchestrator.ASSEMBLIT_SERVER_JOB_ENTRYPOINT,
-            orchestrator.ASSEMBLIT_SERVER_DEPLOYMENT_NAME,
-            orchestrator.ASSEMBLIT_SERVER_DIR
+            server.ASSEMBLIT_SERVER_NAME,
+            server.ASSEMBLIT_SERVER_TYPE,
+            server.ASSEMBLIT_SERVER_HOST,
+            server.ASSEMBLIT_SERVER_PORT,
+            server.api_endpoint(),
+            server.docs_endpoint(),
+            server.ASSEMBLIT_SERVER_JOB_NAME,
+            server.ASSEMBLIT_SERVER_JOB_ENTRYPOINT,
+            server.ASSEMBLIT_SERVER_DEPLOYMENT_NAME,
+            server.ASSEMBLIT_SERVER_DIR
         )
 
 
@@ -100,7 +100,7 @@ def create_orchestrator(
     """
 
     # Load the orchestration server type
-    server_type = yaml.load_type(config=config, env='orchestrator', supported_types=server.__all__)
+    server_type = yaml.load_type(config=config, env='orchestrator', supported_types=orchestrator.__all__)
 
     # Load the orchestration server environment variables
     server_environment_dict_object = yaml.load_environment(config=config, env='orchestrator')
@@ -108,12 +108,12 @@ def create_orchestrator(
     if server_type == 'prefect':
 
         # Initialize the `prefect` orchestration server
-        orchestrator = server.prefect.env(**server_environment_dict_object)
+        server = orchestrator.prefect.env(**server_environment_dict_object)
 
     # Create the environment variables
-    yaml.create_environment(dict_object={'ASSEMBLIT_SERVER_TYPE': server_type, **orchestrator.to_dict()})
+    yaml.create_environment(dict_object={'ASSEMBLIT_SERVER_TYPE': server_type, **server.to_dict()})
 
-    return orchestrator
+    return server
 
 
 def start(
@@ -131,16 +131,16 @@ def start(
     config = yaml.load_configuration(path=os.path.abspath(path))
 
     # Create the orchestration server environment
-    orchestrator = create_orchestrator(config=config)
+    server = create_orchestrator(config=config)
 
     # Configure the `prefect` server
-    orchestrator.configure()
+    server.configure()
 
     # Start the `prefect` server
-    orchestrator.start()
+    server.start()
 
     # Deploy the `prefect` server job
-    orchestrator.deploy(job_entrypoint=os.path.abspath(orchestrator.ASSEMBLIT_SERVER_JOB_ENTRYPOINT))
+    server.deploy(job_entrypoint=os.path.abspath(server.ASSEMBLIT_SERVER_JOB_ENTRYPOINT))
 
 
 def health_check(
@@ -171,12 +171,12 @@ def health_check(
     """
 
     # Validate the orchestration server type
-    server_type = yaml.validate_type(env='orchestrator', type_=server_type, supported_types=server.__all__)
+    server_type = yaml.validate_type(env='orchestrator', type_=server_type, supported_types=orchestrator.__all__)
 
     if server_type == 'prefect':
 
         # Initialize the `prefect` orchestration server
-        orchestrator = server.prefect.env(
+        server = orchestrator.prefect.env(
             ASSEMBLIT_SERVER_JOB_NAME=job_name,
             ASSEMBLIT_SERVER_JOB_ENTRYPOINT=os.path.abspath(job_entrypoint),
             ASSEMBLIT_SERVER_DEPLOYMENT_NAME=deployment_name,
@@ -184,7 +184,7 @@ def health_check(
             ASSEMBLIT_SERVER_PORT=utils.as_type(server_port, return_dtype='int')
         )
 
-    return orchestrator.health_check()
+    return server.health_check()
 
 
 def run_job(
@@ -220,12 +220,12 @@ def run_job(
     """
 
     # Validate the orchestration server type
-    server_type = yaml.validate_type(env='orchestrator', type_=server_type, supported_types=server.__all__)
+    server_type = yaml.validate_type(env='orchestrator', type_=server_type, supported_types=orchestrator.__all__)
 
     if server_type == 'prefect':
 
         # Initialize the `prefect` orchestration server
-        orchestrator = server.prefect.env(
+        server = orchestrator.prefect.env(
             ASSEMBLIT_SERVER_JOB_NAME=job_name,
             ASSEMBLIT_SERVER_JOB_ENTRYPOINT=os.path.abspath(job_entrypoint),
             ASSEMBLIT_SERVER_DEPLOYMENT_NAME=deployment_name,
@@ -233,7 +233,7 @@ def run_job(
             ASSEMBLIT_SERVER_PORT=utils.as_type(server_port, return_dtype='int')
         )
 
-    return orchestrator.run_job(
+    return server.run_job(
         name=name,
         job_name=job_name,
         deployment_name=deployment_name,
@@ -271,12 +271,12 @@ def poll_job_run(
     """
 
     # Validate the orchestration server type
-    server_type = yaml.validate_type(env='orchestrator', type_=server_type, supported_types=server.__all__)
+    server_type = yaml.validate_type(env='orchestrator', type_=server_type, supported_types=orchestrator.__all__)
 
     if server_type == 'prefect':
 
         # Initialize the `prefect` orchestration server
-        orchestrator = server.prefect.env(
+        server = orchestrator.prefect.env(
             ASSEMBLIT_SERVER_JOB_NAME=job_name,
             ASSEMBLIT_SERVER_JOB_ENTRYPOINT=os.path.abspath(job_entrypoint),
             ASSEMBLIT_SERVER_DEPLOYMENT_NAME=deployment_name,
@@ -284,7 +284,7 @@ def poll_job_run(
             ASSEMBLIT_SERVER_PORT=utils.as_type(server_port, return_dtype='int')
         )
 
-    return orchestrator.poll_job_run(run_id=run_id)
+    return server.poll_job_run(run_id=run_id)
 
 
 def all_job_states(
@@ -299,10 +299,10 @@ def all_job_states(
     """
 
     # Validate the orchestration server type
-    server_type = yaml.validate_type(env='orchestrator', type_=server_type, supported_types=server.__all__)
+    server_type = yaml.validate_type(env='orchestrator', type_=server_type, supported_types=orchestrator.__all__)
 
     if server_type == 'prefect':
-        return [str(state).upper() for state in list(server.prefect.STATES.keys())]
+        return [str(state).upper() for state in list(orchestrator.prefect.STATES.keys())]
 
 
 def all_job_statuses(
@@ -317,10 +317,10 @@ def all_job_statuses(
     """
 
     # Validate the orchestration server type
-    server_type = yaml.validate_type(env='orchestrator', type_=server_type, supported_types=server.__all__)
+    server_type = yaml.validate_type(env='orchestrator', type_=server_type, supported_types=orchestrator.__all__)
 
     if server_type == 'prefect':
-        return [str(status) for status in list(server.prefect.STATES.values())]
+        return [str(status) for status in list(orchestrator.prefect.STATES.values())]
 
 
 def terminal_job_states(
@@ -335,7 +335,7 @@ def terminal_job_states(
     """
 
     # Validate the orchestration server type
-    server_type = yaml.validate_type(env='orchestrator', type_=server_type, supported_types=server.__all__)
+    server_type = yaml.validate_type(env='orchestrator', type_=server_type, supported_types=orchestrator.__all__)
 
     if server_type == 'prefect':
-        return [str(state) for state in server.prefect.TERMINAL_STATES]
+        return [str(state) for state in orchestrator.prefect.TERMINAL_STATES]

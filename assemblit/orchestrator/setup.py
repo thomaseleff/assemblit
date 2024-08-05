@@ -2,7 +2,7 @@
 
 import os
 from assemblit.app import exceptions
-from assemblit.server import layer as server_layer
+from assemblit.orchestrator import layer as server_layer
 
 # Validate web-application type
 if 'ASSEMBLIT_APP_TYPE' not in os.environ:

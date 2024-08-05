@@ -8,7 +8,7 @@ import requests
 from typing import List, Union, Optional
 from dataclasses import dataclass, field, fields, asdict
 from assemblit.app import exceptions
-from assemblit.server import status
+from assemblit.orchestrator import status
 
 
 # Job-run state settings

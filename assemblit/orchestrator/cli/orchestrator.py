@@ -3,7 +3,7 @@
 import sys
 import errno
 import argparse
-from assemblit.server.cli import commands
+from assemblit.orchestrator.cli import commands
 
 
 # Define orchestrator CLI tool function(s)

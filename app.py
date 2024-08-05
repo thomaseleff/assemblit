@@ -29,8 +29,8 @@ routes = {
         st.Page(page='site/api_reference/1e_toolkit.py', title='    toolkit', url_path='lib/assemblit/toolkit'),
         st.Page(page='site/api_reference/1f_auth.py', title='    auth', url_path='lib/assemblit/auth'),
         st.Page(page='site/api_reference/1g_database.py', title='    database', url_path='lib/assemblit/database'),
-        st.Page(page='site/api_reference/1h_server.py', title='    server', url_path='lib/assemblit/server'),
-        st.Page(page='site/api_reference/1hi_cli.py', title='        cli', url_path='lib/assemblit/server/cli')
+        st.Page(page='site/api_reference/1h_orchestrator.py', title='    orchestrator', url_path='lib/assemblit/orchestrator'),
+        st.Page(page='site/api_reference/1hi_cli.py', title='        cli', url_path='lib/assemblit/orchestrator/cli')
     ]
 }
 

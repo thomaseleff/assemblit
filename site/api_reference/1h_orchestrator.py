@@ -1,10 +1,10 @@
-""" assemblit.org/api_reference/assemblit/server
+""" assemblit.org/api_reference/assemblit/orchestrator
 
 Orchestration server management.
 """
 
 import assemblit
-from assemblit.server import layer
+from assemblit.orchestrator import layer
 from assemblit.pages import code_documentation
 
 
