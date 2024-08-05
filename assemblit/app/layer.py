@@ -4,9 +4,10 @@ import os
 import subprocess
 import copy
 from typing import Union
-from assemblit import yaml, app
+from assemblit import app
 from assemblit.orchestrator import layer
 from pytensils import utils
+from assemblit.toolkit import _config
 
 
 # Define abstracted web-application function(s)
@@ -87,7 +88,7 @@ def load_app_environment(
     """
 
     # Validate the web-application type
-    app_type = yaml.validate_type(env='app', type_=app_type, supported_types=app.__all__)
+    app_type = _config.validate_type(env='app', type_=app_type, supported_types=app.__all__)
 
     if app_type == 'aaas':
 
@@ -114,7 +115,7 @@ def load_app_environment(
         )
 
         # Validate the port-configuration settings
-        application.ASSEMBLIT_CLIENT_PORT = yaml.validate_port(
+        application.ASSEMBLIT_CLIENT_PORT = _config.validate_port(
             env='app',
             port=application.ASSEMBLIT_CLIENT_PORT
         )
@@ -209,7 +210,7 @@ def load_app_environment(
         )
 
         # Validate the port-configuration settings
-        application.ASSEMBLIT_CLIENT_PORT = yaml.validate_port(
+        application.ASSEMBLIT_CLIENT_PORT = _config.validate_port(
             env='app',
             port=application.ASSEMBLIT_CLIENT_PORT
         )
@@ -268,10 +269,10 @@ def create_app(
     """
 
     # Load the web-application type
-    app_type = yaml.load_type(config=config, env='app', supported_types=app.__all__)
+    app_type = _config.load_type(config=config, env='app', supported_types=app.__all__)
 
     # Load the web-application environment variables
-    app_environment_dict_object = yaml.load_environment(config=config, env='app')
+    app_environment_dict_object = _config.load_environment(config=config, env='app')
 
     if app_type == 'aaas':
 
@@ -279,7 +280,7 @@ def create_app(
         application = app.aaas.env(**app_environment_dict_object)
 
         # Validate the port-configuration settings
-        application.ASSEMBLIT_CLIENT_PORT = yaml.validate_port(
+        application.ASSEMBLIT_CLIENT_PORT = _config.validate_port(
             env='app',
             port=application.ASSEMBLIT_CLIENT_PORT
         )
@@ -293,13 +294,13 @@ def create_app(
         application = app.wiki.env(**app_environment_dict_object)
 
         # Validate the port-configuration settings
-        application.ASSEMBLIT_CLIENT_PORT = yaml.validate_port(
+        application.ASSEMBLIT_CLIENT_PORT = _config.validate_port(
             env='app',
             port=application.ASSEMBLIT_CLIENT_PORT
         )
 
     # Load the environment parameters
-    yaml.create_environment(dict_object={'ASSEMBLIT_APP_TYPE': app_type, **application.to_dict()})
+    _config.create_environment(dict_object={'ASSEMBLIT_APP_TYPE': app_type, **application.to_dict()})
 
     return application
 
@@ -316,7 +317,7 @@ def run(
     """
 
     # Load the web-application configuration
-    config = yaml.load_configuration(path=os.path.dirname(os.path.abspath(script)))
+    config = _config.load_configuration(path=os.path.dirname(os.path.abspath(script)))
 
     # Create the web-application environment
     application = create_app(config=config)
