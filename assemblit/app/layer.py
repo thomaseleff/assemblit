@@ -39,6 +39,7 @@ def load_app_environment(
         str,
         str,
         str,
+        str,
         str | os.PathLike,
         int,
         bool | None,
@@ -63,6 +64,7 @@ def load_app_environment(
     - `ENV`
     - `VERSION`
     - `DEBUG`
+    - `TYPE`
     - `NAME`
     - `HOME_PAGE_NAME`
     - `GITHUB_REPOSITORY_URL`
@@ -168,6 +170,7 @@ def load_app_environment(
             application.ASSEMBLIT_ENV,
             application.ASSEMBLIT_VERSION,
             application.ASSEMBLIT_DEBUG,
+            app_type,
             application.ASSEMBLIT_NAME,
             application.ASSEMBLIT_HOME_PAGE_NAME,
             application.ASSEMBLIT_GITHUB_REPOSITORY_URL,
@@ -230,6 +233,7 @@ def load_app_environment(
             application.ASSEMBLIT_ENV,
             application.ASSEMBLIT_VERSION,
             application.ASSEMBLIT_DEBUG,
+            app_type,
             application.ASSEMBLIT_NAME,
             application.ASSEMBLIT_HOME_PAGE_NAME,
             application.ASSEMBLIT_GITHUB_REPOSITORY_URL,

@@ -1,9 +1,13 @@
 """ Page builder """
 
+import os
 import copy
 import streamlit as st
 from assemblit import setup, blocks
+from assemblit.app import exceptions
 from assemblit.pages._components import _key_value, _core
+
+_COMPATIBLE_APP_TYPES = ['aaas']
 
 
 class Content():
@@ -82,6 +86,14 @@ class Content():
             `True` or `False`, determines whether to clear the form-submission responses
                 after submission
         """
+
+        # Validate compatibility
+        if setup.TYPE not in _COMPATIBLE_APP_TYPES:
+            raise exceptions.CompatibilityError(
+                app_type=setup.TYPE,
+                page_name=os.path.splitext(os.path.basename(__file__))[0],
+                compatible_app_types=_COMPATIBLE_APP_TYPES
+            )
 
         # Assign content class variables
         self.header = header

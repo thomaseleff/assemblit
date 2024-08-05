@@ -19,7 +19,7 @@ if 'ASSEMBLIT_APP_TYPE' not in os.environ:
         ''.join([
             "Missing environment variables.",
             " `assemblit` requires environment variables to be provided within '/.assemblit/config.yaml'.",
-            " In order to load the environment variables, run `assemblit run {app}.py`."
+            " In order to load the environment variables, run `assemblit run {script}`."
             " See https://www.assemblit.org/api/assemblit/setup."
         ])
     )
@@ -34,6 +34,7 @@ if 'ASSEMBLIT_APP_TYPE' not in os.environ:
     DEBUG,
 
     # Web-app configuration settings
+    TYPE,
     NAME,
     HOME_PAGE_NAME,
     GITHUB_REPOSITORY_URL,

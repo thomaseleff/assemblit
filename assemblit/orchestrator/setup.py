@@ -1,8 +1,9 @@
 """ Essential orchestration server settings """
 
 import os
+from assemblit import orchestrator
 from assemblit.app import exceptions
-from assemblit.orchestrator import layer as server_layer
+from assemblit.orchestrator import layer
 
 # Validate web-application type
 if 'ASSEMBLIT_APP_TYPE' not in os.environ:
@@ -10,13 +11,13 @@ if 'ASSEMBLIT_APP_TYPE' not in os.environ:
         ''.join([
             "Missing environment variables.",
             " `assemblit` requires environment variables to be provided within '/.assemblit/config.yaml'.",
-            " In order to load the environment variables, run `assemblit run {app}.py`."
+            " In order to load the environment variables, run `assemblit run {script}`."
             " See https://www.assemblit.org/api/assemblit/setup."
         ])
     )
 
 # Orchestration server configuration settings
-if os.environ['ASSEMBLIT_APP_TYPE'].strip().lower() in ['aaas']:
+if os.environ['ASSEMBLIT_APP_TYPE'].strip().lower() in orchestrator._COMPATIBLE_APP_TYPES:
     (
         SERVER_NAME,
         SERVER_TYPE,
@@ -28,7 +29,7 @@ if os.environ['ASSEMBLIT_APP_TYPE'].strip().lower() in ['aaas']:
         SERVER_JOB_ENTRYPOINT,
         SERVER_DEPLOYMENT_NAME,
         SERVER_DIR
-    ) = server_layer.load_orchestrator_environment(
+    ) = layer.load_orchestrator_environment(
 
         # [required]
         server_type=os.environ['ASSEMBLIT_SERVER_TYPE'],

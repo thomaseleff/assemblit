@@ -1,11 +1,15 @@
 """ Page builder """
 
+import os
 import copy
 import streamlit as st
 import pandas as pd
 from assemblit import setup, blocks
-from assemblit.pages._components import _core, _data_uploader, _data_review
+from assemblit.app import exceptions
 from assemblit.database import sessions, data
+from assemblit.pages._components import _core, _data_uploader, _data_review
+
+_COMPATIBLE_APP_TYPES = ['aaas']
 
 
 class Content():
@@ -71,6 +75,14 @@ class Content():
         data_example : `pd.DataFrame`
             An optional dataframe that provides a reference for a valid datafile.
         """
+
+        # Validate compatibility
+        if setup.TYPE not in _COMPATIBLE_APP_TYPES:
+            raise exceptions.CompatibilityError(
+                app_type=setup.TYPE,
+                page_name=os.path.splitext(os.path.basename(__file__))[0],
+                compatible_app_types=_COMPATIBLE_APP_TYPES
+            )
 
         # Assign content class variables
         self.header = header
