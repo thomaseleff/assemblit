@@ -3,7 +3,6 @@
 import sys
 import errno
 import argparse
-from assemblit import app
 from assemblit.app.cli import commands
 
 
@@ -43,21 +42,6 @@ def main():
         name='run',
         help='Runs a local Python script.',
         epilog="Execute `assemblit run --help` for help."
-    )
-    _RUN_ARG_PARSER.add_argument(
-        '-T',
-        '--type',
-        help=''.join([
-            "[optional] The type of web-application.",
-            " Currently, `assemblit` supports the following web-application types, [%s]." % (
-                ', '.join(["'%s'" % (i.strip().lower()) for i in app.__all__])
-            ),
-            " If not provided, 'type' must be configured within '/.assemblit/config.yaml'."
-        ]),
-        dest='app_type',
-        choices=app.__all__,
-        type=str,
-        required=False
     )
     _RUN_ARG_PARSER.add_argument(
         'script',

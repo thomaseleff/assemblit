@@ -1,12 +1,12 @@
 """ Essential orchestration server settings """
 
 import os
-from assemblit.app import layer
+from assemblit.app import exceptions
 from assemblit.server import layer as server_layer
 
-# Orchestration server configuration settings
+# Validate web-application type
 if 'ASSEMBLIT_APP_TYPE' not in os.environ:
-    raise layer.MissingEnvironmentVariables(
+    raise exceptions.MissingEnvironmentVariables(
         ''.join([
             "Missing environment variables.",
             " `assemblit` requires environment variables to be provided within '/.assemblit/config.yaml'.",
@@ -15,6 +15,7 @@ if 'ASSEMBLIT_APP_TYPE' not in os.environ:
         ])
     )
 
+# Orchestration server configuration settings
 if os.environ['ASSEMBLIT_APP_TYPE'].strip().lower() in ['aaas']:
     (
         SERVER_NAME,
@@ -26,20 +27,14 @@ if os.environ['ASSEMBLIT_APP_TYPE'].strip().lower() in ['aaas']:
         SERVER_JOB_NAME,
         SERVER_JOB_ENTRYPOINT,
         SERVER_DEPLOYMENT_NAME,
-        SERVER_DEPLOYMENT_VERSION
+        SERVER_DIR
     ) = server_layer.load_orchestrator_environment(
-        server_name=os.environ['ASSEMBLIT_NAME'],
-        server_type=os.environ.get('ASSEMBLIT_SERVER_TYPE', 'prefect'),
-        server_port=os.environ.get('ASSEMBLIT_SERVER_PORT', '4200'),
-        client_port=os.environ['ASSEMBLIT_CLIENT_PORT'],
+
+        # [required]
+        server_type=os.environ['ASSEMBLIT_SERVER_TYPE'],
+        server_port=os.environ['ASSEMBLIT_SERVER_PORT'],
         job_name=os.environ['ASSEMBLIT_SERVER_JOB_NAME'],
         job_entrypoint=os.environ['ASSEMBLIT_SERVER_JOB_ENTRYPOINT'],
         deployment_name=os.environ['ASSEMBLIT_SERVER_DEPLOYMENT_NAME'],
-        deployment_version=os.environ['ASSEMBLIT_VERSION'],
-        root_dir=os.path.abspath(
-            os.path.join(
-                os.environ['ASSEMBLIT_DIR'],
-                'db'
-            )
-        )
+        root_dir=os.path.abspath(os.environ['ASSEMBLIT_SERVER_DIR'])
     )

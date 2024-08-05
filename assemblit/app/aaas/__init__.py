@@ -45,17 +45,17 @@ class env(_generic._env):
     ASSEMBLIT_CLIENT_PORT : Optional[`int`] = 8501
         The client port of the `assemblit` web-application within the docker container.
 
-    ASSEMBLIT_SERVER_PORT : Optional[`int`] = 4200
-        The server port of the orchestration server within the docker container.
+    # ASSEMBLIT_SERVER_PORT : Optional[`int`] = 4200
+    #     The server port of the orchestration server within the docker container.
 
-    ASSEMBLIT_SERVER_JOB_NAME : `str`
-        The name of the job.
+    # ASSEMBLIT_SERVER_JOB_NAME : `str`
+    #     The name of the job.
 
-    ASSEMBLIT_SERVER_JOB_ENTRYPOINT : `str`
-        The Python entrypoint of the job.
+    # ASSEMBLIT_SERVER_JOB_ENTRYPOINT : `str`
+    #     The Python entrypoint of the job.
 
-    ASSEMBLIT_SERVER_DEPLOYMENT_NAME : `str`
-        The name of the job-deployment.
+    # ASSEMBLIT_SERVER_DEPLOYMENT_NAME : `str`
+    #     The name of the job-deployment.
 
     ASSEMBLIT_USERS_DB_NAME : Optional[`str`] = "users"
         The name of the users-database.
@@ -88,17 +88,17 @@ class env(_generic._env):
     ASSEMBLIT_REQUIRE_AUTHENTICATION: bool = field(default=None)
 
     # Orchestration server configuration settings
-    ASSEMBLIT_SERVER_JOB_NAME: str = field(default=None)
-    ASSEMBLIT_SERVER_JOB_ENTRYPOINT: str = field(default=None)
-    ASSEMBLIT_SERVER_DEPLOYMENT_NAME: str = field(default=None)
+    # ASSEMBLIT_SERVER_JOB_NAME: str = field(default=None)
+    # ASSEMBLIT_SERVER_JOB_ENTRYPOINT: str = field(default=None)
+    # ASSEMBLIT_SERVER_DEPLOYMENT_NAME: str = field(default=None)
 
     # [optional]
 
     # Orchestration server configuration settings
-    ASSEMBLIT_SERVER_TYPE: Optional[str] = field(default="prefect", init=False)
+    # ASSEMBLIT_SERVER_TYPE: Optional[str] = field(default="prefect", init=False)
 
     # Add'l Port configuration settings
-    ASSEMBLIT_SERVER_PORT: Optional[int] = field(default=4200)
+    # ASSEMBLIT_SERVER_PORT: Optional[int] = field(default=4200)
 
     # Users db settings
     ASSEMBLIT_USERS_DB_NAME: Optional[str] = field(default="users")

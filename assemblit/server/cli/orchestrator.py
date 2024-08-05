@@ -3,7 +3,6 @@
 import sys
 import errno
 import argparse
-from assemblit.server import layer
 from assemblit.server.cli import commands
 
 
@@ -46,45 +45,9 @@ def main():
         epilog="Execute `orchestrator start --help` for help."
     )
     _START_ARG_PARSER.add_argument(
-        '-N',
-        '--server_name',
-        help="The name of the orchestration server.",
-        type=str,
-        required=True
-    )
-    _START_ARG_PARSER.add_argument(
-        '-T',
-        '--server_type',
-        help=''.join([
-            "The type of the orchestration server.",
-            " Currently, `assemblit` supports the following orchestration server types, [%s]." % (
-                ', '.join(["'%s'" % (i.strip().lower()) for i in layer._SERVER_TYPES])
-            )
-        ]),
-        choices=layer._SERVER_TYPES,
-        type=str,
-        required=True
-    )
-    _START_ARG_PARSER.add_argument(
-        '-P',
-        '--server_port',
-        help="The registered port address of the orchestration server.",
-        type=str,
-        required=True
-    )
-    _START_ARG_PARSER.add_argument(
-        '-D',
-        '--root_dir',
-        help="Local directory path of the orchestration server data.",
-        type=str,
-        required=True
-    )
-    _START_ARG_PARSER.add_argument(
-        '-E',
-        '--job_entrypoint',
-        help="The `python` program containing the job definition and deploy proceedure.",
-        type=str,
-        required=True
+        'path',
+        help="The relative or absolute path to the current work-directory.",
+        type=str
     )
     _START_ARG_PARSER.set_defaults(func=commands.start)
 

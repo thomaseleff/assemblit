@@ -54,10 +54,12 @@ def display_run_listing_table(
 
     # Check server-health
     server_health = layer.health_check(
-        server_name=server_setup.SERVER_NAME,
         server_type=server_setup.SERVER_TYPE,
         server_port=server_setup.SERVER_PORT,
-        root_dir=setup.DB_DIR
+        job_name=server_setup.SERVER_JOB_NAME,
+        job_entrypoint=server_setup.SERVER_JOB_ENTRYPOINT,
+        deployment_name=server_setup.SERVER_DEPLOYMENT_NAME,
+        root_dir=server_setup.SERVER_DIR
     )
 
     if server_health:
@@ -520,10 +522,12 @@ def refresh_run_listing_table(
 
     # Apply form response to the database & run
     if layer.health_check(
-        server_name=server_setup.SERVER_NAME,
         server_type=server_setup.SERVER_TYPE,
         server_port=server_setup.SERVER_PORT,
-        root_dir=setup.DB_DIR
+        job_name=server_setup.SERVER_JOB_NAME,
+        job_entrypoint=server_setup.SERVER_JOB_ENTRYPOINT,
+        deployment_name=server_setup.SERVER_DEPLOYMENT_NAME,
+        root_dir=server_setup.SERVER_DIR
     ):
 
         # Initialize connection to the analysis database
@@ -550,10 +554,12 @@ def refresh_run_listing_table(
         if run_ids:
             for run_id in run_ids:
                 status = layer.poll_job_run(
-                    server_name=server_setup.SERVER_NAME,
                     server_type=server_setup.SERVER_TYPE,
                     server_port=server_setup.SERVER_PORT,
-                    root_dir=setup.DB_DIR,
+                    job_name=server_setup.SERVER_JOB_NAME,
+                    job_entrypoint=server_setup.SERVER_JOB_ENTRYPOINT,
+                    deployment_name=server_setup.SERVER_DEPLOYMENT_NAME,
+                    root_dir=server_setup.SERVER_DIR,
                     run_id=run_id
                 )
 

@@ -3,7 +3,7 @@
 import os
 from typing import Union, Optional
 from dataclasses import dataclass, field, fields, asdict
-from assemblit.app.layer import MissingEnvironmentVariables
+from assemblit.app import exceptions
 
 
 @dataclass
@@ -71,7 +71,7 @@ class _env():
         # Validate environment variables
         missing_variables = [name for name, value in self.__dict__.items() if value is None]
         if missing_variables:
-            raise MissingEnvironmentVariables
+            raise exceptions.MissingEnvironmentVariables
 
         # Validate types
         for variable in fields(self):
