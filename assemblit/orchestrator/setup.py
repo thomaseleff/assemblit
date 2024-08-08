@@ -12,7 +12,7 @@ if 'ASSEMBLIT_APP_TYPE' not in os.environ:
             "Missing environment variables.",
             " `assemblit` requires environment variables to be provided within '/.assemblit/config.yaml'.",
             " In order to load the environment variables, run `assemblit run {script}`."
-            " See https://www.assemblit.org/api/assemblit/setup."
+            " See %s." % (exceptions._DOCS_URL)
         ])
     )
 

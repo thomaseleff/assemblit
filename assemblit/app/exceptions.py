@@ -1,13 +1,16 @@
 """ Assemblit web-application exceptions """
 
+_DOCS_URL = 'https://www.assemblit.org/api/assemblit'
+
 
 class MissingConfiguration(FileNotFoundError):
+    """ Raises a missing configuration error."""
 
     def __init__(self, *args, **kwargs):
         default_message = ''.join([
             "Missing configuration.",
             " `assemblit` requires web-application configuration to be provided within '/.assemblit/config.yaml'.",
-            " See https://www.assemblit.org/api/assemblit/setup."
+            " See %s." % (_DOCS_URL)
         ])
 
         if not args:
@@ -17,12 +20,13 @@ class MissingConfiguration(FileNotFoundError):
 
 
 class InvalidConfiguration(KeyError):
+    """ Raises an invalid configuration error."""
 
     def __init__(self, *args, **kwargs):
         default_message = ''.join([
             "Invalid configuration.",
             " `assemblit` requires environment variables to be provided within '/.assemblit/config.yaml'.",
-            " See https://www.assemblit.org/api/assemblit/setup."
+            " See %s." % (_DOCS_URL)
         ])
 
         if not args:
@@ -32,12 +36,13 @@ class InvalidConfiguration(KeyError):
 
 
 class MissingEnvironmentVariables(KeyError):
+    """ Raises a missing environment variables error."""
 
     def __init__(self, *args, **kwargs):
         default_message = ''.join([
             "Missing environment variables.",
             " `assemblit` requires environment variables to be provided within '/.assemblit/config.yaml'.",
-            " See https://www.assemblit.org/api/assemblit/setup."
+            " See %s." % (_DOCS_URL)
         ])
 
         if not args:

@@ -11,7 +11,7 @@ def main():
     """
     usage: orchestrator [-h] {start} ...
 
-    CLI application for starting, mnanaging and interacting with the
+    CLI application for starting, managing and interacting with the
     orchestration server.
 
     options:
@@ -29,7 +29,7 @@ def main():
     # Setup CLI argument option(s)
     _ARG_PARSER = argparse.ArgumentParser(
         prog='orchestrator',
-        description='CLI application for starting, mnanaging and interacting with the orchestration server.',
+        description='CLI application for starting, managing and interacting with the orchestration server.',
         epilog="Execute `orchestrator {command} --help` for more help."
     )
 

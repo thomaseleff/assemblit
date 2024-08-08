@@ -15,5 +15,24 @@ def run(
     ----------
     script : `str | os.PathLike`
         The relative or absolute path to a local Python script.
+
+    Help
+    ----
+    usage: assemblit run [-h] script
+
+    positional arguments:
+    script      The relative or absolute path to a local Python script.
+
+    options:
+    -h, --help  show this help message and exit
+
+    Execute `assemblit run --help` for help.
+
+    Examples
+    --------
+    ``` console
+    assemblit run app.py
+    ```
+
     """
     layer.run(script=script)

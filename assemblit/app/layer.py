@@ -7,7 +7,7 @@ from typing import Union
 from assemblit import app
 from assemblit.orchestrator import layer
 from pytensils import utils
-from assemblit.toolkit import _config
+from assemblit.toolkit import yaml
 
 
 # Define abstracted web-application function(s)
@@ -87,10 +87,70 @@ def load_app_environment(
     - `SESSIONS_DEFAULTS`
     - `DATA_DEFAULTS`
     - `ANALYSIS_DEFAULTS`
+
+    Attributes
+    ----------
+    env : `str`
+        The environment name, typically "PROD" or "DEV".
+
+    version : `str`
+        The version, like "v{major}.{minor}.{fix}" of the web-application.
+
+    debug : `bool`
+        `True` or `False`, whether to print the contents of `streamlit.session_state` on
+            each page re-load.
+
+    name : `str`
+        The name of the web-application. All `streamlit.session_state` parameters created
+            within the scope of the web-application will be contained within a key named
+            after this environment variable.
+
+    home_page_name : `str`
+        The filename of the Python script that represents the home-page.
+
+    github_repository_url : `str`
+        The Github URL of the repository to deploy as the web-application.
+
+    github_branch_name : `str`
+        The Github branch name to deploy.
+
+    root_dir : `Union[str, os.PathLike]`
+        The local filesystem folder to mount to the docker container.
+
+    client_port : Optional[`int`] = 8501
+        The client port of the `assemblit` web-application within the docker container.
+
+    require_authentication : `bool`
+        `True` or `False`, whether to require user-authentication in order to
+            access the web-application.
+
+    users_db_name : Optional[`str`] = "users"
+        The name of the users-database.
+
+    users_db_query_index : Optional[`str`] = "user_id"
+        The name of the query-index of the users-database.
+
+    sessions_db_name : Optional[`str`] = "sessions"
+        The name of the sessions-database.
+
+    sessions_db_query_index : Optional[`str`] = "session_id"
+        The name of the query-index of the sessions-database.
+
+    data_db_name : Optional[`str`] = "data"
+        The name of the data-database.
+
+    data_db_query_index : Optional[`str`] = "dataset_id"
+        The name of the query-index of the data-database.
+
+    analysis_db_name : Optional[`str`] = "analysis"
+        The name of the analysis-database.
+
+    analysis_db_query_index : Optional[`str`] = "run_id"
+        The name of the query-index of the analysis-database.
     """
 
     # Validate the web-application type
-    app_type = _config.validate_type(env='app', type_=app_type, supported_types=app.__all__)
+    app_type = yaml.validate_type(env='app', type_=app_type, supported_types=app.__all__)
 
     if app_type == 'aaas':
 
@@ -117,7 +177,7 @@ def load_app_environment(
         )
 
         # Validate the port-configuration settings
-        application.ASSEMBLIT_CLIENT_PORT = _config.validate_port(
+        application.ASSEMBLIT_CLIENT_PORT = yaml.validate_port(
             env='app',
             port=application.ASSEMBLIT_CLIENT_PORT
         )
@@ -213,7 +273,7 @@ def load_app_environment(
         )
 
         # Validate the port-configuration settings
-        application.ASSEMBLIT_CLIENT_PORT = _config.validate_port(
+        application.ASSEMBLIT_CLIENT_PORT = yaml.validate_port(
             env='app',
             port=application.ASSEMBLIT_CLIENT_PORT
         )
@@ -273,10 +333,10 @@ def create_app(
     """
 
     # Load the web-application type
-    app_type = _config.load_type(config=config, env='app', supported_types=app.__all__)
+    app_type = yaml.load_type(config=config, env='app', supported_types=app.__all__)
 
     # Load the web-application environment variables
-    app_environment_dict_object = _config.load_environment(config=config, env='app')
+    app_environment_dict_object = yaml.load_environment(config=config, env='app')
 
     if app_type == 'aaas':
 
@@ -284,7 +344,7 @@ def create_app(
         application = app.aaas.env(**app_environment_dict_object)
 
         # Validate the port-configuration settings
-        application.ASSEMBLIT_CLIENT_PORT = _config.validate_port(
+        application.ASSEMBLIT_CLIENT_PORT = yaml.validate_port(
             env='app',
             port=application.ASSEMBLIT_CLIENT_PORT
         )
@@ -298,13 +358,13 @@ def create_app(
         application = app.wiki.env(**app_environment_dict_object)
 
         # Validate the port-configuration settings
-        application.ASSEMBLIT_CLIENT_PORT = _config.validate_port(
+        application.ASSEMBLIT_CLIENT_PORT = yaml.validate_port(
             env='app',
             port=application.ASSEMBLIT_CLIENT_PORT
         )
 
     # Load the environment parameters
-    _config.create_environment(dict_object={'ASSEMBLIT_APP_TYPE': app_type, **application.to_dict()})
+    yaml.create_environment(dict_object={'ASSEMBLIT_APP_TYPE': app_type, **application.to_dict()})
 
     return application
 
@@ -321,7 +381,7 @@ def run(
     """
 
     # Load the web-application configuration
-    config = _config.load_configuration(path=os.path.dirname(os.path.abspath(script)))
+    config = yaml.load_configuration(path=os.path.dirname(os.path.abspath(script)))
 
     # Create the web-application environment
     application = create_app(config=config)
@@ -338,12 +398,20 @@ def run(
 
 # Define environment variable constructing functions
 def _construct_session_state_defaults(
-    root_dir: str,
+    root_dir: Union[str, os.PathLike],
     home_page_name: str
 ) -> dict:
-    """ Constructs the session-state defaults from the environment variables. """
+    """ Constructs the session-state defaults from the environment variables.
+
+    Parameters
+    ----------
+    root_dir : `str`
+        The local filesystem folder to mount to the docker container.
+    home_page_name : `str`
+        The filename of the Python script that represents the home-page.
+    """
     return {
-        'dir': root_dir,
+        'dir': os.path.abspath(root_dir),
         'pages': {
             'home': '%s.py' % (home_page_name)
         }

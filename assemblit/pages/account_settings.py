@@ -25,7 +25,7 @@ class Content():
 
     Notes
     -----
-    The account settings-page can only be created when the ENV variable `REQUIRE_AUTHENTICATION` = 'True'.
+    The account settings-page can only be created when the ENV variable `ASSEMBLIT_REQUIRE_AUTHENTICATION` = 'True'.
 
     Examples
     --------

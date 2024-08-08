@@ -78,54 +78,6 @@ class env():
     # Add'l port configuration settings
     ASSEMBLIT_SERVER_PORT: Optional[int] = field(default=4200)
 
-    # def __init__(
-    #     self,
-    #     server_name: str,
-    #     server_port: str,
-    #     root_dir: str
-    # ):
-    #     """ [Prefect](https://www.prefect.io/) offers modern workflow orchestration tools for
-    #     building, observing & reacting to data pipelines efficiently.
-
-    #     The `prefect` orchestrator runs a local server and control panel and automatically
-    #     generates a deployment from the provided `flow` workflow, which is exposed via the
-    #     server API to allow for running, polling and listing `flow` runs. `flow` runs are
-    #     executed via the local server as subprocesses.
-
-    #     Environment variable options
-    #     ----------------------------
-
-    #     - `SERVER_TYPE` : `str` = 'prefect' Indicates to use the `prefect` orchestrator.
-    #     - `ASSEMBLIT_SERVER_PORT` : `str`             The registered port address of the orchestration server.
-    #                                             Default = '4200'
-    #     - `SERVER_JOB_NAME` : `str`         The name of the `prefect` `flow`.
-    #     - `SERVER_JOB_ENTRYPOINT` : `str`   The filename of the python executable that contains the definition
-    #                                             of the `prefect` `flow`.
-    #     - `SERVER_DEPLOYMENT_NAME` : `str`  The name of the `prefect` `deployment`.
-
-    #     Not implemented,
-    #     - `SERVER_CONCURRENCY` : `int`      The number of `flow` runs that are allowed to execute concurrently.
-
-    #     Parameters
-    #     ----------
-    #     server_name : `str`
-    #         The name of the web-application.
-    #     server_port : `str`
-    #         The registered port address of the `prefect` orchestration server.
-    #     root_dir : `str`
-    #         Local directory path of the `prefect` orchestration server data.
-    #     """
-
-    #     # Define static variable(s)
-    #     self.ASSEMBLIT_SERVER_HOST: str = '127.0.0.1'
-    #     self.ASSEMBLIT_SERVER_API_ROUTE: str = 'api'
-    #     self.ASSEMBLIT_SERVER_API_DOCS: str = 'docs'
-
-    #     # Assign class variable(s)
-    #     self.ASSEMBLIT_SERVER_NAME: str = server_name
-    #     self.ASSEMBLIT_SERVER_PORT: str = server_port
-    #     self.ASSEMBLIT_SERVER_DIR: str = root_dir
-
     # Define dataclass method(s)
     def __post_init__(self):
         """ Validates the environment variables. Raises a `MissingEnvironmentVariables` exception
