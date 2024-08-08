@@ -2,313 +2,440 @@
 
 import os
 import subprocess
-import yaml
 import copy
-from typing import List, Literal, Union
-from assemblit.app import apps
+from typing import Union
+from assemblit import app
+from assemblit.orchestrator import layer
 from pytensils import utils
-
-
-# Assign private variable(s)
-_APP_TYPES: List[str] = [
-    'aaas',
-    'wiki'
-]
-
-
-# Define parsing function(s)
-def parse_app_type(
-    config: dict
-) -> str:
-    """ Validates the web-application type and returns the web-application type as a `str`.
-
-    Parameters
-    ----------
-    config : `dict`
-        The web-application configuration.
-    """
-
-    # Check for the web-application types
-    try:
-        if 'type' not in [str(key).strip().lower() for key in dict(config['assemblit']).keys()]:
-            raise MissingEnvironmentVariables()
-    except ValueError:
-        raise MissingEnvironmentVariables()
-
-    # Parse the web-application type
-    app_type: str = config['assemblit']['type']
-
-    # Ensure that the web-application type is a valid supported type
-    return validate_app_type(app_type=app_type)
-
-
-def validate_app_type(
-    app_type: str
-) -> str:
-    """ Validates the web-application type and returns the web-application type as a `str`.
-
-    Parameters
-    ----------
-    app_type : `str`
-        The web-application type.
-    """
-
-    # Ensure that the web-application type is a valid supported type
-    if app_type.strip().lower() in [i.strip().lower() for i in _APP_TYPES]:
-        return app_type.strip().lower()
-    else:
-        raise NotImplementedError(
-            ''.join([
-                'Invalid web-application type argument value {%s}.' % app_type,
-                ' Currently, `assemblit` supports the following web-application types, [%s].' % (
-                    ', '.join(["'%s'" % (i.strip().lower()) for i in _APP_TYPES])
-                )
-            ])
-        )
-
-
-def parse_app_environment(
-    config: dict
-) -> dict:
-    """ Validates the web-application environment variables and returns the web-application
-    environment variables as a `dict`.
-
-    Parameters
-    ----------
-    config : `dict`
-        The web-application configuration.
-    """
-
-    # Check for the web-application environment variables
-    try:
-        if 'env' not in [str(key).strip().lower() for key in dict(config['assemblit']).keys()]:
-            raise MissingEnvironmentVariables()
-    except ValueError:
-        raise MissingEnvironmentVariables()
-
-    # Parse config into dictionary object for keyword arguments
-    env: dict = copy.deepcopy(config['assemblit']['env'])
-    return {
-        str(key).strip().upper(): value for key, value
-        in env.items()
-        if 'assemblit' in str(key).strip().lower()
-    }
-
-
-def parse_app_port(
-    client_port: str,
-    server_port: str | None = None
-) -> str:
-    """ Validates the web-application port. Returns the web-application port as a `str`
-    if a valid web-application port is provided, otherwise raises a `ValueError` when the
-    same port has been configured as both the `streamlit` client-port as well as the
-    server-port and raises a `TypeError` when the port is not an
-    integer as a string.
-
-    Parameters
-    ----------
-    client_port : `str`
-        The registered port address of the web-application.
-    server_port : `str`
-        The registered port address of the orchestration server.
-    """
-
-    # Ensure the web-application-port is an integer as a string
-    try:
-        client_port_int = utils.as_type(value=client_port, return_dtype='int')
-    except TypeError:
-        raise TypeError(
-            ''.join([
-                'Invalid web-application port argument value {%s}.',
-                ' The web-application port value must be an integer as a string.' % (
-                    client_port
-                )
-            ])
-        )
-
-    # Ensure the web-application-port is a valid port address number
-    if (
-        (client_port_int < 0)
-        or (client_port_int > 65535)
-    ):
-        raise ValueError(
-            ''.join([
-                'Invalid web-application port argument value {%s}.' % (client_port),
-                ' The web-application port value must be between 0 and 65535.'
-            ])
-        )
-
-    # Ensure the web-application-port is unique and does not conflict with the server port
-    if server_port:
-        if client_port_int == utils.as_type(value=str(server_port), return_dtype='int'):
-            raise ValueError(
-                ''.join([
-                    'Invalid web-application port argument value {%s}.' % (client_port),
-                    ' The web-application port value cannot be the same as the `streamlit` web-application port.'
-                ])
-            )
-
-    return str(client_port_int).strip().lower()
+from assemblit.toolkit import yaml
 
 
 # Define abstracted web-application function(s)
 def load_app_environment(
-    dict_object: dict
+    app_type: str,
+    env: str,
+    version: str,
+    debug: bool,
+    name: str,
+    home_page_name: str,
+    github_repository_url: str,
+    github_branch_name: str,
+    root_dir: Union[str, os.PathLike],
+    client_port: Union[str] = '8501',
+    require_authentication: Union[str, None] = 'False',
+    users_db_name: Union[str, None] = 'users',
+    users_db_query_index: Union[str, None] = 'user_id',
+    sessions_db_name: Union[str, None] = 'sessions',
+    sessions_db_query_index: Union[str, None] = 'session_id',
+    data_db_name: Union[str, None] = 'data',
+    data_db_query_index: Union[str, None] = 'dataset_id',
+    analysis_db_name: Union[str, None] = 'analysis',
+    analysis_db_query_index: Union[str, None] = 'run_id'
+) -> tuple[
+        str,
+        str,
+        bool,
+        str,
+        str,
+        str,
+        str,
+        str,
+        str | os.PathLike,
+        int,
+        bool | None,
+        str | os.PathLike | None,
+        str | None,
+        str | None,
+        str | None,
+        str | None,
+        str | None,
+        str | None,
+        str | None,
+        str | None,
+        dict | None,
+        dict | None,
+        dict | None,
+        dict | None,
+        dict | None,
+        dict | None
+]:
+    """ Loads and validates the orchestration server environment variables and returns the values in the following order,
+
+    - `ENV`
+    - `VERSION`
+    - `DEBUG`
+    - `TYPE`
+    - `NAME`
+    - `HOME_PAGE_NAME`
+    - `GITHUB_REPOSITORY_URL`
+    - `GITHUB_BRANCH_NAME`
+    - `ROOT_DIR`
+    - `CLIENT_PORT`
+    - `REQUIRE_AUTHENTICATION`
+    - `DB_DIR`
+    - `USERS_DB_NAME`
+    - `USERS_DB_QUERY_INDEX`
+    - `SESSIONS_DB_NAME`
+    - `SESSIONS_DB_QUERY_INDEX`
+    - `DATA_DB_NAME`
+    - `DATA_DB_QUERY_INDEX`
+    - `ANALYSIS_DB_NAME`
+    - `ANALYSIS_DB_QUERY_INDEX`
+    - `SESSION_STATE_DEFAULTS`
+    - `AUTH_DEFAULTS`
+    - `USERS_DEFAULTS`
+    - `SESSIONS_DEFAULTS`
+    - `DATA_DEFAULTS`
+    - `ANALYSIS_DEFAULTS`
+
+    Attributes
+    ----------
+    env : `str`
+        The environment name, typically "PROD" or "DEV".
+
+    version : `str`
+        The version, like "v{major}.{minor}.{fix}" of the web-application.
+
+    debug : `bool`
+        `True` or `False`, whether to print the contents of `streamlit.session_state` on
+            each page re-load.
+
+    name : `str`
+        The name of the web-application. All `streamlit.session_state` parameters created
+            within the scope of the web-application will be contained within a key named
+            after this environment variable.
+
+    home_page_name : `str`
+        The filename of the Python script that represents the home-page.
+
+    github_repository_url : `str`
+        The Github URL of the repository to deploy as the web-application.
+
+    github_branch_name : `str`
+        The Github branch name to deploy.
+
+    root_dir : `Union[str, os.PathLike]`
+        The local filesystem folder to mount to the docker container.
+
+    client_port : Optional[`int`] = 8501
+        The client port of the `assemblit` web-application within the docker container.
+
+    require_authentication : `bool`
+        `True` or `False`, whether to require user-authentication in order to
+            access the web-application.
+
+    users_db_name : Optional[`str`] = "users"
+        The name of the users-database.
+
+    users_db_query_index : Optional[`str`] = "user_id"
+        The name of the query-index of the users-database.
+
+    sessions_db_name : Optional[`str`] = "sessions"
+        The name of the sessions-database.
+
+    sessions_db_query_index : Optional[`str`] = "session_id"
+        The name of the query-index of the sessions-database.
+
+    data_db_name : Optional[`str`] = "data"
+        The name of the data-database.
+
+    data_db_query_index : Optional[`str`] = "dataset_id"
+        The name of the query-index of the data-database.
+
+    analysis_db_name : Optional[`str`] = "analysis"
+        The name of the analysis-database.
+
+    analysis_db_query_index : Optional[`str`] = "run_id"
+        The name of the query-index of the analysis-database.
+    """
+
+    # Validate the web-application type
+    app_type = yaml.validate_type(env='app', type_=app_type, supported_types=app.__all__)
+
+    if app_type == 'aaas':
+
+        # Initialize the analytics-as-a-service (AaaS) web-application
+        application = app.aaas.env(
+            ASSEMBLIT_ENV=env,
+            ASSEMBLIT_VERSION=version,
+            ASSEMBLIT_DEBUG=utils.as_type(debug, return_dtype='bool'),
+            ASSEMBLIT_NAME=name,
+            ASSEMBLIT_HOME_PAGE_NAME=home_page_name,
+            ASSEMBLIT_GITHUB_REPOSITORY_URL=github_repository_url,
+            ASSEMBLIT_GITHUB_BRANCH_NAME=github_branch_name,
+            ASSEMBLIT_DIR=root_dir,
+            ASSEMBLIT_CLIENT_PORT=utils.as_type(client_port, return_dtype='int'),
+            ASSEMBLIT_REQUIRE_AUTHENTICATION=utils.as_type(require_authentication, return_dtype='bool'),
+            ASSEMBLIT_USERS_DB_NAME=users_db_name,
+            ASSEMBLIT_USERS_DB_QUERY_INDEX=users_db_query_index,
+            ASSEMBLIT_SESSIONS_DB_NAME=sessions_db_name,
+            ASSEMBLIT_SESSIONS_DB_QUERY_INDEX=sessions_db_query_index,
+            ASSEMBLIT_DATA_DB_NAME=data_db_name,
+            ASSEMBLIT_DATA_DB_QUERY_INDEX=data_db_query_index,
+            ASSEMBLIT_ANALYSIS_DB_NAME=analysis_db_name,
+            ASSEMBLIT_ANALYSIS_DB_QUERY_INDEX=analysis_db_query_index
+        )
+
+        # Validate the port-configuration settings
+        application.ASSEMBLIT_CLIENT_PORT = yaml.validate_port(
+            env='app',
+            port=application.ASSEMBLIT_CLIENT_PORT
+        )
+
+        # Construct session-state defaults
+        session_state_defaults = _construct_session_state_defaults(
+            root_dir=application.ASSEMBLIT_DIR,
+            home_page_name=application.ASSEMBLIT_HOME_PAGE_NAME
+        )
+
+        # Construct authentication settings
+        session_state_defaults, auth_name, auth_query_index, auth_defaults = _construct_authentication_defaults(
+            session_state_defaults=session_state_defaults,
+            require_authentication=application.ASSEMBLIT_REQUIRE_AUTHENTICATION
+        )
+
+        # Construct user database settings
+        if application.ASSEMBLIT_REQUIRE_AUTHENTICATION:
+            users_db_query_index_value: Union[str, None] = None
+        else:
+            users_db_query_index_value: Union[str, None] = 'default'
+        users_defaults: dict = {
+            'name': None,
+            application.ASSEMBLIT_USERS_DB_QUERY_INDEX: users_db_query_index_value
+        }
+        session_state_defaults[application.ASSEMBLIT_USERS_DB_NAME] = copy.deepcopy(users_defaults)
+
+        # Construct sessions database settings
+        sessions_defaults: dict = {
+            'name': None,
+            application.ASSEMBLIT_SESSIONS_DB_QUERY_INDEX: None
+        }
+        session_state_defaults[application.ASSEMBLIT_SESSIONS_DB_NAME] = copy.deepcopy(sessions_defaults)
+
+        # Construct data database settings
+        data_defaults: dict = {
+            'name': None,
+            application.ASSEMBLIT_DATA_DB_QUERY_INDEX: None
+        }
+        session_state_defaults[application.ASSEMBLIT_DATA_DB_NAME] = copy.deepcopy(data_defaults)
+
+        # Construct analysis database settings
+        analysis_defaults: dict = {
+            'name': None,
+            application.ASSEMBLIT_ANALYSIS_DB_QUERY_INDEX: None
+        }
+        session_state_defaults[application.ASSEMBLIT_ANALYSIS_DB_NAME] = copy.deepcopy(analysis_defaults)
+
+        return (
+            application.ASSEMBLIT_ENV,
+            application.ASSEMBLIT_VERSION,
+            application.ASSEMBLIT_DEBUG,
+            app_type,
+            application.ASSEMBLIT_NAME,
+            application.ASSEMBLIT_HOME_PAGE_NAME,
+            application.ASSEMBLIT_GITHUB_REPOSITORY_URL,
+            application.ASSEMBLIT_GITHUB_BRANCH_NAME,
+            application.ASSEMBLIT_DIR,
+            application.ASSEMBLIT_CLIENT_PORT,
+            auth_name,
+            auth_query_index,
+            application.ASSEMBLIT_REQUIRE_AUTHENTICATION,
+            os.path.abspath(os.path.join(application.ASSEMBLIT_DIR, 'db')),
+            application.ASSEMBLIT_USERS_DB_NAME,
+            application.ASSEMBLIT_USERS_DB_QUERY_INDEX,
+            application.ASSEMBLIT_SESSIONS_DB_NAME,
+            application.ASSEMBLIT_SESSIONS_DB_QUERY_INDEX,
+            application.ASSEMBLIT_DATA_DB_NAME,
+            application.ASSEMBLIT_DATA_DB_QUERY_INDEX,
+            application.ASSEMBLIT_ANALYSIS_DB_NAME,
+            application.ASSEMBLIT_ANALYSIS_DB_QUERY_INDEX,
+            session_state_defaults,
+            auth_defaults,
+            users_defaults,
+            sessions_defaults,
+            data_defaults,
+            analysis_defaults,
+        )
+
+    if app_type == 'wiki':
+
+        # Initialize the Python package documentation wiki-application
+        application = app.wiki.env(
+            ASSEMBLIT_ENV=env,
+            ASSEMBLIT_VERSION=version,
+            ASSEMBLIT_DEBUG=utils.as_type(debug, return_dtype='bool'),
+            ASSEMBLIT_NAME=name,
+            ASSEMBLIT_HOME_PAGE_NAME=home_page_name,
+            ASSEMBLIT_GITHUB_REPOSITORY_URL=github_repository_url,
+            ASSEMBLIT_GITHUB_BRANCH_NAME=github_branch_name,
+            ASSEMBLIT_DIR=root_dir,
+            ASSEMBLIT_CLIENT_PORT=utils.as_type(client_port, return_dtype='int'),
+        )
+
+        # Validate the port-configuration settings
+        application.ASSEMBLIT_CLIENT_PORT = yaml.validate_port(
+            env='app',
+            port=application.ASSEMBLIT_CLIENT_PORT
+        )
+
+        # Construct session-state defaults
+        session_state_defaults = _construct_session_state_defaults(
+            root_dir=application.ASSEMBLIT_DIR,
+            home_page_name=application.ASSEMBLIT_HOME_PAGE_NAME
+        )
+
+        # Construct authentication settings
+        session_state_defaults, auth_name, auth_query_index, auth_defaults = _construct_authentication_defaults(
+            session_state_defaults=session_state_defaults
+        )
+
+        return (
+            application.ASSEMBLIT_ENV,
+            application.ASSEMBLIT_VERSION,
+            application.ASSEMBLIT_DEBUG,
+            app_type,
+            application.ASSEMBLIT_NAME,
+            application.ASSEMBLIT_HOME_PAGE_NAME,
+            application.ASSEMBLIT_GITHUB_REPOSITORY_URL,
+            application.ASSEMBLIT_GITHUB_BRANCH_NAME,
+            application.ASSEMBLIT_DIR,
+            application.ASSEMBLIT_CLIENT_PORT,
+            auth_name,
+            auth_query_index,
+            False,  # Require authentication
+            None,  # Database directory
+            None,  # Users db name
+            None,  # Users db query-index
+            None,  # Sessions db name
+            None,  # Users db query-index
+            None,  # Data db name
+            None,  # Data db query-index
+            None,  # Analysis db name
+            None,  # Analysis db query-index
+            session_state_defaults,
+            auth_defaults,
+            None,  # Users db defaults
+            None,  # Sessions db defaults
+            None,  # Data db defaults
+            None,  # Analysis db defaults
+        )
+
+
+def create_app(
+    config: dict
 ):
-    """ Sets environment variables and values.
+    """ Creates the web-application environment.
 
     Parameters
     ----------
-    dict_object : `dict`
-        Dictionary object containing environment configuration parameters and values.
+    config : `dict`
+        The `assemblit` configuration.
     """
-    for key, value in dict_object.items():
-        os.environ[key] = str(value)
+
+    # Load the web-application type
+    app_type = yaml.load_type(config=config, env='app', supported_types=app.__all__)
+
+    # Load the web-application environment variables
+    app_environment_dict_object = yaml.load_environment(config=config, env='app')
+
+    if app_type == 'aaas':
+
+        # Initialize the analytics-as-a-service (AaaS) web-application
+        application = app.aaas.env(**app_environment_dict_object)
+
+        # Validate the port-configuration settings
+        application.ASSEMBLIT_CLIENT_PORT = yaml.validate_port(
+            env='app',
+            port=application.ASSEMBLIT_CLIENT_PORT
+        )
+
+        # Create the orchestration server environment
+        _ = layer.create_orchestrator(config=config)
+
+    if app_type == 'wiki':
+
+        # Initialize the Python package documentation wiki-application
+        application = app.wiki.env(**app_environment_dict_object)
+
+        # Validate the port-configuration settings
+        application.ASSEMBLIT_CLIENT_PORT = yaml.validate_port(
+            env='app',
+            port=application.ASSEMBLIT_CLIENT_PORT
+        )
+
+    # Load the environment parameters
+    yaml.create_environment(dict_object={'ASSEMBLIT_APP_TYPE': app_type, **application.to_dict()})
+
+    return application
 
 
 def run(
-    app_type: Literal['aaas', 'wiki'] | None,
     script: Union[str, os.PathLike]
 ):
     """ Runs a Python script.
 
     Parameters
     ----------
-    app_type : `Literal['aaas', 'wiki']
-        The type of `assemblit` web-application, either
-        - `aaas` for a analytics-as-a-service web-application
-        - 'wiki' for a python documentation web-application
     script : `str | os.PathLike`
         The relative or absolute path to a local Python script.
     """
 
     # Load the web-application configuration
-    config = load_app_configuration(script=script)
+    config = yaml.load_configuration(path=os.path.dirname(os.path.abspath(script)))
 
-    # Parse the web-application type
-    if not app_type:
-        app_type = parse_app_type(config=config)
-    else:
-        app_type = validate_app_type(app_type=app_type)
-
-    # Parse the web-application environment variables
-    app_environment = parse_app_environment(config=config)
-
-    if app_type == 'aaas':
-
-        # Initialize the analytics-as-a-service (AaaS) web-application
-        app = apps.AaaS(**app_environment)
-
-        # Validate the port-configuration settings
-        app.ASSEMBLIT_CLIENT_PORT = parse_app_port(
-            client_port=app.ASSEMBLIT_CLIENT_PORT,
-            server_port=app.ASSEMBLIT_SERVER_PORT
-        )
-
-    if app_type == 'wiki':
-
-        # Initialize the Python package documentation wiki-application
-        app = apps.Wiki(**app_environment)
-
-        # Validate the port-configuration settings
-        app.ASSEMBLIT_CLIENT_PORT = parse_app_port(
-            client_port=app.ASSEMBLIT_CLIENT_PORT
-        )
-
-    # Load the environment parameters
-    load_app_environment(dict_object=app.to_dict())
+    # Create the web-application environment
+    application = create_app(config=config)
 
     # Run the web-application
     subprocess.Popen(
-        'streamlit run %s.py --server.port %s' % (
-            app.ASSEMBLIT_HOME_PAGE_NAME,
-            app.ASSEMBLIT_CLIENT_PORT
+        'streamlit run %s --server.port %s' % (
+            os.path.abspath(script),
+            application.ASSEMBLIT_CLIENT_PORT
         ),
         shell=True
     ).wait()
 
 
-# Define yaml-configuration function(s)
-def load_app_configuration(
-    script: Union[str, os.PathLike]
+# Define environment variable constructing functions
+def _construct_session_state_defaults(
+    root_dir: Union[str, os.PathLike],
+    home_page_name: str
 ) -> dict:
-    """ Loads the web-application configuration from '/.assemblit/config.yaml`.
+    """ Constructs the session-state defaults from the environment variables.
 
     Parameters
     ----------
-    script : `str | os.PathLike`
-        The relative or absolute path to a local Python script.
+    root_dir : `str`
+        The local filesystem folder to mount to the docker container.
+    home_page_name : `str`
+        The filename of the Python script that represents the home-page.
     """
-
-    # Infer the location of `config.yaml`
-    config_path = os.path.join(
-        os.path.dirname(os.path.abspath(script)),
-        '.assemblit',
-        'config.yaml'
-    )
-
-    # Check for `config.yaml`
-    if not os.path.isfile(config_path):
-        raise MissingConfiguration()
-
-    # Read `config.yaml`
-    with open(config_path) as file:
-        try:
-            config: dict = yaml.safe_load(file)
-        except yaml.YAMLError as e:
-            raise e
-
-    # Check for environment variables
-    try:
-        if 'assemblit' not in [str(key).strip().lower() for key in dict(config).keys()]:
-            raise InvalidConfiguration()
-    except ValueError:
-        raise InvalidConfiguration()
-
-    return config
+    return {
+        'dir': os.path.abspath(root_dir),
+        'pages': {
+            'home': '%s.py' % (home_page_name)
+        }
+    }
 
 
-# Define exceptions
-class MissingConfiguration(FileNotFoundError):
+def _construct_authentication_defaults(
+    session_state_defaults: dict,
+    require_authentication: bool = False
+) -> tuple:
+    """ Constructs the session-state defaults from the environment variables. """
+    auth_name: str = 'auth'
+    auth_query_index: str = 'authenticated'
 
-    def __init__(self, *args, **kwargs):
-        default_message = ''.join([
-            "Missing configuration.",
-            " `assemblit` requires web-application configuration to be provided within '/.assemblit/config.yaml'.",
-            " See https://www.assemblit.org/api/assemblit/setup."
-        ])
+    if require_authentication:
+        auth_query_index_state: bool = False
+    else:
+        auth_query_index_state: bool = True
+    auth_defaults: dict = {
+        auth_query_index: auth_query_index_state,
+        'sign-up': False,
+        'login-error': False,
+        'sign-up-error': False
+    }
+    session_state_defaults[auth_name] = copy.deepcopy(auth_defaults)
 
-        if not args:
-            args = (default_message,)
-
-        super().__init__(*args, **kwargs)
-
-
-class InvalidConfiguration(KeyError):
-
-    def __init__(self, *args, **kwargs):
-        default_message = ''.join([
-            "Invalid configuration.",
-            " `assemblit` requires environment variables to be provided within '/.assemblit/config.yaml'.",
-            " See https://www.assemblit.org/api/assemblit/setup."
-        ])
-
-        if not args:
-            args = (default_message,)
-
-        super().__init__(*args, **kwargs)
-
-
-class MissingEnvironmentVariables(KeyError):
-
-    def __init__(self, *args, **kwargs):
-        default_message = ''.join([
-            "Missing environment variables.",
-            " `assemblit` requires environment variables to be provided within '/.assemblit/config.yaml'.",
-            " See https://www.assemblit.org/api/assemblit/setup."
-        ])
-
-        if not args:
-            args = (default_message,)
-
-        super().__init__(*args, **kwargs)
+    return (session_state_defaults, auth_name, auth_query_index, auth_defaults)

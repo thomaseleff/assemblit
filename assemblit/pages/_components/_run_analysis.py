@@ -20,8 +20,8 @@ from assemblit.blocks.structures import Setting
 from assemblit.pages._components import _core, _selector
 from assemblit.database import _generic, sessions, data, analysis
 from assemblit.database._structures import Filter, Validate, Row
-from assemblit.server import layer
-from assemblit.server import setup as server_setup
+from assemblit.orchestrator import layer
+from assemblit.orchestrator import setup as server_setup
 
 # --TODO Remove scope_db_name and scope_query_index from all function(s).
 #       Scope for analysis is not dynamic, it can only be the sessions-db.
@@ -64,10 +64,12 @@ def display_run_analysis_form(
 
     # Check server-health
     server_health = layer.health_check(
-        server_name=server_setup.SERVER_NAME,
         server_type=server_setup.SERVER_TYPE,
         server_port=server_setup.SERVER_PORT,
-        root_dir=setup.DB_DIR
+        job_name=server_setup.SERVER_JOB_NAME,
+        job_entrypoint=server_setup.SERVER_JOB_ENTRYPOINT,
+        deployment_name=server_setup.SERVER_DEPLOYMENT_NAME,
+        root_dir=server_setup.SERVER_DIR
     )
 
     # Display the run-analysis form
@@ -325,10 +327,12 @@ def run_job(
 
     # Apply form response to the database & run
     if response and layer.health_check(
-        server_name=server_setup.SERVER_NAME,
         server_type=server_setup.SERVER_TYPE,
         server_port=server_setup.SERVER_PORT,
-        root_dir=setup.DB_DIR
+        job_name=server_setup.SERVER_JOB_NAME,
+        job_entrypoint=server_setup.SERVER_JOB_ENTRYPOINT,
+        deployment_name=server_setup.SERVER_DEPLOYMENT_NAME,
+        root_dir=server_setup.SERVER_DIR
     ):
 
         # Initialize the connection to the sessions database
@@ -452,7 +456,7 @@ def run_job(
             'run-information': {
                 'run-name': name,
                 'start-date': str(datetime.datetime.now()),
-                'version': server_setup.SERVER_DEPLOYMENT_VERSION,
+                'deployment': server_setup.SERVER_DEPLOYMENT_NAME,
                 'session-name': st.session_state[setup.NAME][scope_db_name]['name'],
                 'session-id': st.session_state[setup.NAME][scope_db_name][scope_query_index],
                 'dataset-name': response['dataset'],
@@ -495,14 +499,13 @@ def run_job(
 
         # Run job
         job_run = layer.run_job(
-            server_name=server_setup.SERVER_NAME,
             server_type=server_setup.SERVER_TYPE,
             server_port=server_setup.SERVER_PORT,
             root_dir=setup.DB_DIR,
             name=name,
             job_name=server_setup.SERVER_JOB_NAME,
+            job_entrypoint=server_setup.SERVER_JOB_ENTRYPOINT,
             deployment_name=server_setup.SERVER_DEPLOYMENT_NAME,
-            deployment_version=server_setup.SERVER_DEPLOYMENT_VERSION,
             run_request=run_request
         )
 

@@ -1,12 +1,15 @@
 """ Page builder """
 
+import os
 import copy
 import streamlit as st
-from assemblit import setup
+from assemblit import setup, blocks, database
+from assemblit.app import exceptions
 from assemblit.auth import vault
-from assemblit import blocks, database
-from assemblit.pages._components import _key_value, _core
 from assemblit.database import users
+from assemblit.pages._components import _key_value, _core
+
+_COMPATIBLE_APP_TYPES = ['aaas']
 
 
 class Content():
@@ -22,7 +25,7 @@ class Content():
 
     Notes
     -----
-    The account settings-page can only be created when the ENV variable `REQUIRE_AUTHENTICATION` = 'True'.
+    The account settings-page can only be created when the ENV variable `ASSEMBLIT_REQUIRE_AUTHENTICATION` = 'True'.
 
     Examples
     --------
@@ -57,6 +60,14 @@ class Content():
             `True` or `False`, determines whether to personalize the header,
                 concatenating the user's name, e.g., "Welcome, Jonathan"
         """
+
+        # Validate compatibility
+        if setup.TYPE not in _COMPATIBLE_APP_TYPES:
+            raise exceptions.CompatibilityError(
+                app_type=setup.TYPE,
+                page_name=os.path.splitext(os.path.basename(__file__))[0],
+                compatible_app_types=_COMPATIBLE_APP_TYPES
+            )
 
         # Assign content class variables
         self.header = 'Welcome'
@@ -230,7 +241,7 @@ class Content():
             raise vault.AuthenticationNotRequired(
                 ' '.join([
                     'Account settings are unavailable when REQUIRE_AUTHENTICATION = False.',
-                    'To enable account settings, set REQUIRE_AUTHENTICATION = True within the `Dockerfile`.',
+                    'To enable account settings, set REQUIRE_AUTHENTICATION = True within `/.assemblit/config.yaml`.',
                     'When authentication is required, visitors will be required to sign-up or login and will',
                     'be able to manage their information, privacy and data via the `Account Settings` page.'
                 ])

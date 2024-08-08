@@ -15,8 +15,8 @@ from assemblit import setup
 from assemblit.pages._components import _core, _selector
 from assemblit.database import _generic, sessions, analysis
 from assemblit.database._structures import Filter, Value
-from assemblit.server import layer
-from assemblit.server import setup as server_setup
+from assemblit.orchestrator import layer
+from assemblit.orchestrator import setup as server_setup
 
 # --TODO Remove scope_db_name and scope_query_index from all function(s).
 #       Scope for analysis is not dynamic, it can only be the sessions-db.
@@ -54,10 +54,12 @@ def display_run_listing_table(
 
     # Check server-health
     server_health = layer.health_check(
-        server_name=server_setup.SERVER_NAME,
         server_type=server_setup.SERVER_TYPE,
         server_port=server_setup.SERVER_PORT,
-        root_dir=setup.DB_DIR
+        job_name=server_setup.SERVER_JOB_NAME,
+        job_entrypoint=server_setup.SERVER_JOB_ENTRYPOINT,
+        deployment_name=server_setup.SERVER_DEPLOYMENT_NAME,
+        root_dir=server_setup.SERVER_DIR
     )
 
     if server_health:
@@ -520,10 +522,12 @@ def refresh_run_listing_table(
 
     # Apply form response to the database & run
     if layer.health_check(
-        server_name=server_setup.SERVER_NAME,
         server_type=server_setup.SERVER_TYPE,
         server_port=server_setup.SERVER_PORT,
-        root_dir=setup.DB_DIR
+        job_name=server_setup.SERVER_JOB_NAME,
+        job_entrypoint=server_setup.SERVER_JOB_ENTRYPOINT,
+        deployment_name=server_setup.SERVER_DEPLOYMENT_NAME,
+        root_dir=server_setup.SERVER_DIR
     ):
 
         # Initialize connection to the analysis database
@@ -550,10 +554,12 @@ def refresh_run_listing_table(
         if run_ids:
             for run_id in run_ids:
                 status = layer.poll_job_run(
-                    server_name=server_setup.SERVER_NAME,
                     server_type=server_setup.SERVER_TYPE,
                     server_port=server_setup.SERVER_PORT,
-                    root_dir=setup.DB_DIR,
+                    job_name=server_setup.SERVER_JOB_NAME,
+                    job_entrypoint=server_setup.SERVER_JOB_ENTRYPOINT,
+                    deployment_name=server_setup.SERVER_DEPLOYMENT_NAME,
+                    root_dir=server_setup.SERVER_DIR,
                     run_id=run_id
                 )
 

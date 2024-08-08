@@ -4,8 +4,11 @@ import os
 import inspect
 from typing import Any
 import streamlit as st
-from assemblit import setup
+from assemblit import setup, app
+from assemblit.app import exceptions
 from assemblit.pages._components import _core
+
+_COMPATIBLE_APP_TYPES = app.__all__
 
 
 class Content():
@@ -53,6 +56,14 @@ class Content():
         package_or_module : `str`
             The package or module to document.
         """
+
+        # Validate compatibility
+        if setup.TYPE not in _COMPATIBLE_APP_TYPES:
+            raise exceptions.CompatibilityError(
+                app_type=setup.TYPE,
+                page_name=os.path.splitext(os.path.basename(__file__))[0],
+                compatible_app_types=_COMPATIBLE_APP_TYPES
+            )
 
         # Assign content class variables
         self.package = package
@@ -198,7 +209,7 @@ class Content():
     def _display_method_documentation(self, methods: Any):
 
         # Layout columns
-        _, col2, _ = st.columns(setup.METHODS_COLUMNS)
+        _, col2, _ = st.columns(setup.INDENTED_CONTENT_COLUMNS)
 
         # Display `method` documentation
         col2.markdown('#### Methods')

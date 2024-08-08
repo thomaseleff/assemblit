@@ -1,27 +1,38 @@
 """ Assemblit commands """
 
 import os
-from typing import Union, Literal
+from typing import Union
 from assemblit.app import layer
 
 
 # Define assemblit sub-command function(s)
 def run(
-    app_type: Literal['aaas', 'wiki'] | None,
     script: Union[str, os.PathLike]
 ):
     """ Runs a Python script.
 
     Parameters
     ----------
-    app_type : `Literal['aaas', 'wiki']
-        The type of `assemblit` web-application, either
-            - `aaas` for an analytics-as-a-service web-application
-            - `wiki` for a python package documentation wiki-application
     script : `str | os.PathLike`
         The relative or absolute path to a local Python script.
+
+    Help
+    ----
+    usage: assemblit run [-h] script
+
+    positional arguments:
+    script      The relative or absolute path to a local Python script.
+
+    options:
+    -h, --help  show this help message and exit
+
+    Execute `assemblit run --help` for help.
+
+    Examples
+    --------
+    ``` console
+    assemblit run app.py
+    ```
+
     """
-    layer.run(
-        app_type=app_type,
-        script=script
-    )
+    layer.run(script=script)
