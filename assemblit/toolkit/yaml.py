@@ -1,4 +1,4 @@
-""" Configuration loading utility """
+""" Configuration utility """
 
 import os
 import copy
@@ -16,7 +16,7 @@ def load_configuration(
 
     Parameters
     ----------
-    path : `str | os.PathLike`
+    path : `str` | `os.PathLike`
         The absolute path to the work-directory.
     """
 
@@ -46,6 +46,42 @@ def load_configuration(
         raise exceptions.InvalidConfiguration
 
     return config
+
+
+def unload_configuration(
+    path: Union[str, os.PathLike],
+    config: dict
+) -> dict:
+    """ Unloads the `assemblit` configuration to '/.assemblit/config.yaml`.
+
+    Parameters
+    ----------
+    path : `str` | `os.PathLike`
+        The absolute path to the work-directory.
+    config : `dict`
+        The `assemblit` configuration.
+    """
+
+    # Infer the location of `config.yaml`
+    config_path = os.path.join(
+        path,
+        '.assemblit',
+        'config.yaml'
+    )
+
+    # Create output folder
+    if not os.path.isdir(os.path.dirname(config_path)):
+        utils.generate_output_directory(
+            path=os.path.abspath(path),
+            root='.assemblit'
+        )
+
+    # Unload (and replace) `config.yaml`
+    with open(config_path, 'w') as file:
+        try:
+            yaml.dump(config, file, sort_keys=False, default_flow_style=False)
+        except yaml.YAMLError as e:
+            raise e
 
 
 def load_environment(

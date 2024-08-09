@@ -1,4 +1,4 @@
-""" Assemblit """
+""" Command-line utility """
 
 import sys
 import errno
@@ -11,7 +11,7 @@ def main():
     """
     usage: assemblit [-h] {run} ...
 
-    CLI application for running `assemblit` web-applications.
+    CLI application for building and running `assemblit` web-applications.
 
     options:
     -h, --help  Show this help message and exit
@@ -19,8 +19,9 @@ def main():
     commands:
     The web-application command options.
 
-    {run}
-        run     Runs a local Python script.
+    {build, run}
+        build      Builds a new project.
+        run        Runs a local Python script.
 
     Execute `assemblit {command} --help` for help.
     """
@@ -28,16 +29,32 @@ def main():
     # Setup CLI argument option(s)
     _ARG_PARSER = argparse.ArgumentParser(
         prog='assemblit',
-        description='CLI application for running `assemblit` web-applications.',
+        description='CLI application for building and running `assemblit` web-applications.',
         epilog="Execute `assemblit {command} --help` for more help."
     )
 
-    # Setup `run` command CLI argument option(s)
+    # Setup command argument option(s)
     _ARG_SUBPARSER = _ARG_PARSER.add_subparsers(
         title='commands',
         prog='assemblit',
         description='The `assemblit` command options.'
     )
+
+    # Setup `build` command CLI argument option(s)
+    _BUILD_ARG_PARSER = _ARG_SUBPARSER.add_parser(
+        name='build',
+        help='Builds a new project.',
+        epilog="Execute `assemblit build --help` for help."
+    )
+    _BUILD_ARG_PARSER.add_argument(
+        'app_type',
+        help="The type of web-application.",
+        type=str,
+        choices=['demo']
+    )
+    _BUILD_ARG_PARSER.set_defaults(func=commands.build)
+
+    # Setup `run` command CLI argument option(s)
     _RUN_ARG_PARSER = _ARG_SUBPARSER.add_parser(
         name='run',
         help='Runs a local Python script.',

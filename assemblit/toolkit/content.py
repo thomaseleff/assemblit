@@ -14,7 +14,23 @@ def from_markdown(
     file_path : `str | os.PathLike`
         The relative or absolute path to a markdown document.
     """
-    return _from_text_content(file_path)
+    return _from_text_content(file_path=file_path)
+
+
+def to_markdown(
+    file_path: Union[str, os.PathLike],
+    content: str
+):
+    """ Writes content to `file_path`.
+
+    Parameters
+    ----------
+    file_path : `str | os.PathLike`
+        The relative or absolute path to a markdown document.
+    content : `str`
+        The markdown text content.
+    """
+    return _to_text_content(file_path=file_path, content=content)
 
 
 # def from_html(
@@ -43,5 +59,22 @@ def _from_text_content(
     if not os.path.isfile(os.path.abspath(file_path)):
         raise FileNotFoundError('{%s} does not exist.' % os.path.abspath(file_path))
 
-    with open(os.path.abspath(file_path), 'r', encoding='utf-8') as text_content:
-        return text_content.read()
+    with open(os.path.abspath(file_path), 'r', encoding='utf-8') as file:
+        return file.read()
+
+
+def _to_text_content(
+    file_path: Union[str, os.PathLike],
+    content: str
+):
+    """ Writes content to `file_path`.
+
+    Parameters
+    ----------
+    file_path : `str | os.PathLike`
+        The relative or absolute path to a text document.
+    content : `str`
+        The markdown text content.
+    """
+    with open(os.path.abspath(file_path), 'w', encoding='utf-8') as file:
+        file.write(content)

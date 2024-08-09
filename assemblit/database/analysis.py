@@ -109,7 +109,7 @@ class Schemas():
 
 # Define the `analysis` database connection
 class Connection(_generic.Connection):
-    """ The `users` sqlite3-database Connection. """
+    """ The `analysis` sqlite3-database Connection. """
 
     def __init__(
         self

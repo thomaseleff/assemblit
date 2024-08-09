@@ -1,13 +1,16 @@
 """ Assemblit web-application """
 
 import os
+import shutil
 import subprocess
 import copy
-from typing import Union
+import textwrap
+from typing import Union, Literal
 from assemblit import app
+from assemblit.app import exceptions
 from assemblit.orchestrator import layer
+from assemblit.toolkit import yaml, content
 from pytensils import utils
-from assemblit.toolkit import yaml
 
 
 # Define abstracted web-application function(s)
@@ -367,6 +370,106 @@ def create_app(
     yaml.create_environment(dict_object={'ASSEMBLIT_APP_TYPE': app_type, **application.to_dict()})
 
     return application
+
+
+def build(
+    app_type: Literal['demo']
+):
+    """ Builds a new project.
+
+    Parameters
+    ----------
+    app_type : `Literal['demo']`
+        The type of web-application.
+    """
+
+    # Get current work-directory
+    path = os.getcwd()
+
+    if app_type.strip().lower() == 'demo':
+
+        # Build the web-application configuration
+        config = {
+            'assemblit': {
+                'app': {
+                    'type': 'wiki',
+                    'env': {
+                        'ASSEMBLIT_ENV': 'DEV',
+                        'ASSEMBLIT_VERSION': 'main',
+                        'ASSEMBLIT_DEBUG': True,
+                        'ASSEMBLIT_NAME': 'demo',
+                        'ASSEMBLIT_HOME_PAGE_NAME': 'app',
+                        'ASSEMBLIT_GITHUB_REPOSITORY_URL': 'https://github.com/thomaseleff/assemblit',
+                        'ASSEMBLIT_GITHUB_BRANCH_NAME': 'main',
+                        'ASSEMBLIT_CLIENT_PORT': 8501,
+                        'ASSEMBLIT_DIR': os.path.abspath(path)
+                    }
+                }
+            }
+        }
+
+        # Unload the web-application configuration
+        yaml.unload_configuration(path=os.path.abspath(path), config=config)
+
+        # Build the web-application content
+        markdown = (
+            """
+            Congratulations, you successfully deployed your first Assemblit web-app!
+
+            This deployment built a new `demo` project within `%s`, where you can find the page content, `README.md`, and the Python script that generated this page, `app.py`.
+
+            See `./.assemblit/config.yaml` for the configuration parameters.
+
+            To restart this app, run,
+
+            ```
+            assemblit run app.py
+            ```
+
+            ### Want to learn more?
+            - Check out the documentation at [assemblit.org](%s)
+            """
+        ) % (
+            os.path.realpath(path),
+            exceptions._URL
+        )
+
+        # Unload the web-application content
+        content.to_markdown(
+            file_path=os.path.join(
+                os.path.abspath(path),
+                'README.md'
+            ),
+            content=textwrap.dedent(markdown)
+        )
+
+        # Unload the Python script
+        shutil.copy(
+            os.path.join(
+                os.path.dirname(app.__file__),
+                'scripts',
+                'demo.py'
+            ),
+            os.path.join(
+                os.path.abspath(path),
+                'app.py'
+            )
+        )
+
+    else:
+        raise NotImplementedError('App-type {%s} is not yet supported by `assemblit build`.' % (app_type))
+
+    # Create the web-application environment
+    application = create_app(config=config)
+
+    # Run the web-application
+    subprocess.Popen(
+        'streamlit run %s --server.port %s' % (
+            os.path.join(os.path.abspath(path), 'app.py'),
+            application.ASSEMBLIT_CLIENT_PORT
+        ),
+        shell=True
+    ).wait()
 
 
 def run(

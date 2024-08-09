@@ -26,10 +26,12 @@ Checkout `linny` by navigating to [www.linny.assemblit.org](https://www.linny.as
    ```
 
 ## First steps
-Initialize your first `assemblit` app with the command-line utility.
+Build your first `assemblit` app with the command-line utility.
 
-1. From the command-line, run,
+1. Create a new folder to contain your `assemblit` project.
+2. Open a command prompt and navigate into the new folder.
+3. From the command-line, run,
 
    ```
-   assemblit build --template "getting-started"
+   assemblit build demo
    ```

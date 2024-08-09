@@ -1,6 +1,7 @@
 """ Assemblit web-application exceptions """
 
-_DOCS_URL = 'https://www.assemblit.org/api/assemblit'
+_URL = 'https://www.assemblit.org'
+_DOCS_URL = '%s/api/assemblit' % (_URL)
 
 
 class MissingConfiguration(FileNotFoundError):
