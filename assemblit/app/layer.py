@@ -4,6 +4,7 @@ import os
 import shutil
 import subprocess
 import copy
+import textwrap
 from typing import Union, Literal
 from assemblit import app
 from assemblit.app import exceptions
@@ -413,12 +414,11 @@ def build(
         # Build the web-application content
         markdown = (
             """
-            Congratulations, you successfully deployed your first Assemblit web-app.
+            Congratulations, you successfully deployed your first Assemblit web-app!
 
-            This deployment built a new `demo` project within `%s`, where you can find this markdown content, `README.md`,
-            and the Python script that generated this page, `app.py`.
+            This deployment built a new `demo` project within `%s`, where you can find the page content, `README.md`, and the Python script that generated this page, `app.py`.
 
-            See `./.assemblit/config.yaml` for the web-application configuration parameters for this app.
+            See `./.assemblit/config.yaml` for the configuration parameters.
 
             To restart this app, run,
 
@@ -430,7 +430,7 @@ def build(
             - Check out the documentation at [assemblit.org](%s)
             """
         ) % (
-            os.path.abspath(path),
+            os.path.realpath(path),
             exceptions._URL
         )
 
@@ -440,7 +440,7 @@ def build(
                 os.path.abspath(path),
                 'README.md'
             ),
-            content=markdown
+            content=textwrap.dedent(markdown)
         )
 
         # Unload the Python script
