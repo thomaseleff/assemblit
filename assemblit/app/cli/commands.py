@@ -63,7 +63,7 @@ def build(
     Examples
     --------
     ``` console
-    assemblit build "demo" .
+    assemblit build demo
     ```
     """
     layer.build(app_type=app_type)

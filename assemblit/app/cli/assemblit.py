@@ -1,4 +1,4 @@
-""" Assemblit """
+""" Command-line utility """
 
 import sys
 import errno

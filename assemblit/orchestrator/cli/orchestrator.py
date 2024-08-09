@@ -1,4 +1,4 @@
-""" Workflow orchestrator """
+""" Command-line utility """
 
 import sys
 import errno
