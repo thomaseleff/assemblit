@@ -3,10 +3,10 @@
 import os
 import copy
 import streamlit as st
-from assemblit import setup, blocks, database
-from assemblit.app import exceptions
-from assemblit.auth import vault
-from assemblit.database import users
+from assemblit import setup, blocks, _database
+from assemblit.toolkit import _exceptions
+from assemblit._auth import vault
+from assemblit._database import users
 from assemblit.pages._components import _key_value, _core
 
 _COMPATIBLE_APP_TYPES = ['aaas']
@@ -63,7 +63,7 @@ class Content():
 
         # Validate compatibility
         if setup.TYPE not in _COMPATIBLE_APP_TYPES:
-            raise exceptions.CompatibilityError(
+            raise _exceptions.CompatibilityError(
                 app_type=setup.TYPE,
                 page_name=os.path.splitext(os.path.basename(__file__))[0],
                 compatible_app_types=_COMPATIBLE_APP_TYPES
@@ -193,7 +193,7 @@ class Content():
                     Users.select_table_column_value(
                         table_name=users.Schemas.credentials.name,
                         col='first_name',
-                        filtr=database._structures.Filter(
+                        filtr=_database._structures.Filter(
                             col=self.query_index,
                             val=st.session_state[setup.NAME][self.db_name][self.query_index]
                         ),
@@ -204,7 +204,7 @@ class Content():
                     Users.select_table_column_value(
                         table_name=users.Schemas.credentials.name,
                         col='username',
-                        filtr=database._structures.Filter(
+                        filtr=_database._structures.Filter(
                             col=self.query_index,
                             val=st.session_state[setup.NAME][self.db_name][self.query_index]
                         ),

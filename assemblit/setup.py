@@ -2,7 +2,9 @@
 
 import os
 from typing import Union, List
-from assemblit.app import layer, exceptions
+import assemblit
+from assemblit._app import layer
+from assemblit.toolkit import _exceptions
 
 
 # Layout settings
@@ -15,12 +17,12 @@ INDENTED_CONTENT_COLUMNS: List[Union[int, float]] = [.1, .85, .05]
 
 # Validate web-application type
 if 'ASSEMBLIT_APP_TYPE' not in os.environ:
-    raise exceptions.MissingEnvironmentVariables(
+    raise _exceptions.MissingEnvironmentVariables(
         ''.join([
             "Missing environment variables.",
             " `assemblit` requires environment variables to be provided within '/.assemblit/config.yaml'.",
             " In order to load the environment variables, run `assemblit run {script}`."
-            " See %s." % (exceptions._DOCS_URL)
+            " See %s." % (assemblit._DOCS_URL)
         ])
     )
 
@@ -48,14 +50,6 @@ if 'ASSEMBLIT_APP_TYPE' not in os.environ:
     AUTH_NAME,
     AUTH_QUERY_INDEX,
     REQUIRE_AUTHENTICATION,
-
-    # Orchestration server configuration settings
-    # SERVER_JOB_NAME,
-    # SERVER_JOB_ENTRYPOINT,
-    # SERVER_DEPLOYMENT_NAME,
-
-    # Add'l Port configuration settings
-    # SERVER_PORT,
 
     # Db settings
     DB_DIR,
@@ -99,10 +93,6 @@ if 'ASSEMBLIT_APP_TYPE' not in os.environ:
 
     # [optional]
     require_authentication=os.environ.get('ASSEMBLIT_REQUIRE_AUTHENTICATION', None),
-    # job_name=os.environ.get('ASSEMBLIT_SERVER_JOB_NAME', None),
-    # job_entrypoint=os.environ.get('ASSEMBLIT_SERVER_JOB_ENTRYPOINT', None),
-    # deployment_name=os.environ.get('ASSEMBLIT_SERVER_DEPLOYMENT_NAME', None),
-    # server_port=os.environ.get('ASSEMBLIT_SERVER_PORT', None),
     users_db_name=os.environ.get('ASSEMBLIT_USERS_DB_NAME', None),
     users_db_query_index=os.environ.get('ASSEMBLIT_USERS_DB_QUERY_INDEX', None),
     sessions_db_name=os.environ.get('ASSEMBLIT_SESSIONS_DB_NAME', None),

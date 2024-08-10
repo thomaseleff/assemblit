@@ -15,8 +15,8 @@ import streamlit as st
 from assemblit import setup
 from assemblit.blocks.structures import Setting, Selector
 from assemblit.pages._components import _core, _key_value
-from assemblit.database import _generic, users, sessions, data
-from assemblit.database._structures import Filter, Value, Row
+from assemblit._database import _generic, users, sessions, data
+from assemblit._database._structures import Filter, Value, Row
 from pytensils import utils
 
 

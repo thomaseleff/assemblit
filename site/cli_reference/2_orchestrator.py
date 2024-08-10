@@ -4,7 +4,7 @@ Orchestration server management cli-tool.
 """
 
 import assemblit
-from assemblit.orchestrator import cli
+from assemblit._orchestrator import cli
 from assemblit.pages import code_documentation
 
 

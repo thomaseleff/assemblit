@@ -13,10 +13,10 @@ import pandas as pd
 import streamlit as st
 from assemblit import setup
 from assemblit.pages._components import _core, _selector
-from assemblit.database import _generic, sessions, analysis
-from assemblit.database._structures import Filter, Value
-from assemblit.orchestrator import layer
-from assemblit.orchestrator import setup as server_setup
+from assemblit._database import _generic, sessions, analysis
+from assemblit._database._structures import Filter, Value
+from assemblit._orchestrator import layer
+from assemblit._orchestrator import setup as server_setup
 
 # --TODO Remove scope_db_name and scope_query_index from all function(s).
 #       Scope for analysis is not dynamic, it can only be the sessions-db.
