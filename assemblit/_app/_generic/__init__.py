@@ -85,6 +85,10 @@ class _env():
                     )
                 )
 
+        # Convert relative directory paths to absoluate paths
+        if variable.name in ['ASSEMBLIT_DIR']:
+            setattr(self, variable.name, os.path.abspath(getattr(self, variable.name)))
+
     def to_dict(self) -> dict:
         """ Returns the environment variables and values as a dictionary. """
         return asdict(self)

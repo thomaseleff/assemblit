@@ -19,7 +19,7 @@ Running and managing 🚀 `linny` workflows is simple, with four basic stages.
 
 ### 2. Upload & validate data
 
-   You can upload, validate, review and analyze any number of input datafiles within `linny`. The **Date** module enforces schema rules for all uploads and builds a simple data review. The data review contains,
+   You can upload, validate, review and analyze any number of input datafiles within `linny`. The **Data** module enforces schema rules for all uploads and builds a simple data review. The data review contains,
 
    - A **Preview** of the first 5 obserations of a newly uploaded datafile.
    - An interactive **Review** for exploring timeseries and descriptive summaries of any uploaded datafile and for finalizing a dataset for the selected **Study**.

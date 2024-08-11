@@ -16,7 +16,7 @@ assemblit:
       ASSEMBLIT_CLIENT_PORT: 8501
 
       # Mounted volume settings
-      ASSEMBLIT_DIR: "T:/Documents/Projects/Assemblit/examples/linny"
+      ASSEMBLIT_DIR: "."
 
       # Authentication settings
       ASSEMBLIT_REQUIRE_AUTHENTICATION: True
@@ -43,9 +43,9 @@ assemblit:
 
       # Orchestration server configuration settings
       ASSEMBLIT_SERVER_JOB_NAME: "linear-regression-flow"
-      ASSEMBLIT_SERVER_JOB_ENTRYPOINT: "T:/Documents/Projects/Assemblit/examples/linny/flow.py"
+      ASSEMBLIT_SERVER_JOB_ENTRYPOINT: "flow.py"
       ASSEMBLIT_SERVER_DEPLOYMENT_NAME: "v0_1_0"
       ASSEMBLIT_SERVER_PORT: 4200
 
       # Mounted volume settings
-      ASSEMBLIT_SERVER_DIR: "T:/Documents/Projects/Assemblit/examples/linny/db/orchestrator"
+      ASSEMBLIT_SERVER_DIR: "./db/orchestrator"
