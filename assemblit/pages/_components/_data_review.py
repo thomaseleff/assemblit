@@ -16,8 +16,8 @@ import streamlit as st
 from assemblit import setup
 from assemblit.toolkit import aggregator, plotter
 from assemblit.pages._components import _core, _selector
-from assemblit.database import _generic, sessions, data
-from assemblit.database._structures import Filter, Value
+from assemblit._database import _generic, sessions, data
+from assemblit._database._structures import Filter, Value
 
 # --TODO Remove scope_db_name and scope_query_index from all function(s).
 #       Scope for data is not dynamic, it can only be the sessions-db.

@@ -12,8 +12,8 @@ Contains the generic methods for a key-value pair settings-page.
 import streamlit as st
 from assemblit import setup
 from assemblit.blocks.structures import Setting
-from assemblit.database import _generic
-from assemblit.database._structures import Filter, Validate, Value, Row
+from assemblit._database import _generic
+from assemblit._database._structures import Filter, Validate, Value, Row
 from pytensils import utils
 
 

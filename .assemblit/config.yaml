@@ -16,4 +16,4 @@ assemblit:
       ASSEMBLIT_CLIENT_PORT: 8501
 
       # Mounted volume settings
-      ASSEMBLIT_DIR: "T:/Documents/Projects/Assemblit"
+      ASSEMBLIT_DIR: "."

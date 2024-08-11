@@ -1,4 +1,4 @@
-""" linny.assemblit.org/Analysis """
+""" localhost:{ASSEMBLIT_CLIENT_PORT}/Analysis """
 
 from assemblit.pages import run_analysis
 

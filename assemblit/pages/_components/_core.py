@@ -13,7 +13,7 @@ import json
 import copy
 import streamlit as st
 from assemblit import setup
-from assemblit.auth import vault
+from assemblit._auth import vault
 from assemblit.blocks.structures import Setting
 
 

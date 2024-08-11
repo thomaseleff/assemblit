@@ -1,2 +1,0 @@
-orchestrator start -N "linny" -T "prefect" -P "4200" -D "/linny/db" -E "/examples/linear-regression/flow.py"
-orchestrator start -N "linny" -T "prefect" -P 4200 -D "T:\Documents\Projects\Assemblit\examples\linny\db" -E "T:\Documents\Projects\Assemblit\examples\linny\flow.py"

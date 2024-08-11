@@ -1,4 +1,4 @@
-""" linny.assemblit.org/Listing """
+""" localhost:{ASSEMBLIT_CLIENT_PORT}/Listing """
 
 from assemblit.pages import run_listing
 

@@ -28,11 +28,9 @@ routes = {
         st.Page(page='site/api_reference/1a_setup.py', title='    setup', url_path='lib/assemblit/setup'),
         st.Page(page='site/api_reference/1b_blocks.py', title='    blocks', url_path='lib/assemblit/blocks'),
         st.Page(page='site/api_reference/1c_pages.py', title='    pages', url_path='lib/assemblit/pages'),
-        st.Page(page='site/api_reference/1d_toolkit.py', title='    toolkit', url_path='lib/assemblit/toolkit'),
-        st.Page(page='site/api_reference/1e_auth.py', title='    auth', url_path='lib/assemblit/auth'),
-        st.Page(page='site/api_reference/1f_database.py', title='    database', url_path='lib/assemblit/database')
+        st.Page(page='site/api_reference/1d_toolkit.py', title='    toolkit', url_path='lib/assemblit/toolkit')
     ]
 }
 
-app = st.navigation(pages=routes, position='sidebar')
-app.run()
+page = st.navigation(pages=routes, position='sidebar')
+page.run()

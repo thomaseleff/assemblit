@@ -2,6 +2,7 @@
 
 import typing
 import pandas
+from assemblit.toolkit import _exceptions
 
 AGGRULES = {
     'Count': 'count',
@@ -46,7 +47,7 @@ def agg_df(
     try:
         aggrules = [AGGRULES[r] for r in aggrules]
     except KeyError:
-        raise InvalidAggregationRule(
+        raise _exceptions.InvalidAggregationRule(
             "Invalid agg. rule(s) {%s}. Acceptable agg. rules are [%s]." % (
                 aggrules[0],
                 ', '.join(list(AGGRULES.keys()))
@@ -234,8 +235,3 @@ def describe_df(
         ]
 
     return descriptives_df
-
-
-# Define exception classes
-class InvalidAggregationRule(Exception):
-    pass

@@ -18,9 +18,9 @@ import pandera as pa
 from pandera.engines import pandas_engine
 import streamlit as st
 from assemblit import setup
-from assemblit.toolkit import parser
-from assemblit.database import _generic, sessions, data
-from assemblit.database._structures import Filter, Validate, Row
+from assemblit.toolkit import _dataframe
+from assemblit._database import _generic, sessions, data
+from assemblit._database._structures import Filter, Validate, Row
 
 # --TODO Remove scope_db_name and scope_query_index from all function(s).
 #       Scope for data is not dynamic, it can only be the sessions-db.
@@ -240,7 +240,7 @@ def display_data_preview(
                 df.columns = [c.lower() for c in df.columns]
 
                 # Identify and format the datetime dimension
-                datetime = parser.datetime_dimension(df=df)
+                datetime = _dataframe.datetime_dimension(df=df)
 
                 # Identify categorical dimensions
                 #   If the datatype is a(n),

@@ -4,7 +4,7 @@ Assemblit deployment cli-tool.
 """
 
 import assemblit
-from assemblit.app import cli
+from assemblit._app import cli
 from assemblit.pages import code_documentation
 
 

@@ -1,4 +1,4 @@
-""" linny.assemblit.org/Data """
+""" localhost:{ASSEMBLIT_CLIENT_PORT}/Data """
 
 import os
 import pandas as pd
