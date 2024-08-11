@@ -1,4 +1,4 @@
-streamlit==1.36.0
+streamlit==1.37.0
 regex==2023.10.3
 argon2-cffi==23.1.0
 email-validator==2.1.0.post1

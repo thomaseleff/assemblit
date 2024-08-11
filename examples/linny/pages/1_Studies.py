@@ -1,4 +1,4 @@
-""" linny.assemblit.org/Studies """
+""" localhost:{ASSEMBLIT_CLIENT_PORT}/Studies """
 
 from assemblit.pages import session_selector
 from assemblit.blocks.structures import Setting, Selector

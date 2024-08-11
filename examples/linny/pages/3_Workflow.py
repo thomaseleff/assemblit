@@ -1,4 +1,4 @@
-""" linny.assemblit.org/Workflow """
+""" localhost:{ASSEMBLIT_CLIENT_PORT}/Workflow """
 
 from assemblit.pages import workflow_settings
 from assemblit.blocks.structures import Setting

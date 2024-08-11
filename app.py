@@ -32,5 +32,5 @@ routes = {
     ]
 }
 
-app = st.navigation(pages=routes, position='sidebar')
-app.run()
+page = st.navigation(pages=routes, position='sidebar')
+page.run()

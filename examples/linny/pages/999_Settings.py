@@ -1,4 +1,4 @@
-""" linny.assemblit.org/Settings """
+""" localhost:{ASSEMBLIT_CLIENT_PORT}/Settings """
 
 from assemblit.pages import account_settings
 
