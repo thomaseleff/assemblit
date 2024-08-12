@@ -339,20 +339,23 @@ def run_job(
         name = hashlib.md5((str(datetime.datetime.now())).encode('utf-8')).hexdigest()
 
         # Make job-run directories
-        if not os.path.isdir(os.path.join(setup.ROOT_DIR, db_name)):
-            os.mkdir(os.path.join(setup.ROOT_DIR, db_name))
+        if not os.path.isdir(os.path.join(setup.ROOT_DIR, 'workspace')):
+            os.mkdir(os.path.join(setup.ROOT_DIR, 'workspace'))
 
-        if not os.path.isdir(os.path.join(setup.ROOT_DIR, db_name, name)):
-            os.mkdir(os.path.join(setup.ROOT_DIR, db_name, name))
+        if not os.path.isdir(os.path.join(setup.ROOT_DIR, 'workspace', db_name)):
+            os.mkdir(os.path.join(setup.ROOT_DIR, 'workspace', db_name))
 
-            if not os.path.isdir(os.path.join(setup.ROOT_DIR, db_name, name, 'inputs')):
-                os.mkdir(os.path.join(setup.ROOT_DIR, db_name, name, 'inputs'))
+        if not os.path.isdir(os.path.join(setup.ROOT_DIR, 'workspace', db_name, name)):
+            os.mkdir(os.path.join(setup.ROOT_DIR, 'workspace', db_name, name))
 
-                if not os.path.isdir(os.path.join(setup.ROOT_DIR, db_name, name, 'inputs', setup.DATA_DB_NAME)):
-                    os.mkdir(os.path.join(setup.ROOT_DIR, db_name, name, 'inputs', setup.DATA_DB_NAME))
+            if not os.path.isdir(os.path.join(setup.ROOT_DIR, 'workspace', db_name, name, 'inputs')):
+                os.mkdir(os.path.join(setup.ROOT_DIR, 'workspace', db_name, name, 'inputs'))
 
-            if not os.path.isdir(os.path.join(setup.ROOT_DIR, db_name, name, 'outputs')):
-                os.mkdir(os.path.join(setup.ROOT_DIR, db_name, name, 'outputs'))
+                if not os.path.isdir(os.path.join(setup.ROOT_DIR, 'workspace', db_name, name, 'inputs', setup.DATA_DB_NAME)):
+                    os.mkdir(os.path.join(setup.ROOT_DIR, 'workspace', db_name, name, 'inputs', setup.DATA_DB_NAME))
+
+            if not os.path.isdir(os.path.join(setup.ROOT_DIR, 'workspace', db_name, name, 'outputs')):
+                os.mkdir(os.path.join(setup.ROOT_DIR, 'workspace', db_name, name, 'outputs'))
 
         # Get dataset id
         dataset_id = Data.select_generic_query(
@@ -420,6 +423,7 @@ def run_job(
             df.to_csv(
                 os.path.join(
                     setup.ROOT_DIR,
+                    'workspace',
                     db_name,
                     name,
                     'inputs',
@@ -433,6 +437,7 @@ def run_job(
             df.to_parquet(
                 os.path.join(
                     setup.ROOT_DIR,
+                    'workspace',
                     db_name,
                     name,
                     'inputs',
@@ -452,12 +457,12 @@ def run_job(
                 'session-id': st.session_state[setup.NAME][scope_db_name][scope_query_index],
                 'dataset-name': response['dataset'],
                 'dataset-id': dataset_id,
-                'inputs': os.path.join(setup.ROOT_DIR, db_name, name, 'inputs'),
-                'outputs': os.path.join(setup.ROOT_DIR, db_name, name, 'outputs'),
+                'inputs': os.path.join(setup.ROOT_DIR, 'workspace', db_name, name, 'inputs'),
+                'outputs': os.path.join(setup.ROOT_DIR, 'workspace', db_name, name, 'outputs'),
             },
             'dir': {
-                'inputs': os.path.join(setup.ROOT_DIR, db_name, name, 'inputs'),
-                'outputs': os.path.join(setup.ROOT_DIR, db_name, name, 'outputs')
+                'inputs': os.path.join(setup.ROOT_DIR, 'workspace', db_name, name, 'inputs'),
+                'outputs': os.path.join(setup.ROOT_DIR, 'workspace', db_name, name, 'outputs')
             },
             'workflow': Sessions.select_multi_table_column_value(
                 table_name='workflow',
@@ -475,12 +480,13 @@ def run_job(
         with open(
             os.path.join(
                 setup.ROOT_DIR,
+                'workspace',
                 db_name,
                 name,
                 'inputs',
                 'run_request.json'
             ),
-            mode='w+'
+            mode='w'
         ) as file:
             json.dump(
                 run_request,
