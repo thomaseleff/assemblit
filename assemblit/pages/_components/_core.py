@@ -1,13 +1,4 @@
-"""
-Information
----------------------------------------------------------------------
-Name        : _core.py
-Location    : ~/pages/_components
-
-Description
----------------------------------------------------------------------
-Contains the core components for an assemblit web-application.
-"""
+""" Contains the core components for an `assemblit` web-application """
 
 import json
 import copy

@@ -552,7 +552,7 @@ class Connection():
                     col=dependent_query_index,
                     filtr=Filter(
                         col=str(query_index),
-                        val=str(query_index_value)
+                        val=query_index_value
                     )
                 )
                 if dependencies:

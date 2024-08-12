@@ -1,7 +1,9 @@
-🚨 *`linny` is currently under active development, some functionality may not work as expected.*
+`alpha-release` coming soon!
+
+🚀 `linny` is an example `assemblit` analytics-as-a-service (AaaS) application for executing simple linear-regression models and for evaluating the assumptions of linear-regression across different datasets.
 
 ## Installation
-To self-host 🚀 `linny` locally, clone the Github repository to access the source files.
+To self-host `linny` locally, clone the Github repository to access the source files.
 
 1. Create a new folder to contain the cloned Github repository.
 2. Navigate into the new folder and open a git bash terminal.

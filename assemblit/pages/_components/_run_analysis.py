@@ -1,13 +1,4 @@
-"""
-Information
----------------------------------------------------------------------
-Name        : _run_analysis.py
-Location    : ~/pages/_components
-
-Description
----------------------------------------------------------------------
-Contains the generic methods for a run-analysis-page.
-"""
+""" Contains the generic methods for a run-analysis-page """
 
 import os
 import hashlib

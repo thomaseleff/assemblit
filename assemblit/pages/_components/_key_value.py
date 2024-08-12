@@ -1,13 +1,4 @@
-"""
-Information
----------------------------------------------------------------------
-Name        : _key_value.py
-Location    : ~/pages/_components
-
-Description
----------------------------------------------------------------------
-Contains the generic methods for a key-value pair settings-page.
-"""
+""" Contains the generic methods for a key-value pair settings-page """
 
 import streamlit as st
 from assemblit import setup
