@@ -178,7 +178,7 @@ class Content():
         if not st.session_state[setup.NAME][setup.AUTH_NAME]['sign-up']:
 
             # Display header & tagline
-            st.header(header)
+            st.markdown('# %s' % header)
             st.write(tagline)
             st.write('')
             st.write('')
@@ -232,7 +232,7 @@ class Content():
         else:
 
             # Display header & tagline
-            st.header(header)
+            st.markdown('# %s' % header)
             st.write(tagline)
             st.write('')
             st.write('')

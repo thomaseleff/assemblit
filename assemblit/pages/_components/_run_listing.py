@@ -1,12 +1,4 @@
-'''
-Information
----------------------------------------------------------------------
-Name        : _run_listing.py
-Location    : ~/pages/_components
-Description
----------------------------------------------------------------------
-Contains the generic methods for a run-listing-page.
-'''
+""" Contains the generic methods for a run-listing-page """
 
 import datetime
 import pandas as pd

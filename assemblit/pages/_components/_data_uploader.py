@@ -1,13 +1,4 @@
-"""
-Information
----------------------------------------------------------------------
-Name        : _data_uploader.py
-Location    : ~/pages/_components
-
-Description
----------------------------------------------------------------------
-Contains the components for a data-uploader.
-"""
+""" Contains the components for a data-uploader """
 
 import os
 import hashlib

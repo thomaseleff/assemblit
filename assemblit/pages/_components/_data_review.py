@@ -1,13 +1,4 @@
-"""
-Information
----------------------------------------------------------------------
-Name        : _data_review.py
-Location    : ~/pages/_components
-
-Description
----------------------------------------------------------------------
-Contains the components for data-review.
-"""
+""" Contains the components for data-review """
 
 import hashlib
 import json

@@ -1,5 +1,7 @@
 """ User authentication """
 
+import os
+import shutil
 import hashlib
 import datetime
 import argon2
@@ -8,7 +10,8 @@ from email_validator import validate_email, EmailNotValidError
 import streamlit as st
 from assemblit import setup, _database
 from assemblit.pages._components import _core
-from assemblit._database import users, sessions, data
+from assemblit._database import users, sessions, data, analysis
+from assemblit._database._structures import Filter
 
 
 # Define generic authentication function(s)
@@ -443,6 +446,9 @@ def delete_account(
     # Initialize connection to the data database
     Data = data.Connection()
 
+    # Initialize connection to the analysis database
+    Analysis = analysis.Connection()
+
     # Build database table objects to remove users from the users database
     users_db_query_index_objects_to_delete = Users.build_database_table_objects_to_delete(
         table_names=Users.select_all_tables_with_column_name(
@@ -499,6 +505,50 @@ def delete_account(
             # Delete all data-ingestion database table values
             Data.delete(
                 tables=data_db_query_index_objects_to_delete
+            )
+
+        # Get all orphaned analysis-db-query-index values
+        analysis_runs_to_delete = Sessions.create_database_table_dependencies(
+            table_names=Sessions.select_all_tables_with_column_name(
+                col=setup.ANALYSIS_DB_QUERY_INDEX
+            ),
+            query_index=setup.SESSIONS_DB_QUERY_INDEX,
+            query_index_value=sessions_to_delete,
+            dependent_query_index=setup.ANALYSIS_DB_QUERY_INDEX
+        )
+
+        # Build database table objects to remove analysis runs from the analysis database
+        if analysis_runs_to_delete:
+            analysis_db_query_index_objects_to_delete = Analysis.build_database_table_objects_to_delete(
+                table_names=Analysis.select_all_tables_with_column_name(
+                    col=setup.ANALYSIS_DB_QUERY_INDEX
+                ),
+                query_index=setup.ANALYSIS_DB_QUERY_INDEX,
+                query_index_values=analysis_runs_to_delete
+            )
+
+            # Get all orphaned analysis run names from the analysis database
+            analysis_names_to_delete = Analysis.select_table_column_value(
+                table_name=setup.ANALYSIS_DB_NAME,
+                col='name',
+                filtr=Filter(
+                    col=setup.ANALYSIS_DB_QUERY_INDEX,
+                    val=analysis_runs_to_delete
+                ),
+                return_dtype='str',
+                multi=True
+            )
+
+            # Delete all analysis run workspace folders
+            for name in analysis_names_to_delete:
+                try:
+                    shutil.rmtree(os.path.join(setup.ROOT_DIR, setup.ANALYSIS_DB_NAME, name))
+                except FileNotFoundError:
+                    pass
+
+            # Delete all analysis database table values
+            Analysis.delete(
+                tables=analysis_db_query_index_objects_to_delete
             )
 
         # Delete all sessions database table values
