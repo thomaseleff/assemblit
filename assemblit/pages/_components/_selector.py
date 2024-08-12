@@ -790,3 +790,7 @@ def delete_session(
         db_name=setup.DATA_DB_NAME,
         defaults=setup.DATA_DEFAULTS
     )
+    _core.initialize_session_state_database_defaults(
+        db_name=setup.ANALYSIS_DB_NAME,
+        defaults=setup.ANALYSIS_DEFAULTS
+    )
