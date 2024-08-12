@@ -542,7 +542,7 @@ def delete_account(
             # Delete all analysis run workspace folders
             for name in analysis_names_to_delete:
                 try:
-                    shutil.rmtree(os.path.join(setup.ROOT_DIR, setup.ANALYSIS_DB_NAME, name))
+                    shutil.rmtree(os.path.join(setup.ROOT_DIR, 'workspace', setup.ANALYSIS_DB_NAME, name))
                 except FileNotFoundError:
                     pass
 
