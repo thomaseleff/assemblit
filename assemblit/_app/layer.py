@@ -447,8 +447,8 @@ def build(
         shutil.copy(
             os.path.join(
                 os.path.dirname(_app.__file__),
-                '_scripts',
-                '_demo.py'
+                'scripts',
+                'demo.py'
             ),
             os.path.join(
                 os.path.abspath(path),
