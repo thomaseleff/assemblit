@@ -1,0 +1,51 @@
+assemblit:
+  app:
+    type: "aaas"
+    env:
+
+      # Developer configuration settings
+      ASSEMBLIT_ENV: "PROD"
+      ASSEMBLIT_VERSION: "main"
+      ASSEMBLIT_DEBUG: False
+
+      # Web-application configuration settings
+      ASSEMBLIT_NAME: "linny"
+      ASSEMBLIT_HOME_PAGE_NAME: "Home"
+      ASSEMBLIT_GITHUB_REPOSITORY_URL: "https://github.com/thomaseleff/assemblit"
+      ASSEMBLIT_GITHUB_BRANCH_NAME: "main"
+      ASSEMBLIT_CLIENT_PORT: 8501
+
+      # Mounted volume settings
+      ASSEMBLIT_DIR: "."
+
+      # Authentication settings
+      ASSEMBLIT_REQUIRE_AUTHENTICATION: True
+
+      # Users db settings
+      ASSEMBLIT_USERS_DB_NAME: "users"
+      ASSEMBLIT_USERS_DB_QUERY_INDEX: "user_id"
+
+      # Sessions db settings
+      ASSEMBLIT_SESSIONS_DB_NAME: "studies"
+      ASSEMBLIT_SESSIONS_DB_QUERY_INDEX: "study_id"
+
+      # Data db settings
+      ASSEMBLIT_DATA_DB_NAME: "data"
+      ASSEMBLIT_DATA_DB_QUERY_INDEX: "dataset_id"
+
+      # Analysis db settings
+      ASSEMBLIT_ANALYSIS_DB_NAME: "analysis"
+      ASSEMBLIT_ANALYSIS_DB_QUERY_INDEX: "run_id"
+  
+  orchestrator:
+    type: 'prefect'
+    env:
+
+      # Orchestration server configuration settings
+      ASSEMBLIT_SERVER_JOB_NAME: "linear-regression-flow"
+      ASSEMBLIT_SERVER_JOB_ENTRYPOINT: "flow.py"
+      ASSEMBLIT_SERVER_DEPLOYMENT_NAME: "v0_1_0"
+      ASSEMBLIT_SERVER_PORT: 4200
+
+      # Mounted volume settings
+      ASSEMBLIT_SERVER_DIR: "./db/orchestrator"

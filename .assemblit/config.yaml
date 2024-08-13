@@ -1,0 +1,19 @@
+assemblit:
+  app:
+    type: "wiki"
+    env:
+
+      # Developer configuration settings
+      ASSEMBLIT_ENV: "PROD"
+      ASSEMBLIT_VERSION: "main"
+      ASSEMBLIT_DEBUG: False
+
+      # Web-application configuration settings
+      ASSEMBLIT_NAME: "assemblit"
+      ASSEMBLIT_HOME_PAGE_NAME: "app"
+      ASSEMBLIT_GITHUB_REPOSITORY_URL: "https://github.com/thomaseleff/assemblit"
+      ASSEMBLIT_GITHUB_BRANCH_NAME: "main"
+      ASSEMBLIT_CLIENT_PORT: 8501
+
+      # Mounted volume settings
+      ASSEMBLIT_DIR: "."
