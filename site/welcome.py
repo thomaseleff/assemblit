@@ -12,7 +12,7 @@ Welcome = home.Content(
         Assemblit is helping data analysts and scientists rapidly scale notebooks into
          analytics-as-a-service (AaaS) web-applications.
     """,
-    content_file_path='./README.md',
+    content_file_path='./documentation/README.md',
     content_info=None
 )
 

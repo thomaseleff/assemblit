@@ -7,10 +7,7 @@ from assemblit._app import _generic
 
 @dataclass
 class env(_generic._env):
-    """ A `class` that represents the analytics-as-service (AaaS) web-application environment variables.
-
-    Attributes
-    ----------
+    """
     ASSEMBLIT_ENV : `str`
         The environment name, typically "PROD" or "DEV".
 
@@ -40,10 +37,10 @@ class env(_generic._env):
         The Github branch name to deploy.
 
     ASSEMBLIT_DIR : `Union[str, os.PathLike]`
-        The local filesystem folder to mount to the docker container.
+        The local filesystem folder.
 
     ASSEMBLIT_CLIENT_PORT : Optional[`int`] = 8501
-        The client port of the `assemblit` web-application within the docker container.
+        The client port of the `assemblit` web-application.
 
     ASSEMBLIT_USERS_DB_NAME : Optional[`str`] = "users"
         The name of the users-database.
