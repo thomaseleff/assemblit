@@ -37,10 +37,10 @@ RUN git clone --branch ${ASSEMBLIT_GITHUB_BRANCH_NAME} "${ASSEMBLIT_GITHUB_REPOS
 
 # Install Python requirements
 RUN pip3 install -r requirements.txt --no-cache-dir
-RUN pip3 install -e .
+RUN pip3 install assemblit
 
 # Expose the network port(s)
 EXPOSE ${ASSEMBLIT_CLIENT_PORT}
 
 # Run
-CMD assemblit run --app_type=wiki --file_path=${ASSEMBLIT_HOME_PAGE_NAME}.py
+CMD assemblit run ${ASSEMBLIT_HOME_PAGE_NAME}.py
