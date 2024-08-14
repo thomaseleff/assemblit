@@ -1,0 +1,71 @@
+name: Publish and deploy to Google Cloud Services
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  TAG: ${{ github.ref_name }}
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    environment:
+      name: Google Cloud Services
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - id: 'auth'
+        uses: 'google-github-actions/auth@v2'
+        with:
+          project_id: ${{ secrets.PROJECT_ID }}
+          credentials_json: ${{ secrets.ARTIFACT_REGISTRY_PRIVATE_KEY }}
+
+      - name: Setup Google Cloud Services
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ secrets.PROJECT_ID }}
+
+      - name: Setup Docker with the Artifact Registry
+        run: gcloud auth configure-docker ${{ vars.REGION }}-docker.pkg.dev
+
+      - name: Build Docker image
+        run: |
+          docker build -t ${{ vars.REGION }}-docker.pkg.dev/${{ secrets.PROJECT_ID }}/${{ vars.REPOSITORY }}/${{ vars.IMAGE }}:${{ env.TAG }} --no-cache .
+
+      - name: Push Docker image to the Artifact Registry
+        run: |
+          docker push ${{ vars.REGION }}-docker.pkg.dev/${{ secrets.PROJECT_ID }}/${{ vars.REPOSITORY }}/${{ vars.IMAGE }}:${{ env.TAG }}
+
+  deploy:
+    runs-on: ubuntu-latest
+
+    environment:
+        name: Google Cloud Services
+
+    steps:
+      - id: 'auth'
+        uses: 'google-github-actions/auth@v2'
+        with:
+          project_id: ${{ secrets.PROJECT_ID }}
+          credentials_json: ${{ secrets.CLOUD_RUN_PRIVATE_KEY }}
+
+      - name: Setup Google Cloud Services
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ secrets.PROJECT_ID }}
+
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy ${{ vars.SERVICE }} \
+          --image=${{ vars.REGION }}-docker.pkg.dev/${{ secrets.PROJECT_ID }}/${{ vars.REPOSITORY }}/${{ vars.IMAGE }}:${{ env.TAG }} \
+          --region=${{ vars.REGION }} \
+          --platform=managed \
+          --allow-unauthenticated
