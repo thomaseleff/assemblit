@@ -62,6 +62,25 @@ jobs:
         with:
           project_id: ${{ secrets.PROJECT_ID }}
 
+      - name: Wait for the Docker image to be available in the Artifact Registry
+        run: |
+          AVAILABLE = false
+          for i in {1..36}; do
+            if gcloud artifacts docker images describe ${{ vars.REGION }}-docker.pkg.dev/${{ secrets.PROJECT_ID }}/${{ vars.REPOSITORY }}/${{ vars.IMAGE }}:${{ env.TAG }} > /dev/null 2>&1; then
+              echo "The Docker image is available in the Artifact Registry."
+              AVAILABLE = true
+              break
+            else
+              echo "Waiting for the Docker image to be available..."
+              sleep 10
+            fi
+          done
+
+          if [ "$AVAILABLE" = false ]; then
+            echo "ERROR: Unable to deploy to Cloud Run. The Docker image is not available in the Artifact Registry. Login to the Google Cloud console for more information."
+            exit 1
+          fi
+
       - name: Deploy to Cloud Run
         run: |
           gcloud run deploy ${{ vars.SERVICE }} \
