@@ -64,11 +64,11 @@ jobs:
 
       - name: Wait for the Docker image to be available in the Artifact Registry
         run: |
-          AVAILABLE = false
+          AVAILABLE=false
           for i in {1..36}; do
             if gcloud artifacts docker images describe ${{ vars.REGION }}-docker.pkg.dev/${{ secrets.PROJECT_ID }}/${{ vars.REPOSITORY }}/${{ vars.IMAGE }}:${{ env.TAG }} > /dev/null 2>&1; then
               echo "The Docker image is available in the Artifact Registry."
-              AVAILABLE = true
+              AVAILABLE=true
               break
             else
               echo "Waiting for the Docker image to be available..."
