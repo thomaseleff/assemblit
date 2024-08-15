@@ -35,8 +35,8 @@ RUN pip3 install --upgrade pip
 # Clone from Github
 RUN git clone --branch ${ASSEMBLIT_GITHUB_BRANCH_NAME} "${ASSEMBLIT_GITHUB_REPOSITORY_URL}.git" .
 
-# Install Python requirements
-RUN pip3 install -r requirements.txt --no-cache-dir
+# Build and install from the working directory
+RUN pip3 install -e .
 
 # Expose the network port(s)
 EXPOSE ${ASSEMBLIT_CLIENT_PORT}
