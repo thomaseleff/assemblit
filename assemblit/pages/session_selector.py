@@ -155,12 +155,21 @@ class Content():
         # Manage authentication
         if st.session_state[setup.NAME][setup.AUTH_NAME][setup.AUTH_QUERY_INDEX]:
 
-            # Display webpage header
-            _core.display_page_header(
+            # Configure
+            _core.set_page_config(
                 header=self.header,
-                tagline=self.tagline,
-                headerless=self.headerless
+                icon=None,
+                layout=setup.LAYOUT,
+                initial_sidebar_state=setup.INITIAL_SIDEBAR_STATE
             )
+
+            # Display webpage header
+            if not self.headerless:
+                _core.display_page_header(
+                    header=self.header,
+                    tagline=self.tagline,
+                    context=None
+                )
 
             # Parse the form response
             response = _key_value.parse_form_response(
@@ -238,12 +247,6 @@ class Content():
             if not options:
                 st.session_state[setup.NAME][self.db_name][self.table_name]['set-up'] = True
 
-            # Layout columns
-            _, col2, _ = st.columns(setup.CONTENT_COLUMNS)
-
-            # Display spacing
-            col2.write('')
-
             # Display the session selector drop-down
             self._display_session_selector(
                 options=options,
@@ -309,7 +312,7 @@ class Content():
         """
 
         # Layout columns
-        col1, col2, col3 = st.columns(setup.CONTENT_COLUMNS)
+        _, col2 = st.columns(setup.CONTENT_COLUMNS)
 
         # Display the session selector drop-down
         with col2:

@@ -133,7 +133,7 @@ def display_key_value_pair_settings_form(
     """
 
     # Layout columns
-    _, col2, col3 = st.columns(setup.CONTENT_COLUMNS)
+    _, col2 = st.columns(setup.CONTENT_COLUMNS)
 
     # Display the key-value pair configuration form
     with col2.form(
@@ -166,7 +166,6 @@ def display_key_value_pair_settings_form(
         _, col2, col3 = st.columns([.6, .2, .2])
 
         # Display the 'Clear' button
-        col2.write('')
         col2.form_submit_button(
             label='Clear',
             type='secondary',
@@ -179,7 +178,6 @@ def display_key_value_pair_settings_form(
         )
 
         # Display the 'Save' button
-        col3.write('')
         col3.form_submit_button(
             label='Save',
             type='primary',

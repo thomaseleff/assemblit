@@ -46,7 +46,7 @@ def display_run_analysis_form(
     """
 
     # Layout columns
-    _, col2, col3 = st.columns(setup.CONTENT_COLUMNS)
+    _, col2 = st.columns(setup.CONTENT_COLUMNS)
 
     # Display the form header
     if header and tagline:
@@ -122,7 +122,6 @@ def display_run_analysis_form(
         _, col2, col3 = st.columns([.6, .2, .2])
 
         # Display the 'Clear' button
-        col2.write('')
         col2.form_submit_button(
             label='Clear',
             type='secondary',
@@ -136,7 +135,6 @@ def display_run_analysis_form(
         )
 
         # Display the 'Save' button
-        col3.write('')
         col3.form_submit_button(
             label='Run',
             type='primary',

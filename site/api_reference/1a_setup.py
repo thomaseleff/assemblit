@@ -21,7 +21,7 @@ Documentation = code_documentation.Content(
 Documentation.serve()
 
 # Serve add'l documentation content
-_, col1, _ = st.columns(setup.CONTENT_COLUMNS)
+_, col1 = st.columns(setup.CONTENT_COLUMNS)
 col1.markdown(
     """
     ## Table of contents

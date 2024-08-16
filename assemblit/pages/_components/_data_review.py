@@ -39,7 +39,7 @@ def display_data_review(
     """
 
     # Layout columns
-    _, col2, _ = st.columns(setup.CONTENT_COLUMNS)
+    _, col2 = st.columns(setup.CONTENT_COLUMNS)
 
     # Display schema validation and data-preview
     with col2:
@@ -617,11 +617,10 @@ def display_data_review_summary(
                     )
 
             # Layout columns
-            col1, col2, col3 = st.columns([.6, .2, .2])
+            _, col2, col3 = st.columns([.6, .2, .2])
 
             # Display the 'Clear' button
             with col2:
-                st.write('')
                 display_dataset_clear_button(
                     db_name=db_name,
                     table_name=table_name,
@@ -631,7 +630,6 @@ def display_data_review_summary(
 
             # Display the 'Review' button
             with col3:
-                st.write('')
                 display_dataset_review_button(
                     db_name=db_name,
                     table_name=table_name,

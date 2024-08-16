@@ -142,16 +142,26 @@ class Content():
         # Manage authentication
         if st.session_state[setup.NAME][setup.AUTH_NAME][setup.AUTH_QUERY_INDEX]:
 
-            # Display webpage header
-            _core.display_page_header(
+            # Configure
+            _core.set_page_config(
                 header=self.header,
-                tagline=self.tagline,
-                headerless=self.headerless,
-                show_context=True
+                icon=None,
+                layout=setup.LAYOUT,
+                initial_sidebar_state=setup.INITIAL_SIDEBAR_STATE
             )
 
             # Manage the active session
             if st.session_state[setup.NAME][setup.SESSIONS_DB_NAME][setup.SESSIONS_DB_QUERY_INDEX]:
+
+                # Display webpage header
+                if not self.headerless:
+                    _core.display_page_header(
+                        header=self.header,
+                        tagline=self.tagline,
+                        context=copy.deepcopy(
+                            st.session_state[setup.NAME][setup.SESSIONS_DB_NAME][setup.SESSIONS_DB_NAME]['settings']
+                        )
+                    )
 
                 # Parse the form response
                 response = _key_value.parse_form_response(
@@ -176,12 +186,6 @@ class Content():
                     settings=copy.deepcopy(self.settings)
                 )
 
-                # Layout columns
-                _, col2, _ = st.columns(setup.CONTENT_COLUMNS)
-
-                # Display spacing
-                col2.write('')
-
                 # Display the workflow-key-value-pair-settings configuration form
                 _key_value.display_key_value_pair_settings_form(
                     db_name=self.db_name,
@@ -197,6 +201,14 @@ class Content():
                 )
 
             else:
+
+                # Display webpage header
+                if not self.headerless:
+                    _core.display_page_header(
+                        header=self.header,
+                        tagline=self.tagline,
+                        context=None
+                    )
 
                 # Display content information
                 _core.display_page_content_info(

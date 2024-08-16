@@ -170,12 +170,21 @@ class Content():
                         st.session_state[setup.NAME][self.db_name]['name']
                     )
 
-                # Display webpage header
-                _core.display_page_header(
+                # Configure
+                _core.set_page_config(
                     header=self.header,
-                    tagline=self.tagline,
-                    headerless=self.headerless
+                    icon=None,
+                    layout=setup.LAYOUT,
+                    initial_sidebar_state=setup.INITIAL_SIDEBAR_STATE
                 )
+
+                # Display webpage header
+                if not self.headerless:
+                    _core.display_page_header(
+                        header=self.header,
+                        tagline=self.tagline,
+                        context=None
+                    )
 
                 # Parse the form response & update credentials
                 vault.update_credentials(
@@ -211,12 +220,6 @@ class Content():
                         return_dtype='str'
                     )
                 )
-
-                # Layout columns
-                _, col2, _ = st.columns(setup.CONTENT_COLUMNS)
-
-                # Display spacing
-                col2.write('')
 
                 # Display the account-key-value-pair-settings configuration form
                 _key_value.display_key_value_pair_settings_form(

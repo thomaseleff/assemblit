@@ -122,7 +122,7 @@ def display_run_listing_table(
         if not df.empty:
 
             # Layout form columns
-            _, _, _, col4, _ = st.columns([.05, .625, .1, .175, .05])
+            _, _, _, col4 = st.columns([.05, .675, .1, .175])
 
             # Display the 'Refresh' button
             col4.button(
@@ -132,7 +132,7 @@ def display_run_listing_table(
             )
 
             # Layout columns
-            _, col2, _ = st.columns(setup.CONTENT_COLUMNS)
+            _, col2 = st.columns(setup.CONTENT_COLUMNS)
 
             # Display the run-listing table
             with col2:
