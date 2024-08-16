@@ -10,10 +10,9 @@ from assemblit.toolkit import _exceptions
 # Layout settings
 LAYOUT: str = 'wide'
 INITIAL_SIDEBAR_STATE: str = 'expanded'
-HEADER_COLUMNS: List[Union[int, float]] = [.05, .625, .1, .175, .05]
-TAGLINE_COLUMNS: List[Union[int, float]] = [.05, .9, .05]
-CONTENT_COLUMNS: List[Union[int, float]] = [.075, .875, .05]
-INDENTED_CONTENT_COLUMNS: List[Union[int, float]] = [.1, .85, .05]
+HEADER_COLUMNS: List[Union[int, float]] = [.01, .99]
+CONTENT_COLUMNS: List[Union[int, float]] = [.02, .98]
+INDENTED_CONTENT_COLUMNS: List[Union[int, float]] = [.03, .97]
 
 # Validate web-application type
 if 'ASSEMBLIT_APP_TYPE' not in os.environ:

@@ -1,6 +1,4 @@
-🚨 *`linny` is currently under active development, some functionality may not work as expected.*
-
-## Workflow
+## Getting started
 Running and managing `linny` workflows is simple, with four basic stages.
 
 ```

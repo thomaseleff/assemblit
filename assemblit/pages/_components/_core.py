@@ -1,5 +1,6 @@
 """ Contains the core components for an `assemblit` web-application """
 
+from typing import Any, Literal
 import json
 import copy
 import streamlit as st
@@ -59,112 +60,59 @@ def initialize_session_state_status_defaults(
         st.session_state[setup.NAME][db_name]['successes'] = []
 
 
-# Define generic content function(s)
-def display_page_header(
+def set_page_config(
     header: str = 'Welcome',
-    tagline: str = 'Please login or sign-up.',
-    headerless: bool = False,
-    show_context: bool = False
+    icon: Any = None,
+    layout: Literal['centered', 'wide'] = setup.LAYOUT,
+    initial_sidebar_state: Literal['auto', 'expanded', 'collapsed'] = setup.INITIAL_SIDEBAR_STATE
 ):
-    """ Displays the standard home-page header.
+    """ Configures the web-page.
 
     Parameters
     ----------
     header : `str`
         String to display as the web-page header
-    tagline : `str`
-        String to display as the web-page tagline
-    headerless : 'bool'
-        'True' or 'False', determines whether to display the
-            header content
-    show_context : `bool`
-        `True` or `False`, determines whether to display the
-            session context information as an `st.popover` object.
+    icon : `str`
+        The page favicon. If `icon` is `None` (default), the favicon will be a monochrome Streamlit logo.
+    layout : `Literal['centered', 'wide']`
+        The page layout, either `centered` or `wide`.
+    initial_sidebar_state: `Literal['auto', 'expanded', 'collapsed']`
+        The initial state of the sidebar navigation, either `auto`, `expanded` or `collapsed`.
     """
 
     # Configure
     st.set_page_config(
         page_title='%s ― %s' % (header, setup.NAME),
-        layout=setup.LAYOUT,
-        initial_sidebar_state=setup.INITIAL_SIDEBAR_STATE
+        page_icon=icon,
+        layout=layout,
+        initial_sidebar_state=initial_sidebar_state,
     )
 
     # Force vertical scroll to avoid inconsistent auto-resizing
     #   when pages do not require vertical scroll
-    st.markdown(
+    st.html(
         """
             <style>
+
+                header[data-testid="stHeader"] {
+                    display: none;
+                }
+
                 .main {
                     overflow-y: scroll;
                 }
+
+                div[data-testid="stAppViewBlockContainer"] {
+                    padding: 3rem 1rem 10rem 1rem;
+                }
+
+                div[data-testid="stHorizontalBlock"] {
+                    gap: 0.5rem;
+                }
+
             </style>
-        """,
-        unsafe_allow_html=True
+        """
     )
-
-    # Display header & tagline
-    if not headerless:
-
-        # Layout columns
-        _, col2, col3, col4, _ = st.columns(setup.HEADER_COLUMNS)
-
-        # Display the header
-        col2.markdown('# %s' % header)
-
-        # Display context pop-over
-        if show_context and st.session_state[setup.NAME][setup.SESSIONS_DB_NAME]['name']:
-            col3.write('')
-            with col3.popover(label='🔍', use_container_width=True):
-
-                # Display subheader
-                st.write('##### %s context' % (
-                    ''.join([
-                        setup.SESSIONS_DB_NAME[0].upper(),
-                        setup.SESSIONS_DB_NAME[1:]
-                    ])
-                ))
-
-                # Display pop-over content
-                for setting in st.session_state[setup.NAME][setup.SESSIONS_DB_NAME][setup.SESSIONS_DB_NAME]['settings']:
-                    setting: Setting
-
-                    # Layout columns
-                    col1, col2 = st.columns([.5, .5])
-
-                    # Display context-parameters
-                    col1.write('_%s_' % (setting.name))
-                    col2.write('`%s`' % (setting.value))
-
-        # # Display user pop-over
-        # if st.session_state[setup.NAME][setup.USERS_DB_NAME]['name']:
-        #     col4.subheader('')
-        #     with col4.popover(label='👋'):
-
-        #         # Display account information
-        #         st.write(
-        #             '##### Hello, %s' % (
-        #                 st.session_state[setup.NAME][setup.USERS_DB_NAME]['name']
-        #             )
-        #         )
-
-        #         # Layout columns
-        #         col1, col2 = st.columns([.5, .5])
-
-        # Display 'Logout' button
-        if setup.REQUIRE_AUTHENTICATION:
-            col4.write('')
-            col4.button(
-                label='Logout',
-                on_click=vault.logout,
-                type='secondary',
-                use_container_width=True
-            )
-
-        # Layout columns
-        _, col2, _ = st.columns(setup.TAGLINE_COLUMNS)
-
-        # Display the tagline
-        col2.markdown(tagline, unsafe_allow_html=True)
 
     # Debug
     if setup.DEBUG:
@@ -177,6 +125,57 @@ def display_page_header(
                 )
             )
         )
+
+
+# Define generic content function(s)
+def display_page_header(
+    header: str = 'Welcome',
+    tagline: str = 'Please login or sign-up.',
+    context: list[Setting] | None = None
+):
+    """ Displays the standard header.
+
+    Parameters
+    ----------
+    header : `str`
+        String to display as the web-page header
+    tagline : `str`
+        String to display as the web-page tagline
+    context : `bool`
+        List of `assemblit.blocks.structures.Setting` objects to display as context.
+    """
+
+    # Layout columns
+    _, col2, col3, col4 = st.columns([.01, .64, .175, .175])
+
+    # Display the header
+    col2.markdown('# %s' % header)
+    col2.markdown(tagline, unsafe_allow_html=True)
+
+    # Display the 'Logout' button
+    if setup.REQUIRE_AUTHENTICATION:
+        col4.button(
+            label='Logout',
+            on_click=vault.logout,
+            type='secondary',
+            use_container_width=True
+        )
+
+    # Display context
+    if context:
+        with col3.popover(label='🔍', use_container_width=True):
+            st.write('##### %s context' % (setup.SESSIONS_DB_NAME.title()))
+
+            # Display pop-over content
+            for setting in context:
+                setting: Setting
+
+                # Layout columns
+                col1, col2 = st.columns([.5, .5])
+
+                # Display context-parameters
+                col1.write('_%s_' % (setting.name))
+                col2.write('`%s`' % (setting.value))
 
 
 def display_page_content_info(
@@ -192,7 +191,7 @@ def display_page_content_info(
     """
 
     # Layout columns
-    _, col2, _ = st.columns(setup.CONTENT_COLUMNS)
+    _, col2 = st.columns(setup.CONTENT_COLUMNS)
 
     # Display info
     col2.info(content_info, icon='ℹ️')
@@ -211,7 +210,7 @@ def display_page_status(
     """
 
     # Layout columns
-    _, col2, _ = st.columns(setup.CONTENT_COLUMNS)
+    _, col2 = st.columns(setup.CONTENT_COLUMNS)
 
     # Errors
     if st.session_state[setup.NAME][db_name]['errors']:

@@ -23,6 +23,8 @@ class Content():
         String to display as the webpage tagline.
     content_info : `str`
         String to display as `streamlit.info()` when there is no selected session.
+    headerless : `bool`
+        `True` or `False`, determines whether to display the header & tagline
     data_dictionary : `pd.DataFrame`
         An optional data dictionary that describes the structure and format of the
             expected datafile.
@@ -69,6 +71,8 @@ class Content():
             String to display as the webpage tagline.
         content_info : `str`
             String to display as `streamlit.info()` when there is no selected session.
+        headerless : `bool`
+            `True` or `False`, determines whether to display the header & tagline
         data_dictionary : `pd.DataFrame`
             An optional data dictionary that describes the structure and format of the
                 expected datafile.
@@ -138,16 +142,26 @@ class Content():
         # Manage authentication
         if st.session_state[setup.NAME][setup.AUTH_NAME][setup.AUTH_QUERY_INDEX]:
 
-            # Display webpage header
-            _core.display_page_header(
+            # Configure
+            _core.set_page_config(
                 header=self.header,
-                tagline=self.tagline,
-                headerless=self.headerless,
-                show_context=True
+                icon=None,
+                layout=setup.LAYOUT,
+                initial_sidebar_state=setup.INITIAL_SIDEBAR_STATE
             )
 
             # Manage the active session
             if st.session_state[setup.NAME][setup.SESSIONS_DB_NAME][setup.SESSIONS_DB_QUERY_INDEX]:
+
+                # Display webpage header
+                if not self.headerless:
+                    _core.display_page_header(
+                        header=self.header,
+                        tagline=self.tagline,
+                        context=copy.deepcopy(
+                            st.session_state[setup.NAME][setup.SESSIONS_DB_NAME][setup.SESSIONS_DB_NAME]['settings']
+                        )
+                    )
 
                 # Initialize the scope-database table
                 _ = sessions.Connection().create_table(
@@ -197,6 +211,14 @@ class Content():
                 )
 
             else:
+
+                # Display webpage header
+                if not self.headerless:
+                    _core.display_page_header(
+                        header=self.header,
+                        tagline=self.tagline,
+                        context=None
+                    )
 
                 # Display content information
                 _core.display_page_content_info(

@@ -1,4 +1,5 @@
-`alpha-release` coming soon!
+> [!IMPORTANT]
+> `linny` is currently under active development, some functionality may not work as expected. `alpha-release` coming soon!
 
 🚀 `linny` is an example `assemblit` analytics-as-a-service (AaaS) application for executing simple linear-regression models and for evaluating the assumptions of linear-regression across different datasets.
 

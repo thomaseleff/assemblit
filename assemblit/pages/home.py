@@ -26,6 +26,8 @@ class Content():
                 webpage content.
         content_info : `str`
             String to display as `streamlit.info()` when `content_url = None`
+        headerless : `bool`
+            `True` or `False`, determines whether to display the header & tagline
 
     Examples
     --------
@@ -38,7 +40,7 @@ class Content():
 
     Home = home.Content(
         header='Welcome',
-        tagline='A web-application for data-analytics'
+        tagline='A web-application for data-analytics.'
     )
 
     # Serving the home-page content
@@ -58,7 +60,8 @@ class Content():
         header: str = 'Welcome',
         tagline: str = 'An `assemblit` web-application for analytics projects.',
         content_file_path: str | os.PathLike = None,
-        content_info: str | None = 'For more information, visit the GitHub repository.'
+        content_info: str | None = 'For more information, visit the GitHub repository.',
+        headerless: bool = False
     ):
         """ Initializes an instance of the home-page content.
 
@@ -75,6 +78,8 @@ class Content():
                 webpage content.
         content_info : `str`
             String to display as `streamlit.info()` when `content_url = None`
+        headerless : `bool`
+            `True` or `False`, determines whether to display the header & tagline
         """
 
         # Validate compatibility
@@ -90,6 +95,7 @@ class Content():
         self.tagline = tagline
         self.content_file_path = content_file_path
         self.content_info = content_info
+        self.headerless = headerless
 
         # Initialize database class variables
         self.db_name = setup.USERS_DB_NAME
@@ -107,17 +113,24 @@ class Content():
         # Manage authentication
         if st.session_state[setup.NAME][setup.AUTH_NAME][setup.AUTH_QUERY_INDEX]:
 
-            # Display the home-page header
-            _core.display_page_header(
+            # Configure
+            _core.set_page_config(
                 header=self.header,
-                tagline=self.tagline
+                icon=None,
+                layout=setup.LAYOUT,
+                initial_sidebar_state=setup.INITIAL_SIDEBAR_STATE
             )
 
-            # Layout columns
-            _, col2, _ = st.columns(setup.CONTENT_COLUMNS)
+            # Display the home-page header
+            if not self.headerless:
+                _core.display_page_header(
+                    header=self.header,
+                    tagline=self.tagline,
+                    context=None
+                )
 
-            # Display spacing
-            col2.write('')
+            # Layout columns
+            _, col2 = st.columns(setup.CONTENT_COLUMNS)
 
             # Display content
             if self.content_file_path:
@@ -159,19 +172,20 @@ class Content():
         """
 
         # Configure
-        st.set_page_config(
+        _core.set_page_config(
+            header=header,
+            icon=None,
             layout='centered',
             initial_sidebar_state='collapsed'
         )
-        st.markdown(
+        st.html(
             """
-            <style>
-                [data-testid="collapsedControl"] {
-                    display: none
-                }
-            </style>
-            """,
-            unsafe_allow_html=True
+                <style>
+                    [data-testid="collapsedControl"] {
+                        display: none;
+                    }
+                </style>
+            """
         )
 
         # Display login content
@@ -179,9 +193,7 @@ class Content():
 
             # Display header & tagline
             st.markdown('# %s' % header)
-            st.write(tagline)
-            st.write('')
-            st.write('')
+            st.markdown(tagline, unsafe_allow_html=True)
 
             # Display login form
             with st.form('Login', clear_on_submit=False):
@@ -233,9 +245,7 @@ class Content():
 
             # Display header & tagline
             st.markdown('# %s' % header)
-            st.write(tagline)
-            st.write('')
-            st.write('')
+            st.markdown(tagline, unsafe_allow_html=True)
 
             # Display sign-up form
             with st.form('Sign-up', clear_on_submit=False):

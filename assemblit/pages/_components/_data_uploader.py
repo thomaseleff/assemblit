@@ -34,7 +34,7 @@ def display_data_contract(
     """
 
     # Layout columns
-    _, col2, _ = st.columns(setup.CONTENT_COLUMNS)
+    _, col2 = st.columns(setup.CONTENT_COLUMNS)
 
     # Display the data-contract expander
     with col2:
@@ -93,7 +93,7 @@ def display_data_uploader(
     """
 
     # Layout columns
-    _, col2, col3 = st.columns(setup.CONTENT_COLUMNS)
+    _, col2 = st.columns(setup.CONTENT_COLUMNS)
 
     # Display the data uploader
     with col2:
@@ -125,10 +125,9 @@ def display_data_uploader(
             )
 
             # Layout form columns
-            col1, col2, col3 = st.columns([.6, .2, .2])
+            _, col2, col3 = st.columns([.6, .2, .2])
 
             # Display the 'Clear' button
-            col2.write('')
             col2.form_submit_button(
                 label='Clear',
                 type='secondary',
@@ -136,7 +135,6 @@ def display_data_uploader(
             )
 
             # Display the 'Upload' button
-            col3.write('')
             col3.form_submit_button(
                 label='Upload',
                 type='primary',
@@ -168,7 +166,7 @@ def display_data_preview(
     """
 
     # Layout columns
-    _, col2, _ = st.columns(setup.CONTENT_COLUMNS)
+    _, col2 = st.columns(setup.CONTENT_COLUMNS)
 
     # Display the schema validation result and the data-preview table
     with col2:

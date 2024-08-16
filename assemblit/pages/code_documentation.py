@@ -20,6 +20,8 @@ class Content():
         The package that contains `package_or_module`.
     package_or_module : `str`
         The package or module to document.
+    headerless : `bool`
+        `True` or `False`, determines whether to display the header & tagline
 
     Examples
     --------
@@ -46,6 +48,7 @@ class Content():
         self,
         package: object,
         package_or_module: object,
+        headerless: bool = False
     ):
         """ Initializes an instance of the code documentation-page content.
 
@@ -55,6 +58,8 @@ class Content():
             The package that contains `package_or_module`.
         package_or_module : `str`
             The package or module to document.
+        headerless : `bool`
+            `True` or `False`, determines whether to display the header & tagline
         """
 
         # Validate compatibility
@@ -68,6 +73,7 @@ class Content():
         # Assign content class variables
         self.package = package
         self.package_or_module = package_or_module
+        self.headerless = headerless
 
         # Initialize session state defaults
         _core.initialize_session_state_defaults()
@@ -90,11 +96,21 @@ class Content():
             else:
                 header = '%s' % (str(self.package_or_module.__name__).split('.')[-1])
 
-            # Display header
-            _core.display_page_header(
+            # Configure
+            _core.set_page_config(
                 header=header,
-                tagline=_parse_object_tagline_information(relative_path=relative_path)
+                icon=None,
+                layout=setup.LAYOUT,
+                initial_sidebar_state=setup.INITIAL_SIDEBAR_STATE
             )
+
+            # Display header
+            if not self.headerless:
+                _core.display_page_header(
+                    header=header,
+                    tagline=_parse_object_tagline_information(relative_path=relative_path),
+                    context=None
+                )
 
             if _is_package(self.package_or_module):
 
@@ -121,7 +137,7 @@ class Content():
     def _display_package_table_of_contents(self, obj: Any, subpackages_or_modules: Any):
 
         # Layout columns
-        _, col2, _ = st.columns(setup.CONTENT_COLUMNS)
+        _, col2 = st.columns(setup.CONTENT_COLUMNS)
 
         # Display sub-header
         col2.markdown('## Table of contents')
@@ -154,7 +170,7 @@ class Content():
     ):
 
         # Layout columns
-        _, col2, _ = st.columns(setup.CONTENT_COLUMNS)
+        _, col2 = st.columns(setup.CONTENT_COLUMNS)
 
         # Display sub-header
         if module_name:
@@ -191,7 +207,7 @@ class Content():
     def _display_class_documentation(self, class_name: str, obj: Any):
 
         # Layout columns
-        _, col2, _ = st.columns(setup.CONTENT_COLUMNS)
+        _, col2 = st.columns(setup.CONTENT_COLUMNS)
 
         # Relative path
         relative_path = _get_relative_path(inspect.getfile(obj), inspect.getfile(self.package))
@@ -209,7 +225,7 @@ class Content():
     def _display_method_documentation(self, methods: Any):
 
         # Layout columns
-        _, col2, _ = st.columns(setup.INDENTED_CONTENT_COLUMNS)
+        _, col2 = st.columns(setup.INDENTED_CONTENT_COLUMNS)
 
         # Display `method` documentation
         col2.markdown('#### Methods')
@@ -230,7 +246,7 @@ class Content():
     def _display_function_documentation(self, functions: Any):
 
         # Layout columns
-        _, col2, _ = st.columns(setup.CONTENT_COLUMNS)
+        _, col2 = st.columns(setup.CONTENT_COLUMNS)
 
         # Display `function` documentation
         col2.markdown('#### Functions')
@@ -251,7 +267,7 @@ class Content():
     def _display_exception_documentation(self, exceptions: Any):
 
         # Layout columns
-        _, col2, _ = st.columns(setup.CONTENT_COLUMNS)
+        _, col2 = st.columns(setup.CONTENT_COLUMNS)
 
         # Display `exception` documentation
         col2.markdown('#### Exceptions')
