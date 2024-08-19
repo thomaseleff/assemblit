@@ -113,16 +113,14 @@ class Content():
         # Manage authentication
         if st.session_state[setup.NAME][setup.AUTH_NAME][setup.AUTH_QUERY_INDEX]:
 
-            # Configure
-            _core.set_page_config(
-                header=self.header,
-                icon=None,
-                layout=setup.LAYOUT,
-                initial_sidebar_state=setup.INITIAL_SIDEBAR_STATE
-            )
-
-            # Display the home-page header
+            # Configure and display the header
             if not self.headerless:
+                _core.set_page_config(
+                    header=self.header,
+                    icon=None,
+                    layout=setup.LAYOUT,
+                    initial_sidebar_state=setup.INITIAL_SIDEBAR_STATE
+                )
                 _core.display_page_header(
                     header=self.header,
                     tagline=self.tagline,

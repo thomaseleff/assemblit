@@ -88,31 +88,51 @@ def set_page_config(
         initial_sidebar_state=initial_sidebar_state,
     )
 
-    # Force vertical scroll to avoid inconsistent auto-resizing
-    #   when pages do not require vertical scroll
-    st.html(
-        """
-            <style>
+    # Force custom styling
+    if not setup.DEBUG:
+        st.html(
+            """
+                <style>
 
-                header[data-testid="stHeader"] {
-                    display: none;
-                }
+                    header[data-testid="stHeader"] {
+                        display: none;
+                    }
 
-                .main {
-                    overflow-y: scroll;
-                }
+                    .main {
+                        overflow-y: scroll;
+                    }
 
-                div[data-testid="stAppViewBlockContainer"] {
-                    padding: 3rem 1rem 10rem 1rem;
-                }
+                    div[data-testid="stAppViewBlockContainer"] {
+                        padding: 3rem 1rem 10rem 1rem;
+                    }
 
-                div[data-testid="stHorizontalBlock"] {
-                    gap: 0.5rem;
-                }
+                    div[data-testid="stHorizontalBlock"] {
+                        gap: 0.5rem;
+                    }
 
-            </style>
-        """
-    )
+                </style>
+            """
+        )
+    else:
+        st.html(
+            """
+                <style>
+
+                    .main {
+                        overflow-y: scroll;
+                    }
+
+                    div[data-testid="stAppViewBlockContainer"] {
+                        padding: 3rem 1rem 10rem 1rem;
+                    }
+
+                    div[data-testid="stHorizontalBlock"] {
+                        gap: 0.5rem;
+                    }
+
+                </style>
+            """
+        )
 
     # Debug
     if setup.DEBUG:

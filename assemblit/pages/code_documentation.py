@@ -96,16 +96,14 @@ class Content():
             else:
                 header = '%s' % (str(self.package_or_module.__name__).split('.')[-1])
 
-            # Configure
-            _core.set_page_config(
-                header=header,
-                icon=None,
-                layout=setup.LAYOUT,
-                initial_sidebar_state=setup.INITIAL_SIDEBAR_STATE
-            )
-
-            # Display header
+            # Configure and display the header
             if not self.headerless:
+                _core.set_page_config(
+                    header=header,
+                    icon=None,
+                    layout=setup.LAYOUT,
+                    initial_sidebar_state=setup.INITIAL_SIDEBAR_STATE
+                )
                 _core.display_page_header(
                     header=header,
                     tagline=_parse_object_tagline_information(relative_path=relative_path),
