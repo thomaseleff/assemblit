@@ -170,16 +170,14 @@ class Content():
                         st.session_state[setup.NAME][self.db_name]['name']
                     )
 
-                # Configure
-                _core.set_page_config(
-                    header=self.header,
-                    icon=None,
-                    layout=setup.LAYOUT,
-                    initial_sidebar_state=setup.INITIAL_SIDEBAR_STATE
-                )
-
-                # Display webpage header
+                # Configure and display the header
                 if not self.headerless:
+                    _core.set_page_config(
+                        header=self.header,
+                        icon=None,
+                        layout=setup.LAYOUT,
+                        initial_sidebar_state=setup.INITIAL_SIDEBAR_STATE
+                    )
                     _core.display_page_header(
                         header=self.header,
                         tagline=self.tagline,
