@@ -66,4 +66,15 @@ def build(
     assemblit build demo
     ```
     """
-    return layer.build(app_type=app_type).wait()
+
+    # Get current work-directory
+    path = os.getcwd()
+
+    # Build
+    application = layer.build(app_type=app_type, path=path)
+
+    # Run
+    return layer.run(
+        script=os.path.join(os.path.abspath(path), 'app.py'),
+        application=application
+    ).wait()

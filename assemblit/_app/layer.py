@@ -325,7 +325,7 @@ def load_app_environment(
 
 def create_app(
     config: dict
-):
+) -> Union[_app.wiki.env, _app.aaas.env]:
     """ Creates the web-application environment.
 
     Parameters
@@ -372,18 +372,18 @@ def create_app(
 
 
 def build(
-    app_type: Literal['demo']
-):
+    app_type: Literal['demo'],
+    path: Union[str, os.PathLike]
+) -> Union[_app.wiki.env]:
     """ Builds a new project.
 
     Parameters
     ----------
     app_type : `Literal['demo']`
         The type of web-application.
+    path : `str | os.PathLike`
+        The absolute path to the work-directory.
     """
-
-    # Get current work-directory
-    path = os.getcwd()
 
     if app_type.strip().lower() == 'demo':
 
@@ -459,34 +459,27 @@ def build(
         raise NotImplementedError('App-type {%s} is not yet supported by `assemblit build`.' % (app_type))
 
     # Create the web-application environment
-    application = create_app(config=config)
-
-    # Run the web-application
-    return subprocess.Popen(
-        'streamlit run %s --server.port %s' % (
-            os.path.join(os.path.abspath(path), 'app.py'),
-            application.ASSEMBLIT_CLIENT_PORT
-        ),
-        shell=True
-    )
+    return create_app(config=config)
 
 
 def run(
-    script: Union[str, os.PathLike]
-):
+    script: Union[str, os.PathLike],
+    application: Union[_app.wiki.env, _app.aaas.env, None] = None
+) -> subprocess.Popen:
     """ Runs a Python script.
 
     Parameters
     ----------
     script : `str | os.PathLike`
         The relative or absolute path to a local Python script.
+    application : `assemblit._app.wiki.env` | `assemblit._app.aaas.env` | `None`
+        The web-application `class` object.
     """
 
-    # Load the web-application configuration
-    config = _yaml.load_configuration(path=os.path.dirname(os.path.abspath(script)))
-
-    # Create the web-application environment
-    application = create_app(config=config)
+    # Load and create the web-application configuration
+    if not application:
+        config = _yaml.load_configuration(path=os.path.dirname(os.path.abspath(script)))
+        application = create_app(config=config)
 
     # Run the web-application
     return subprocess.Popen(
