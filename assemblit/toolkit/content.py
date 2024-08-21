@@ -44,7 +44,7 @@ def from_markdown(
 
     Parameters
     ----------
-    file_path : `str | os.PathLike`
+    file_path : `Union[str, os.PathLike]`
         The relative or absolute path to a markdown document.
     """
     return _from_text_content(file_path=file_path)
@@ -58,7 +58,7 @@ def to_markdown(
 
     Parameters
     ----------
-    file_path : `str | os.PathLike`
+    file_path : `Union[str, os.PathLike]`
         The relative or absolute path to a markdown document.
     content : `str`
         The markdown text content.
@@ -73,7 +73,7 @@ def to_markdown(
 
 #     Parameters
 #     ----------
-#     file_path : `str | os.PathLike`
+#     file_path : `Union[str, os.PathLike]`
 #         The relative or absolute path to an html document.
 #     """
 #     return _from_text_content(file_path)
@@ -86,7 +86,7 @@ def _from_text_content(
 
     Parameters
     ----------
-    file_path : `str | os.PathLike`
+    file_path : `Union[str, os.PathLike]`
         The relative or absolute path to a text document.
     """
     if not os.path.isfile(os.path.abspath(file_path)):
@@ -104,7 +104,7 @@ def _to_text_content(
 
     Parameters
     ----------
-    file_path : `str | os.PathLike`
+    file_path : `Union[str, os.PathLike]`
         The relative or absolute path to a text document.
     content : `str`
         The markdown text content.

@@ -39,31 +39,31 @@ class env(_generic._env):
     ASSEMBLIT_DIR : `Union[str, os.PathLike]`
         The local filesystem folder.
 
-    ASSEMBLIT_CLIENT_PORT : Optional[`int`] = 8501
+    ASSEMBLIT_CLIENT_PORT : `Optional[int]` = 8501
         The client port of the `assemblit` web-application.
 
-    ASSEMBLIT_USERS_DB_NAME : Optional[`str`] = "users"
+    ASSEMBLIT_USERS_DB_NAME : `Optional[str]` = "users"
         The name of the users-database.
 
-    ASSEMBLIT_USERS_DB_QUERY_INDEX : Optional[`str`] = "user_id"
+    ASSEMBLIT_USERS_DB_QUERY_INDEX : `Optional[str]` = "user_id"
         The name of the query-index of the users-database.
 
-    ASSEMBLIT_SESSIONS_DB_NAME : Optional[`str`] = "sessions"
+    ASSEMBLIT_SESSIONS_DB_NAME : `Optional[str]` = "sessions"
         The name of the sessions-database.
 
-    ASSEMBLIT_SESSIONS_DB_QUERY_INDEX : Optional[`str`] = "session_id"
+    ASSEMBLIT_SESSIONS_DB_QUERY_INDEX : `Optional[str]` = "session_id"
         The name of the query-index of the sessions-database.
 
-    ASSEMBLIT_DATA_DB_NAME : Optional[`str`] = "data"
+    ASSEMBLIT_DATA_DB_NAME : `Optional[str]` = "data"
         The name of the data-database.
 
-    ASSEMBLIT_DATA_DB_QUERY_INDEX : Optional[`str`] = "dataset_id"
+    ASSEMBLIT_DATA_DB_QUERY_INDEX : `Optional[str]` = "dataset_id"
         The name of the query-index of the data-database.
 
-    ASSEMBLIT_ANALYSIS_DB_NAME : Optional[`str`] = "analysis"
+    ASSEMBLIT_ANALYSIS_DB_NAME : `Optional[str]` = "analysis"
         The name of the analysis-database.
 
-    ASSEMBLIT_ANALYSIS_DB_QUERY_INDEX : Optional[`str`] = "run_id"
+    ASSEMBLIT_ANALYSIS_DB_QUERY_INDEX : `Optional[str]` = "run_id"
         The name of the query-index of the analysis-database.
     """
 

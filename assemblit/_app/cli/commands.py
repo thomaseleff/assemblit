@@ -13,7 +13,7 @@ def run(
 
     Parameters
     ----------
-    script : `str` | `os.PathLike`
+    script : `Union[str, os.PathLike]`
         The relative or absolute path to a local Python script.
 
     Help

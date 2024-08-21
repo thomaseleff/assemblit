@@ -1,6 +1,6 @@
 """ Contains the generic methods for a key-value pair settings-page """
 
-from typing import List
+from typing import List, Union
 import streamlit as st
 from assemblit import setup
 from assemblit.blocks.structures import Setting
@@ -494,7 +494,7 @@ def select_setting_table_column_value(
     db_name: str,
     query: str,
     return_dtype: str
-) -> str | int | float | bool | list | dict:
+) -> Union[str, int, float, bool, list, dict]:
     """ Submits {query} to {db_name} and returns the value in the
     {return_dtype}.
 

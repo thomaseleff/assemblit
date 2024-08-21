@@ -15,7 +15,7 @@ def load_configuration(
 
     Parameters
     ----------
-    path : `str` | `os.PathLike`
+    path : `Union[str, os.PathLike]`
         The absolute path to the work-directory.
     """
 
@@ -55,7 +55,7 @@ def unload_configuration(
 
     Parameters
     ----------
-    path : `str` | `os.PathLike`
+    path : `Union[str, os.PathLike]`
         The absolute path to the work-directory.
     config : `dict`
         The `assemblit` configuration.

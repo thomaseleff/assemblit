@@ -1,6 +1,6 @@
 """ `plotly` based plotting """
 
-from typing import Literal, List
+from typing import Literal, List, Union
 import pandas
 import plotly.express
 import plotly.graph_objects
@@ -9,12 +9,15 @@ from assemblit.toolkit import aggregator
 
 def timeseries_line_plot(
     df: pandas.DataFrame,
-    datetime: list | None = None,
-    dimension: list | None = None,
-    metrics: list | None = None,
-    aggrules: List[Literal[
-        'Count', 'Sum', 'Min', 'Max', 'Mean', 'Median', 'Mode', 'Standard Deviation', 'Variance'
-    ]] | None = None
+    datetime: Union[list, None] = None,
+    dimension: Union[list, None] = None,
+    metrics: Union[list, None] = None,
+    aggrules: Union[
+        List[Literal[
+            'Count', 'Sum', 'Min', 'Max', 'Mean', 'Median', 'Mode', 'Standard Deviation', 'Variance'
+        ]],
+        None
+    ] = None
 ) -> plotly.graph_objects.Figure:
     """ Aggregates `df` with `aggregator.agg_df` and returns a Plotly `plotly.graph_objects.Line` object.
 
@@ -22,13 +25,13 @@ def timeseries_line_plot(
     ----------
     df : `pandas.DataFrame`
         Pandas dataframe object to plot.
-    datetime : `list | None`
+    datetime : `Union[list, None]`
         Ordered list of the date-time columns in `df`.
-    dimension : `list | None`
+    dimension : `Union[list, None]`
         Ordered list of categorical columns in `df` to group the records.
-    metrics : `list | None`
+    metrics : `Union[list, None]`
         Ordered list of numeric columns in `df` to summarize by `aggrules`.
-    aggrules : `list | None`
+    aggrules : `Union[list, None]`
         Ordered list of aggregation rules that determine the aggregation of the `metrics`.
     """
 
@@ -78,11 +81,14 @@ def timeseries_line_plot(
 
 def descriptives_table(
     df: pandas.DataFrame,
-    dimension: list | None = None,
-    metrics: list | None = None,
-    aggrules: List[Literal[
-        'Count', 'Sum', 'Min', 'Max', 'Mean', 'Median', 'Mode', 'Standard Deviation', 'Variance'
-    ]] | None = None
+    dimension: Union[list, None] = None,
+    metrics: Union[list, None] = None,
+    aggrules: Union[
+        List[Literal[
+            'Count', 'Sum', 'Min', 'Max', 'Mean', 'Median', 'Mode', 'Standard Deviation', 'Variance'
+        ]],
+        None
+    ] = None
 ) -> plotly.graph_objects.Figure:
     """ Aggregates `df` with `aggregator.describe_df` then returns a Plotly `plotly.graph_objects.Table` object.
 
@@ -90,11 +96,11 @@ def descriptives_table(
     ----------
     df : `pandas.DataFrame`
         Pandas dataframe object to plot.
-    dimension : `list | None`
+    dimension : `Union[list, None]`
         Ordered list of categorical columns in `df` to group the records.
-    metrics : `list | None`
+    metrics : `Union[list, None]`
         Ordered list of numeric columns in `df` to summarize by `aggrules`.
-    aggrules : `list | None`
+    aggrules : `Union[list, None]`
         Ordered list of aggregation rules that determine the aggregation of the `metrics`.
     """
 

@@ -34,7 +34,7 @@ class env(_generic._env):
     ASSEMBLIT_DIR : `Union[str, os.PathLike]`
         The local filesystem folder.
 
-    ASSEMBLIT_CLIENT_PORT : Optional[`int`] = 8501
+    ASSEMBLIT_CLIENT_PORT : `Optional[int]` = 8501
         The client port of the `assemblit` web-application.
     """
     pass

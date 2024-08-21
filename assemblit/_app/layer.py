@@ -4,7 +4,7 @@ import os
 import shutil
 import subprocess
 import copy
-from typing import Union, Literal
+from typing import Union, Literal, Tuple
 from pytensils import utils
 import assemblit
 from assemblit import _app
@@ -33,7 +33,7 @@ def load_app_environment(
     data_db_query_index: Union[str, None] = 'dataset_id',
     analysis_db_name: Union[str, None] = 'analysis',
     analysis_db_query_index: Union[str, None] = 'run_id'
-) -> tuple[
+) -> Tuple[
         str,
         str,
         bool,
@@ -42,24 +42,24 @@ def load_app_environment(
         str,
         str,
         str,
-        str | os.PathLike,
+        Union[str, os.PathLike],
         int,
-        bool | None,
-        str | os.PathLike | None,
-        str | None,
-        str | None,
-        str | None,
-        str | None,
-        str | None,
-        str | None,
-        str | None,
-        str | None,
-        dict | None,
-        dict | None,
-        dict | None,
-        dict | None,
-        dict | None,
-        dict | None
+        Union[bool, None],
+        Union[str, os.PathLike, None],
+        Union[str, None],
+        Union[str, None],
+        Union[str, None],
+        Union[str, None],
+        Union[str, None],
+        Union[str, None],
+        Union[str, None],
+        Union[str, None],
+        Union[dict, None],
+        Union[dict, None],
+        Union[dict, None],
+        Union[dict, None],
+        Union[dict, None],
+        Union[dict, None]
 ]:
     """ Loads and validates the orchestration server environment variables and returns the values in the following order,
 
@@ -381,7 +381,7 @@ def build(
     ----------
     app_type : `Literal['demo']`
         The type of web-application.
-    path : `str | os.PathLike`
+    path : `Union[str, os.PathLike]`
         The absolute path to the work-directory.
     """
 
@@ -470,9 +470,9 @@ def run(
 
     Parameters
     ----------
-    script : `str | os.PathLike`
+    script : `Union[str, os.PathLike]`
         The relative or absolute path to a local Python script.
-    application : `assemblit._app.wiki.env` | `assemblit._app.aaas.env` | `None`
+    application : `Union[_app.wiki.env, _app.aaas.env, None]`
         The web-application `class` object.
     """
 
@@ -500,7 +500,7 @@ def _construct_session_state_defaults(
 
     Parameters
     ----------
-    root_dir : `str`
+    root_dir : `Union[str, os.PathLike]`
         The local filesystem folder to mount to the docker container.
     home_page_name : `str`
         The filename of the Python script that represents the home-page.

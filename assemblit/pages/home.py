@@ -1,5 +1,6 @@
 """ Page builder """
 
+from typing import Union
 import os
 import streamlit as st
 from assemblit import setup, _app, toolkit
@@ -59,8 +60,8 @@ class Content():
         self,
         header: str = 'Welcome',
         tagline: str = 'An `assemblit` web-application for analytics projects.',
-        content_file_path: str | os.PathLike = None,
-        content_info: str | None = 'For more information, visit the GitHub repository.',
+        content_file_path: Union[str, os.PathLike] = None,
+        content_info: Union[str, None] = 'For more information, visit the GitHub repository.',
         headerless: bool = False
     ):
         """ Initializes an instance of the home-page content.

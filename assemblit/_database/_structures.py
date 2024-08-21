@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 from dataclasses import dataclass
-from typing import ClassVar, List
+from typing import ClassVar, List, Union
 
 
 # Define database management system options
@@ -46,14 +46,14 @@ class Filter():
 
     Attributes
     ----------
-    col : `str | List[str]`
+    col : `Union[str, List[str], None]`
         The column(s) of the database table to filter.
-    val : `str | List[str]`
+    val : `Union[str, List[str], None]`
         The value(s) of the database table to filter.
     """
 
-    col: str | List[str] | None = None
-    val: str | List[str] | None = None
+    col: Union[str, List[str], None] = None
+    val: Union[str, List[str], None] = None
 
 
 @dataclass
@@ -62,9 +62,9 @@ class Validate(Filter):
 
     Attributes
     ----------
-    col : `str | List[str]`
+    col : `Union[str, List[str], None]`
         The column(s) of the database table to validate.
-    val : `str | List[str]`
+    val : `Union[str, List[str], None]`
         The value(s) of the database table to validate.
     """
     pass
@@ -77,9 +77,9 @@ class Value(Filter):
 
     Attributes
     ----------
-    col : `str | List[str]`
+    col : `Union[str, List[str], None]`
         The column of the database table.
-    val : `str | List[str]`
+    val : `Union[str, List[str], None]`
         The value of the database table.
     """
     pass
@@ -91,14 +91,14 @@ class Row():
 
     Attributes
     ----------
-    cols : `List[str]`
+    cols : `Union[List[str], None]`
         The columns of the database table row.
-    vals : `List[str]`
+    vals : `Union[List[str], None]`
         The values of the database table row.
     """
 
-    cols: List[str] | None = None
-    vals: List[str] | None = None
+    cols: Union[List[str], None] = None
+    vals: Union[List[str], None] = None
 
 
 @dataclass
@@ -107,11 +107,11 @@ class Table():
 
     Attributes
     ----------
-    table_name : `str`
+    table_name : `Union[str, None]`
         The name of the database table.
-    filtr : `assemblit.database._structures.Filter`
+    filtr : `Union[assemblit.database._structures.Filter, None]`
         The database table filter to produce the database table view.
     """
 
-    table_name: str | None = None
-    filtr: Filter | None = None
+    table_name: Union[str, None] = None
+    filtr: Union[Filter, None] = None

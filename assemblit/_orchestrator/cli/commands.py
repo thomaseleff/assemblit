@@ -13,7 +13,7 @@ def start(
 
     Parameters
     ----------
-    path : `str | os.PathLike`
+    path : `Union[str, os.PathLike]`
         The relative or absolute path to the current work-directory.
 
     Help
