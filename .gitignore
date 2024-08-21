@@ -4,6 +4,7 @@ __pycache__
 .vscode
 .regression
 .venv
+.coverage
 assemblit.egg-info
 build
 workspace
@@ -11,6 +12,7 @@ db
 archive
 data
 testing.py
+coverage
 /project
 /planning
 tests/resources/app
