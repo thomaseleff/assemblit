@@ -1,6 +1,6 @@
 """ Contains the core components for an `assemblit` web-application """
 
-from typing import Any, Literal
+from typing import Any, Literal, List, Union
 import json
 import copy
 import streamlit as st
@@ -151,7 +151,7 @@ def set_page_config(
 def display_page_header(
     header: str = 'Welcome',
     tagline: str = 'Please login or sign-up.',
-    context: list[Setting] | None = None
+    context: Union[List[Setting], None] = None
 ):
     """ Displays the standard header.
 
@@ -161,7 +161,7 @@ def display_page_header(
         String to display as the web-page header
     tagline : `str`
         String to display as the web-page tagline
-    context : `bool`
+    context : `Union[List[Setting], None]`
         List of `assemblit.blocks.structures.Setting` objects to display as context.
     """
 

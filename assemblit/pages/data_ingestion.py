@@ -5,7 +5,7 @@ import copy
 import streamlit as st
 import pandas as pd
 from assemblit import setup, blocks
-from assemblit.toolkit import _exceptions
+from assemblit.toolkit import _exceptions, content
 from assemblit._database import sessions, data
 from assemblit.pages._components import _core, _data_uploader, _data_review
 
@@ -89,10 +89,10 @@ class Content():
             )
 
         # Assign content class variables
-        self.header = header
-        self.tagline = tagline
+        self.header = content.clean_text(header)
+        self.tagline = content.clean_text(tagline)
         self.headerless = headerless
-        self.content_info = content_info
+        self.content_info = content.clean_text(content_info)
         self.data_dictionary = data_dictionary
         self.data_example = data_example
 

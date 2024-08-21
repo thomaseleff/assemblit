@@ -54,7 +54,7 @@ def load_orchestrator_environment(
         The Python entrypoint of the job.
     deployment_name: `str`
         The name of the job-deployment.
-    root_dir : `str | os.PathLike`
+    root_dir : `Union[str, os.PathLike]`
         Local directory path of the orchestration server.
     """
 
@@ -124,7 +124,7 @@ def start(
 
     Parameters
     ----------
-    path : `str | os.PathLike`
+    path : `Union[str, os.PathLike]`
         The relative or absolute path to the current work-directory.
     """
 
@@ -141,7 +141,7 @@ def start(
     server.start()
 
     # Deploy the `prefect` server job
-    server.deploy(job_entrypoint=os.path.abspath(server.ASSEMBLIT_SERVER_JOB_ENTRYPOINT))
+    return server.deploy(job_entrypoint=os.path.abspath(server.ASSEMBLIT_SERVER_JOB_ENTRYPOINT))
 
 
 def health_check(
@@ -151,7 +151,7 @@ def health_check(
     job_entrypoint: str,
     deployment_name: str,
     root_dir: Union[str, os.PathLike]
-) -> requests.Response | bool:
+) -> Union[requests.Response, bool]:
     """ Checks the health of the orchestration server and returns `True` when
     the server is available.
 
@@ -167,7 +167,7 @@ def health_check(
         The Python entrypoint of the job.
     deployment_name: `str`
         The name of the job-deployment.
-    root_dir : `str | os.PathLike`
+    root_dir : `Union[str, os.PathLike]`
         Local directory path of the orchestration server.
     """
 
@@ -197,7 +197,7 @@ def run_job(
     job_entrypoint: str,
     deployment_name: str,
     **kwargs: dict
-) -> dict | None:
+) -> Union[dict, None]:
     """ Runs the analysis-job.
 
     Parameters
@@ -206,7 +206,7 @@ def run_job(
         The type of orchestration server.
     server_port : `str`
         The registered port address of the orchestration server.
-    root_dir : `str | os.PathLike`
+    root_dir : `Union[str, os.PathLike]`
         Local directory path of the orchestration server.
     name : `str`
         The name of the job-run.
@@ -250,7 +250,7 @@ def poll_job_run(
     deployment_name: str,
     root_dir: Union[str, os.PathLike],
     run_id: str
-) -> dict | None:
+) -> Union[dict, None]:
     """ Polls the attributes of an analysis-job run.
 
     Parameters
@@ -265,7 +265,7 @@ def poll_job_run(
         The Python entrypoint of the job.
     deployment_name: `str`
         The name of the job-deployment.
-    root_dir : `str | os.PathLike`
+    root_dir : `Union[str, os.PathLike]`
         Local directory path of the orchestration server.
     run_id : `str`
         The id of a job run.

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 from dataclasses import dataclass
-from typing import Literal
+from typing import Literal, Union
 import pandera
 import datetime
 import json
@@ -31,11 +31,11 @@ class Setting():
         The name used to represent the parameter in the database and the session-state.
     name : `str`
         The display name used to represent the parameter.
-    value : `str` | `None`
+    value : `Union[str, None]`
         The default value of the parameter.
-    kwargs : `dict` | `None`
+    kwargs : `Union[dict, None]`
         Additional key-word arguments for the `streamlit` widget.
-    description : `str` | `None`
+    description : `Union[str, None]`
         The short summary of the parameter or instructions on setting the parameter value.
     """
 
@@ -43,9 +43,9 @@ class Setting():
     dtype: Literal['bool', 'str', 'int', 'float', 'datetime', 'timedelta']
     parameter: str
     name: str
-    value: str | None = None
-    kwargs: dict | None = None
-    description: str | None = None
+    value: Union[str, None] = None
+    kwargs: Union[dict, None] = None
+    description: Union[str, None] = None
 
     def from_dict(dict_object: dict) -> Setting:
         """ Returns a `Setting` object from a `dict`.
@@ -83,15 +83,17 @@ class Setting():
                     )
 
         # Assert that the slider setting type has kwargs
-        if (
-            str(dict_object['type']).strip().lower() == 'slider'
-            and (
+        if str(dict_object['type']).strip().lower() == 'slider':
+
+            if 'kwargs' not in dict_object:
+                raise ValueError('Missing kwargs. Slider `Setting` objects require kwargs as a `dict`.')
+
+            if (
                 dict_object['kwargs'] is None
                 or dict_object['kwargs'] == ''
                 or not isinstance(dict_object['kwargs'], dict)
-            )
-        ):
-            raise ValueError('Missing kwargs. Slider `Setting` objects require kwargs as a `dict`.')
+            ):
+                raise ValueError('Missing kwargs. Slider `Setting` objects require kwargs as a `dict`.')
 
         return Setting(**dict_object)
 
@@ -140,15 +142,15 @@ class Selector():
     ----------
     parameter : `str`
         The name used to represent the parameter in the database and the session-state.
-    name : `str` | `None`
+    name : `Union[str, None]`
         The display name used to represent the parameter.
-    description : `str` | `None`
+    description : `Union[str, None]`
         The short summary of the parameter or instructions on setting the parameter value.
     """
 
     parameter: str
-    name: str | None = None
-    description: str | None = None
+    name: Union[str, None] = None
+    description: Union[str, None] = None
 
     def from_dict(dict_object: dict) -> Selector:
         """ Returns a `Selector` object from a `dict`.

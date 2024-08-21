@@ -1,5 +1,6 @@
 """ Assemblit web-application exceptions """
 
+from typing import List
 import assemblit
 
 
@@ -63,7 +64,7 @@ class CompatibilityError(ValueError):
         self,
         app_type: str,
         page_name: str,
-        compatible_app_types: list[str],
+        compatible_app_types: List[str],
         *args,
         **kwargs
     ):
@@ -75,7 +76,7 @@ class CompatibilityError(ValueError):
             The type of web-application.
         page_name : `str`
             The name of the web-page.
-        compatible_app_types : `list[str]`
+        compatible_app_types : `List[str]`
             The list of compatible web-application types.
         """
         default_message = ''.join([

@@ -1,10 +1,11 @@
 """ Page builder """
 
+from typing import List
 import os
 import copy
 import streamlit as st
 from assemblit import setup, blocks
-from assemblit.toolkit import _exceptions
+from assemblit.toolkit import _exceptions, content
 from assemblit._database import users
 from assemblit.pages._components import _core, _key_value, _selector
 
@@ -23,7 +24,7 @@ class Content():
     selector : `Selector`
         `assemblit.app.structures.Selector` object containing the setting parameter & value to populate the
             drop-down selection options.
-    settings : `list[Setting]`
+    settings : `List[Setting]`
         List of `assemblit.app.structures.Setting` objects containing the setting(s) parameters & values.
     headerless : `bool`
         `True` or `False`, determines whether to display the header & tagline.
@@ -59,7 +60,7 @@ class Content():
         selector: blocks.structures.Selector = blocks.structures.Selector(
             parameter='session_name'
         ),
-        settings: list[blocks.structures.Setting] = [
+        settings: List[blocks.structures.Setting] = [
             blocks.structures.Setting(
                 type='text-input',
                 dtype='str',
@@ -82,7 +83,7 @@ class Content():
         selector : `Selector`
             `assemblit.app.structures.Selector` object containing the setting parameter & value to populate the
                 drop-down selection options.
-        settings : `list[Setting]`
+        settings : `List[Setting]`
             List of `assemblit.app.structures.Setting` objects containing the setting(s) parameters & values.
         headerless : `bool`
             `True` or `False`, determines whether to display the header & tagline.
@@ -100,8 +101,8 @@ class Content():
             )
 
         # Assign content class variables
-        self.header = header
-        self.tagline = tagline
+        self.header = content.clean_text(header)
+        self.tagline = content.clean_text(tagline)
         self.headerless = headerless
         self.clear_on_submit = clear_on_submit
 

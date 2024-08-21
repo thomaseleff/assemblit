@@ -222,7 +222,7 @@ class env():
     def start(self):
         """ Starts the `prefect` orchestration server.
         """
-        subprocess.Popen(
+        orchestrator = subprocess.Popen(
             'prefect server start --host="%s" --port="%s"' % (
                 self.ASSEMBLIT_SERVER_HOST,
                 self.ASSEMBLIT_SERVER_PORT
@@ -233,6 +233,8 @@ class env():
         # Wait for healthy response
         while not self.health_check():
             time.sleep(1)
+
+        return orchestrator
 
     def deploy(
         self,
@@ -249,9 +251,9 @@ class env():
         return subprocess.Popen(
             '"%s" "%s"' % (sys.executable, job_entrypoint),
             shell=True
-        ).wait()
+        )
 
-    def health_check(self) -> requests.Response | bool:
+    def health_check(self) -> Union[requests.Response, bool]:
         """ Checks the health of the `prefect` orchestration server.
         Returns `True` when the `prefect` orchestration server is available.
         """
@@ -260,7 +262,7 @@ class env():
         except requests.exceptions.ConnectionError:
             return False
 
-    def get_token(self) -> requests.Response | None:
+    def get_token(self) -> Union[requests.Response, None]:
         """ Returns a `prefect` orchestration server csrf-token.
         """
         try:
@@ -275,7 +277,7 @@ class env():
         self,
         job_name: str,
         deployment_name: str
-    ) -> requests.Response | None:
+    ) -> Union[requests.Response, None]:
         """ Returns a `prefect` orchestration server `deployment` id.
 
         Parameters
@@ -301,7 +303,7 @@ class env():
         job_name: str,
         deployment_name: str,
         **kwargs: dict
-    ) -> dict | None:
+    ) -> Union[dict, None]:
         """ Creates a `prefect` orchestration server `flow` run from a `deployment`.
 
         Parameters
@@ -354,7 +356,7 @@ class env():
     def poll_job_run(
         self,
         run_id: str
-    ) -> dict | None:
+    ) -> Union[dict, None]:
         """ Polls the status of a `prefect` orchestration server flow-run.
 
         Parameters

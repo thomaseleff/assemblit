@@ -1,9 +1,9 @@
 """ Configuration utility """
 
+from typing import Union, List
 import os
 import copy
 import yaml
-from typing import Union
 from pytensils import utils
 from assemblit.toolkit import _exceptions
 
@@ -15,7 +15,7 @@ def load_configuration(
 
     Parameters
     ----------
-    path : `str` | `os.PathLike`
+    path : `Union[str, os.PathLike]`
         The absolute path to the work-directory.
     """
 
@@ -55,7 +55,7 @@ def unload_configuration(
 
     Parameters
     ----------
-    path : `str` | `os.PathLike`
+    path : `Union[str, os.PathLike]`
         The absolute path to the work-directory.
     config : `dict`
         The `assemblit` configuration.
@@ -117,7 +117,7 @@ def load_environment(
 def load_type(
     config: dict,
     env: str,
-    supported_types: list[str]
+    supported_types: List[str]
 ) -> str:
     """ Validates the web-application type and returns the web-application type as a `str`.
 
@@ -127,7 +127,7 @@ def load_type(
         The web-application configuration.
     env : `str`
         The environment in the configuration to load.
-    supported_types : `list[str]`
+    supported_types : `List[str]`
         The list of support types.
     """
 
@@ -163,7 +163,7 @@ def create_environment(
 def validate_type(
     env: str,
     type_: str,
-    supported_types: list[str]
+    supported_types: List[str]
 ) -> str:
     """ Validates the type and returns the type as a `str` if a valid type is provided,
     otherwise raises an `assemblit.app.exceptions.InvalidConfiguration` error.
@@ -174,7 +174,7 @@ def validate_type(
         The configuration environment.
     type_ : `str`
         The type to validate
-    supported_types : `list[str]`
+    supported_types : `List[str]`
         The list of support types.
     """
 

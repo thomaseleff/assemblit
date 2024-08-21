@@ -4,8 +4,7 @@ import os
 import shutil
 import subprocess
 import copy
-import textwrap
-from typing import Union, Literal
+from typing import Union, Literal, Tuple
 from pytensils import utils
 import assemblit
 from assemblit import _app
@@ -34,7 +33,7 @@ def load_app_environment(
     data_db_query_index: Union[str, None] = 'dataset_id',
     analysis_db_name: Union[str, None] = 'analysis',
     analysis_db_query_index: Union[str, None] = 'run_id'
-) -> tuple[
+) -> Tuple[
         str,
         str,
         bool,
@@ -43,24 +42,24 @@ def load_app_environment(
         str,
         str,
         str,
-        str | os.PathLike,
+        Union[str, os.PathLike],
         int,
-        bool | None,
-        str | os.PathLike | None,
-        str | None,
-        str | None,
-        str | None,
-        str | None,
-        str | None,
-        str | None,
-        str | None,
-        str | None,
-        dict | None,
-        dict | None,
-        dict | None,
-        dict | None,
-        dict | None,
-        dict | None
+        Union[bool, None],
+        Union[str, os.PathLike, None],
+        Union[str, None],
+        Union[str, None],
+        Union[str, None],
+        Union[str, None],
+        Union[str, None],
+        Union[str, None],
+        Union[str, None],
+        Union[str, None],
+        Union[dict, None],
+        Union[dict, None],
+        Union[dict, None],
+        Union[dict, None],
+        Union[dict, None],
+        Union[dict, None]
 ]:
     """ Loads and validates the orchestration server environment variables and returns the values in the following order,
 
@@ -326,7 +325,7 @@ def load_app_environment(
 
 def create_app(
     config: dict
-):
+) -> Union[_app.wiki.env, _app.aaas.env]:
     """ Creates the web-application environment.
 
     Parameters
@@ -373,18 +372,18 @@ def create_app(
 
 
 def build(
-    app_type: Literal['demo']
-):
+    app_type: Literal['demo'],
+    path: Union[str, os.PathLike]
+) -> Union[_app.wiki.env]:
     """ Builds a new project.
 
     Parameters
     ----------
     app_type : `Literal['demo']`
         The type of web-application.
+    path : `Union[str, os.PathLike]`
+        The absolute path to the work-directory.
     """
-
-    # Get current work-directory
-    path = os.getcwd()
 
     if app_type.strip().lower() == 'demo':
 
@@ -440,7 +439,7 @@ def build(
                 os.path.abspath(path),
                 'README.md'
             ),
-            content=textwrap.dedent(markdown)
+            content=markdown
         )
 
         # Unload the Python script
@@ -460,43 +459,36 @@ def build(
         raise NotImplementedError('App-type {%s} is not yet supported by `assemblit build`.' % (app_type))
 
     # Create the web-application environment
-    application = create_app(config=config)
-
-    # Run the web-application
-    subprocess.Popen(
-        'streamlit run %s --server.port %s' % (
-            os.path.join(os.path.abspath(path), 'app.py'),
-            application.ASSEMBLIT_CLIENT_PORT
-        ),
-        shell=True
-    ).wait()
+    return create_app(config=config)
 
 
 def run(
-    script: Union[str, os.PathLike]
-):
+    script: Union[str, os.PathLike],
+    application: Union[_app.wiki.env, _app.aaas.env, None] = None
+) -> subprocess.Popen:
     """ Runs a Python script.
 
     Parameters
     ----------
-    script : `str | os.PathLike`
+    script : `Union[str, os.PathLike]`
         The relative or absolute path to a local Python script.
+    application : `Union[_app.wiki.env, _app.aaas.env, None]`
+        The web-application `class` object.
     """
 
-    # Load the web-application configuration
-    config = _yaml.load_configuration(path=os.path.dirname(os.path.abspath(script)))
-
-    # Create the web-application environment
-    application = create_app(config=config)
+    # Load and create the web-application configuration
+    if not application:
+        config = _yaml.load_configuration(path=os.path.dirname(os.path.abspath(script)))
+        application = create_app(config=config)
 
     # Run the web-application
-    subprocess.Popen(
+    return subprocess.Popen(
         'streamlit run %s --server.port %s' % (
             os.path.abspath(script),
             application.ASSEMBLIT_CLIENT_PORT
         ),
         shell=True
-    ).wait()
+    )
 
 
 # Define environment variable constructing functions
@@ -508,7 +500,7 @@ def _construct_session_state_defaults(
 
     Parameters
     ----------
-    root_dir : `str`
+    root_dir : `Union[str, os.PathLike]`
         The local filesystem folder to mount to the docker container.
     home_page_name : `str`
         The filename of the Python script that represents the home-page.

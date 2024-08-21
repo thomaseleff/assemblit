@@ -1,5 +1,6 @@
 """ Dimension classification """
 
+from typing import List, Tuple
 import pandas
 
 DATETIME_REGEX_PATTERNS = {
@@ -60,8 +61,8 @@ DATETIME_REGEX_PATTERNS = {
 
 def datetime_dimension(
     df: pandas.DataFrame
-) -> list[tuple[str, str]]:
-    """ Parses `df` and returns a list of date-time columns and formats as a `list[tuple[str, str]]`.
+) -> List[Tuple[str, str]]:
+    """ Parses `df` and returns a list of date-time columns and formats as a `List[Tuple[str, str]]`.
 
     Parameters
     ----------

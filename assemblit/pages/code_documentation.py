@@ -2,7 +2,7 @@
 
 import os
 import inspect
-from typing import Any
+from typing import Any, List, Union, Tuple
 import streamlit as st
 from assemblit import setup, _app
 from assemblit.toolkit import _exceptions
@@ -162,7 +162,7 @@ class Content():
 
     def _display_module_table_of_contents(
         self,
-        module_name: str | None,
+        module_name: Union[str, None],
         obj: Any,
         classes_or_functions: Any
     ):
@@ -283,7 +283,7 @@ class Content():
                 if doc := inspect.getdoc(exception):
                     st.code(doc, language='markdown')
 
-    def _display_module_documentation(self, obj: Any, module_name: str | None = None):
+    def _display_module_documentation(self, obj: Any, module_name: Union[str, None] = None):
         if classes := _contains_classes(self.package, obj):
 
             # Check for functions
@@ -344,7 +344,7 @@ def _get_relative_path(full_path, base_path) -> str:
     )
 
 
-def _get_source_path(relative_path, line: int | None = None) -> str:
+def _get_source_path(relative_path, line: Union[int, None] = None) -> str:
     if line:
         line = '#L%s' % (line)
     else:
@@ -422,7 +422,7 @@ def _parse_object_tagline_information(relative_path: str) -> str:
     )
 
 
-def _parse_object_table_of_contents_information(name: str, obj: Any, relative_path: str, line: int | None = None) -> str:
+def _parse_object_table_of_contents_information(name: str, obj: Any, relative_path: str, line: Union[int, None] = None) -> str:
     return """<li>
         <span style="font-weight: bold;">%s </span><!--
         --><code>%s</code><!--
@@ -533,7 +533,7 @@ def _is_in_package(package: Any, obj: Any) -> bool:
         return False
 
 
-def _contains_modules(package: Any, obj: Any) -> list[tuple[str, Any]] | None:
+def _contains_modules(package: Any, obj: Any) -> Union[List[Tuple[str, Any]], None]:
     """ Returns all public modules of object.
 
     Parameters
@@ -552,7 +552,7 @@ def _contains_modules(package: Any, obj: Any) -> list[tuple[str, Any]] | None:
         return None
 
 
-def _contains_classes(package: Any, obj: Any) -> list[tuple[str, Any]] | None:
+def _contains_classes(package: Any, obj: Any) -> Union[List[Tuple[str, Any]], None]:
     """ Returns all public classes of object. A class is any object that
     is not an instance or subclass of `Exception`.
 
@@ -574,7 +574,7 @@ def _contains_classes(package: Any, obj: Any) -> list[tuple[str, Any]] | None:
         return None
 
 
-def _contains_methods(package: Any, obj: Any) -> list[tuple[str, Any]] | None:
+def _contains_methods(package: Any, obj: Any) -> Union[List[Tuple[str, Any]], None]:
     """ Returns all public methods of an object.
 
     Parameters
@@ -593,7 +593,7 @@ def _contains_methods(package: Any, obj: Any) -> list[tuple[str, Any]] | None:
         return None
 
 
-def _contains_init(package: Any, obj: Any) -> list[tuple[str, Any]] | None:
+def _contains_init(package: Any, obj: Any) -> Union[List[Tuple[str, Any]], None]:
     """ Returns `True` if an object has an __init__ method.
 
     Parameters
@@ -612,7 +612,7 @@ def _contains_init(package: Any, obj: Any) -> list[tuple[str, Any]] | None:
         return None
 
 
-def _contains_exceptions(package: Any, obj: Any) -> list[tuple[str, Any]] | None:
+def _contains_exceptions(package: Any, obj: Any) -> Union[List[Tuple[str, Any]], None]:
     """ Returns all public exceptions of object. An exception is any object that
     is an instance or subclass of `Exception`.
 

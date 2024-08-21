@@ -1,5 +1,6 @@
 """ Contains the generic methods for a key-value pair settings-page """
 
+from typing import List, Union
 import streamlit as st
 from assemblit import setup
 from assemblit.blocks.structures import Setting
@@ -13,7 +14,7 @@ def initialize_key_value_pair_table(
     db_name: str,
     table_name: str,
     query_index: str,
-    settings: list[Setting]
+    settings: List[Setting]
 ):
     """ Initializes the key-value pair database table and parses the database
     table values into the session state when `table_name` is not `None`.
@@ -26,7 +27,7 @@ def initialize_key_value_pair_table(
         Name of the table within `db_name` to store the setting(s) parameters & values.
     query_index : 'str'
         Name of the index within `db_name` & `table_name`. May only be one column.
-    settings : `list[Setting]`
+    settings : `List[Setting]`
         List of `assemblit.app.structures.Setting` objects containing the setting(s) parameters & values.
     """
 
@@ -272,7 +273,7 @@ def get_key_value_pair_parameters(
 def get_default_key_value_pair_settings(
     db_name: str,
     query_index: str,
-    settings: list[Setting],
+    settings: List[Setting],
 ) -> Row:
     """ Parses the default setting(s) parameters and values and
     returns a `Row` object.
@@ -285,7 +286,7 @@ def get_default_key_value_pair_settings(
         Name of the table within `db_name` to store the setting(s) parameters & values.
     query_index : 'str'
         Name of the index within `db_name` & `table_name`. May only be one column.
-    settings : `list[Setting]`
+    settings : `List[Setting]`
         List of `assemblit.app.structures.Setting` objects containing the setting(s) parameters & values.
     """
     defaults = {
@@ -493,7 +494,7 @@ def select_setting_table_column_value(
     db_name: str,
     query: str,
     return_dtype: str
-) -> str | int | float | bool | list | dict:
+) -> Union[str, int, float, bool, list, dict]:
     """ Submits {query} to {db_name} and returns the value in the
     {return_dtype}.
 

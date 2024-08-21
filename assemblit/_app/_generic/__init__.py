@@ -1,7 +1,7 @@
 """ Generic web-application """
 
 import os
-from typing import Union, Optional
+from typing import Type, Union, Optional, Any, get_type_hints
 from dataclasses import dataclass, field, fields, asdict
 from assemblit.toolkit import _exceptions
 
@@ -39,7 +39,7 @@ class _env():
     ASSEMBLIT_DIR : `Union[str, os.PathLike]`
         The local filesystem folder to mount to the docker container.
 
-    ASSEMBLIT_CLIENT_PORT : Optional[`int`] = 8501
+    ASSEMBLIT_CLIENT_PORT : `Optional[int]` = 8501
         The client port of the `assemblit` web-application within the docker container.
     """
 
@@ -74,9 +74,12 @@ class _env():
             raise _exceptions.MissingEnvironmentVariables
 
         # Validate types
+        type_hints = _env.get_all_type_hints(dataclass_object=type(self))
+
+        # Check the type of field
         for variable in fields(self):
             value = getattr(self, variable.name)
-            if not isinstance(value, variable.type):
+            if not _env.check_type(expected_type=type_hints[variable.name], value=value):
                 raise ValueError(
                     'Invalid dtype {%s} for {%s}. Expected {%s}.' % (
                         type(value).__name__,
@@ -85,9 +88,9 @@ class _env():
                     )
                 )
 
-        # Convert relative directory paths to absoluate paths
-        if variable.name in ['ASSEMBLIT_DIR']:
-            setattr(self, variable.name, os.path.abspath(getattr(self, variable.name)))
+            # Convert relative directory paths to absoluate paths
+            if variable.name in ['ASSEMBLIT_DIR']:
+                setattr(self, variable.name, os.path.abspath(getattr(self, variable.name)))
 
     def to_dict(self) -> dict:
         """ Returns the environment variables and values as a dictionary. """
@@ -100,3 +103,41 @@ class _env():
     def values(self) -> tuple:
         """ Returns the environment variable values as a tuple. """
         return tuple(asdict(self).values())
+
+    def check_type(expected_type: Type, value: Any) -> bool:
+        """ Recursively check if a value matches the expected type. This function is
+        compatible with basic types, Union, and Optional.
+
+        Parameters
+        ----------
+        expected_type : `Type`
+            The expected type assigned to the dataclass field.
+        value : `Any`
+            The value to type check.
+        """
+        if hasattr(expected_type, '__origin__'):
+
+            # Handle Optional[Type] which is equivalent to Union[Type, None]
+            if expected_type.__origin__ is Union:
+                return any(_env.check_type(arg, value) for arg in expected_type.__args__)
+
+        # For Optional, allow NoneType
+        if isinstance(value, expected_type) or value is None and expected_type is Optional:
+            return True
+
+        return isinstance(value, expected_type)
+
+    def get_all_type_hints(dataclass_object: object) -> dict:
+        """ Get all type hints from the dataclass and all subclasses.
+
+        Parameters
+        ----------
+        dataclass_object : `object`
+            The dataclass object.
+        """
+        hints = {}
+        for base in dataclass_object.__mro__:
+            if base is object:
+                continue
+            hints.update(get_type_hints(base))
+        return hints

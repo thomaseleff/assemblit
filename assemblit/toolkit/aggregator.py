@@ -1,6 +1,6 @@
 """ `pandas` based data aggregator """
 
-import typing
+from typing import Literal, List, Union
 import pandas
 from assemblit.toolkit import _exceptions
 
@@ -19,12 +19,15 @@ AGGRULES = {
 
 def agg_df(
     df: pandas.DataFrame,
-    datetime: list | None = None,
-    dimension: list | None = None,
-    metrics: list | None = None,
-    aggrules: list[typing.Literal[
-        'Count', 'Sum', 'Min', 'Max', 'Mean', 'Median', 'Mode', 'Standard Deviation', 'Variance'
-    ]] | None = None
+    datetime: Union[list, None] = None,
+    dimension: Union[list, None] = None,
+    metrics: Union[list, None] = None,
+    aggrules: Union[
+        List[Literal[
+            'Count', 'Sum', 'Min', 'Max', 'Mean', 'Median', 'Mode', 'Standard Deviation', 'Variance'
+        ]],
+        None
+    ] = None
 ) -> pandas.DataFrame:
     """ Groups `df` by `dimensions` and/or `datetime` and aggregates `metrics` with `aggrules`
     returning a `pandas.Dataframe`.
@@ -33,13 +36,13 @@ def agg_df(
     ----------
     df : `pandas.DataFrame`
         Pandas dataframe object to aggregate.
-    datetime : `list | None`
+    datetime : `Union[list, None]`
         Ordered list of the date-time columns in `df`.
-    dimension : `list | None`
+    dimension : `Union[list, None]`
         Ordered list of categorical columns in `df` to group the records.
-    metrics : `list | None`
+    metrics : `Union[list, None]`
         Ordered list of numeric columns in `df` to summarize by `aggrules`.
-    aggrules : `list | None`
+    aggrules : `Union[list, None]`
         Ordered list of aggregation rules that determine the aggregation of the `metrics`.
     """
 
@@ -111,11 +114,14 @@ def agg_df(
 
 def describe_df(
     df: pandas.DataFrame,
-    dimension: list | None = None,
-    metrics: list | None = None,
-    aggrules: list[typing.Literal[
-        'Count', 'Sum', 'Min', 'Max', 'Mean', 'Median', 'Mode', 'Standard Deviation', 'Variance'
-    ]] | None = None
+    dimension: Union[list, None] = None,
+    metrics: Union[list, None] = None,
+    aggrules: Union[
+        List[Literal[
+            'Count', 'Sum', 'Min', 'Max', 'Mean', 'Median', 'Mode', 'Standard Deviation', 'Variance'
+        ]],
+        None
+    ] = None
 ) -> pandas.DataFrame:
     """ Groups `df` by `dimensions` and/or `datetime` and calculates descriptive statistics
     returning a `pandas.DataFrame`.
@@ -124,11 +130,11 @@ def describe_df(
     ----------
     df : `pandas.DataFrame`
         Pandas dataframe object to describe.
-    dimension : `list | None`
+    dimension : `Union[list, None]`
         Ordered list of categorical columns in `df` to group the records.
-    metrics : `list | None`
+    metrics : `Union[list, None]`
         Ordered list of numeric columns in `df` to summarize by `aggrules`.
-    aggrules : `list | None`
+    aggrules : `Union[list, None]`
         Ordered list of aggregation rules that determine the aggregation of the `metrics`.
     """
 
