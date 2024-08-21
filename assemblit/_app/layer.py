@@ -4,7 +4,6 @@ import os
 import shutil
 import subprocess
 import copy
-import textwrap
 from typing import Union, Literal
 from pytensils import utils
 import assemblit
@@ -440,7 +439,7 @@ def build(
                 os.path.abspath(path),
                 'README.md'
             ),
-            content=textwrap.dedent(markdown)
+            content=markdown
         )
 
         # Unload the Python script
@@ -463,13 +462,13 @@ def build(
     application = create_app(config=config)
 
     # Run the web-application
-    subprocess.Popen(
+    return subprocess.Popen(
         'streamlit run %s --server.port %s' % (
             os.path.join(os.path.abspath(path), 'app.py'),
             application.ASSEMBLIT_CLIENT_PORT
         ),
         shell=True
-    ).wait()
+    )
 
 
 def run(
@@ -490,13 +489,13 @@ def run(
     application = create_app(config=config)
 
     # Run the web-application
-    subprocess.Popen(
+    return subprocess.Popen(
         'streamlit run %s --server.port %s' % (
             os.path.abspath(script),
             application.ASSEMBLIT_CLIENT_PORT
         ),
         shell=True
-    ).wait()
+    )
 
 
 # Define environment variable constructing functions

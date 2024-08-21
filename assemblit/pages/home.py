@@ -3,7 +3,7 @@
 import os
 import streamlit as st
 from assemblit import setup, _app, toolkit
-from assemblit.toolkit import _exceptions
+from assemblit.toolkit import _exceptions, content
 from assemblit._auth import vault
 from assemblit.pages._components import _core
 
@@ -91,10 +91,13 @@ class Content():
             )
 
         # Assign content class variables
-        self.header = header
-        self.tagline = tagline
+        self.header = content.clean_text(header)
+        self.tagline = content.clean_text(tagline)
         self.content_file_path = content_file_path
-        self.content_info = content_info
+        if content_info:
+            self.content_info = content.clean_text(content_info)
+        else:
+            self.content_info = None
         self.headerless = headerless
 
         # Initialize database class variables

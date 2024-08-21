@@ -35,7 +35,7 @@ def run(
     ```
 
     """
-    layer.run(script=script)
+    return layer.run(script=script).wait()
 
 
 def build(
@@ -66,4 +66,4 @@ def build(
     assemblit build demo
     ```
     """
-    layer.build(app_type=app_type)
+    return layer.build(app_type=app_type).wait()

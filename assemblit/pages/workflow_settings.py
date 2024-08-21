@@ -4,7 +4,7 @@ import os
 import copy
 import streamlit as st
 from assemblit import setup, blocks
-from assemblit.toolkit import _exceptions
+from assemblit.toolkit import _exceptions, content
 from assemblit.pages._components import _key_value, _core
 
 _COMPATIBLE_APP_TYPES = ['aaas']
@@ -96,9 +96,9 @@ class Content():
             )
 
         # Assign content class variables
-        self.header = header
-        self.tagline = tagline
-        self.content_info = content_info
+        self.header = content.clean_text(header)
+        self.tagline = content.clean_text(tagline)
+        self.content_info = content.clean_text(content_info)
         self.headerless = headerless
         self.clear_on_submit = clear_on_submit
 

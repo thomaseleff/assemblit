@@ -38,4 +38,4 @@ def start(
     """
 
     # Start the orchestration server
-    layer.start(path=path)
+    return layer.start(path=path).wait()

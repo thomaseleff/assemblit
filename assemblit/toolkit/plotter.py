@@ -15,7 +15,7 @@ def timeseries_line_plot(
     aggrules: list[typing.Literal[
         'Count', 'Sum', 'Min', 'Max', 'Mean', 'Median', 'Mode', 'Standard Deviation', 'Variance'
     ]] | None = None
-) -> plotly.graph_objects.Line:
+) -> plotly.graph_objects.Figure:
     """ Aggregates `df` with `aggregator.agg_df` and returns a Plotly `plotly.graph_objects.Line` object.
 
     Parameters
@@ -83,7 +83,7 @@ def descriptives_table(
     aggrules: list[typing.Literal[
         'Count', 'Sum', 'Min', 'Max', 'Mean', 'Median', 'Mode', 'Standard Deviation', 'Variance'
     ]] | None = None
-) -> plotly.graph_objects.Line:
+) -> plotly.graph_objects.Figure:
     """ Aggregates `df` with `aggregator.describe_df` then returns a Plotly `plotly.graph_objects.Table` object.
 
     Parameters

@@ -83,15 +83,17 @@ class Setting():
                     )
 
         # Assert that the slider setting type has kwargs
-        if (
-            str(dict_object['type']).strip().lower() == 'slider'
-            and (
+        if str(dict_object['type']).strip().lower() == 'slider':
+
+            if 'kwargs' not in dict_object:
+                raise ValueError('Missing kwargs. Slider `Setting` objects require kwargs as a `dict`.')
+
+            if (
                 dict_object['kwargs'] is None
                 or dict_object['kwargs'] == ''
                 or not isinstance(dict_object['kwargs'], dict)
-            )
-        ):
-            raise ValueError('Missing kwargs. Slider `Setting` objects require kwargs as a `dict`.')
+            ):
+                raise ValueError('Missing kwargs. Slider `Setting` objects require kwargs as a `dict`.')
 
         return Setting(**dict_object)
 

@@ -141,7 +141,7 @@ def start(
     server.start()
 
     # Deploy the `prefect` server job
-    server.deploy(job_entrypoint=os.path.abspath(server.ASSEMBLIT_SERVER_JOB_ENTRYPOINT))
+    return server.deploy(job_entrypoint=os.path.abspath(server.ASSEMBLIT_SERVER_JOB_ENTRYPOINT))
 
 
 def health_check(

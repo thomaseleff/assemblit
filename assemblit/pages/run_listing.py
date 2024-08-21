@@ -4,7 +4,7 @@ import os
 import copy
 import streamlit as st
 from assemblit import setup
-from assemblit.toolkit import _exceptions
+from assemblit.toolkit import _exceptions, content
 from assemblit._database import sessions, analysis
 from assemblit.pages._components import _core, _run_listing
 
@@ -76,9 +76,9 @@ class Content():
             )
 
         # Assign content class variables
-        self.header = header
-        self.tagline = tagline
-        self.content_info = content_info
+        self.header = content.clean_text(header)
+        self.tagline = content.clean_text(tagline)
+        self.content_info = content.clean_text(content_info)
         self.headerless = headerless
 
         # Assign database class variables to set the scope for run listing

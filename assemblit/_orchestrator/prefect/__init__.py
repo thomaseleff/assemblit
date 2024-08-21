@@ -222,7 +222,7 @@ class env():
     def start(self):
         """ Starts the `prefect` orchestration server.
         """
-        subprocess.Popen(
+        orchestrator = subprocess.Popen(
             'prefect server start --host="%s" --port="%s"' % (
                 self.ASSEMBLIT_SERVER_HOST,
                 self.ASSEMBLIT_SERVER_PORT
@@ -233,6 +233,8 @@ class env():
         # Wait for healthy response
         while not self.health_check():
             time.sleep(1)
+
+        return orchestrator
 
     def deploy(
         self,
@@ -249,7 +251,7 @@ class env():
         return subprocess.Popen(
             '"%s" "%s"' % (sys.executable, job_entrypoint),
             shell=True
-        ).wait()
+        )
 
     def health_check(self) -> requests.Response | bool:
         """ Checks the health of the `prefect` orchestration server.
