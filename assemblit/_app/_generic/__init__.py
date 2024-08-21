@@ -39,7 +39,7 @@ class _env():
     ASSEMBLIT_DIR : `Union[str, os.PathLike]`
         The local filesystem folder to mount to the docker container.
 
-    ASSEMBLIT_CLIENT_PORT : Optional[`int`] = 8501
+    ASSEMBLIT_CLIENT_PORT : `Optional[int]` = 8501
         The client port of the `assemblit` web-application within the docker container.
     """
 
@@ -75,19 +75,20 @@ class _env():
 
         # Validate types
         for variable in fields(self):
-            value = getattr(self, variable.name)
-            if not isinstance(value, variable.type):
-                raise ValueError(
-                    'Invalid dtype {%s} for {%s}. Expected {%s}.' % (
-                        type(value).__name__,
-                        variable.name,
-                        (variable.type).__name__
+            if variable.name not in ['ASSEMBLIT_DIR']:  # Avoid type-checking `ASSEMBLIT_DIR` due to Python 3.8 and 3.9 behavior
+                value = getattr(self, variable.name)
+                if not isinstance(value, variable.type):
+                    raise ValueError(
+                        'Invalid dtype {%s} for {%s}. Expected {%s}.' % (
+                            type(value).__name__,
+                            variable.name,
+                            (variable.type).__name__
+                        )
                     )
-                )
 
-        # Convert relative directory paths to absoluate paths
-        if variable.name in ['ASSEMBLIT_DIR']:
-            setattr(self, variable.name, os.path.abspath(getattr(self, variable.name)))
+            # Convert relative directory paths to absoluate paths
+            if variable.name in ['ASSEMBLIT_DIR']:
+                setattr(self, variable.name, os.path.abspath(getattr(self, variable.name)))
 
     def to_dict(self) -> dict:
         """ Returns the environment variables and values as a dictionary. """
