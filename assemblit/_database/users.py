@@ -1,5 +1,6 @@
 """ Database table """
 
+from typing import ClassVar
 from dataclasses import dataclass
 import pandera
 from assemblit import setup
@@ -20,7 +21,7 @@ class Schemas():
     """
 
     # The `credentials` table Schema.
-    credentials: _generic.Schema = _generic.Schema(
+    credentials: ClassVar[_generic.Schema] = _generic.Schema(
         name='credentials',
         columns={
             setup.USERS_DB_QUERY_INDEX: pandera.Column(
@@ -48,7 +49,7 @@ class Schemas():
     )
 
     # The `sessions` table Schema
-    sessions: _generic.Schema = _generic.Schema(
+    sessions: ClassVar[_generic.Schema] = _generic.Schema(
         name=setup.SESSIONS_DB_NAME,
         columns={
             setup.USERS_DB_QUERY_INDEX: pandera.Column(

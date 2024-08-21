@@ -61,7 +61,7 @@ jobs:
       run: |
         git config --local user.email "github-actions[bot]@users.noreply.github.com"
         git config --local user.name "github-actions[bot]"
-        git remote add github https://github.com/thomaseleff/pytensils.git
+        git remote add github https://github.com/thomaseleff/assemblit.git
         git add coverage/coverage.svg
         git add coverage/COVERAGE.md
         git commit -m "Updated coverage"
