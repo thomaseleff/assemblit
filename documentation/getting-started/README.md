@@ -1,7 +1,7 @@
 ## Installation
 `assemblit` can be installed via PyPI from the command-line, which allows for developing locally before deploying.
 
-1. Setup a Python developer environment. `assemblit` supports Python versions >= 3.10.
+1. Setup a Python developer environment. `assemblit` supports Python versions >= 3.8.
 2. From the command-line, run,
 
    ```
