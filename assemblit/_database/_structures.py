@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 from dataclasses import dataclass
-from typing import ClassVar
+from typing import ClassVar, List
 
 
 # Define database management system options
@@ -12,7 +12,7 @@ class DBMS():
 
     Attributes
     ----------
-    OPTIONS : `list[str]`
+    OPTIONS : `List[str]`
         The list of possible database management systems,
             `[
                 'db',
@@ -27,7 +27,7 @@ class DBMS():
         The default database management system, `db`.
     """
 
-    OPTIONS: ClassVar[list[str]] = [
+    OPTIONS: ClassVar[List[str]] = [
         'db',
         'sdb',
         'sqlite',
@@ -46,14 +46,14 @@ class Filter():
 
     Attributes
     ----------
-    col : `str | list[str]`
+    col : `str | List[str]`
         The column(s) of the database table to filter.
-    val : `str | list[str]`
+    val : `str | List[str]`
         The value(s) of the database table to filter.
     """
 
-    col: str | list[str] | None = None
-    val: str | list[str] | None = None
+    col: str | List[str] | None = None
+    val: str | List[str] | None = None
 
 
 @dataclass
@@ -62,9 +62,9 @@ class Validate(Filter):
 
     Attributes
     ----------
-    col : `str | list[str]`
+    col : `str | List[str]`
         The column(s) of the database table to validate.
-    val : `str | list[str]`
+    val : `str | List[str]`
         The value(s) of the database table to validate.
     """
     pass
@@ -77,9 +77,9 @@ class Value(Filter):
 
     Attributes
     ----------
-    col : `str | list[str]`
+    col : `str | List[str]`
         The column of the database table.
-    val : `str | list[str]`
+    val : `str | List[str]`
         The value of the database table.
     """
     pass
@@ -91,14 +91,14 @@ class Row():
 
     Attributes
     ----------
-    cols : `list[str]`
+    cols : `List[str]`
         The columns of the database table row.
-    vals : `list[str]`
+    vals : `List[str]`
         The values of the database table row.
     """
 
-    cols: list[str] | None = None
-    vals: list[str] | None = None
+    cols: List[str] | None = None
+    vals: List[str] | None = None
 
 
 @dataclass

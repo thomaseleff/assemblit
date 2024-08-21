@@ -1,6 +1,6 @@
 """ `plotly` based plotting """
 
-import typing
+from typing import Literal, List
 import pandas
 import plotly.express
 import plotly.graph_objects
@@ -12,7 +12,7 @@ def timeseries_line_plot(
     datetime: list | None = None,
     dimension: list | None = None,
     metrics: list | None = None,
-    aggrules: list[typing.Literal[
+    aggrules: List[Literal[
         'Count', 'Sum', 'Min', 'Max', 'Mean', 'Median', 'Mode', 'Standard Deviation', 'Variance'
     ]] | None = None
 ) -> plotly.graph_objects.Figure:
@@ -80,7 +80,7 @@ def descriptives_table(
     df: pandas.DataFrame,
     dimension: list | None = None,
     metrics: list | None = None,
-    aggrules: list[typing.Literal[
+    aggrules: List[Literal[
         'Count', 'Sum', 'Min', 'Max', 'Mean', 'Median', 'Mode', 'Standard Deviation', 'Variance'
     ]] | None = None
 ) -> plotly.graph_objects.Figure:

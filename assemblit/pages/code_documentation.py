@@ -2,7 +2,7 @@
 
 import os
 import inspect
-from typing import Any
+from typing import Any, List
 import streamlit as st
 from assemblit import setup, _app
 from assemblit.toolkit import _exceptions
@@ -533,7 +533,7 @@ def _is_in_package(package: Any, obj: Any) -> bool:
         return False
 
 
-def _contains_modules(package: Any, obj: Any) -> list[tuple[str, Any]] | None:
+def _contains_modules(package: Any, obj: Any) -> List[tuple[str, Any]] | None:
     """ Returns all public modules of object.
 
     Parameters
@@ -552,7 +552,7 @@ def _contains_modules(package: Any, obj: Any) -> list[tuple[str, Any]] | None:
         return None
 
 
-def _contains_classes(package: Any, obj: Any) -> list[tuple[str, Any]] | None:
+def _contains_classes(package: Any, obj: Any) -> List[tuple[str, Any]] | None:
     """ Returns all public classes of object. A class is any object that
     is not an instance or subclass of `Exception`.
 
@@ -574,7 +574,7 @@ def _contains_classes(package: Any, obj: Any) -> list[tuple[str, Any]] | None:
         return None
 
 
-def _contains_methods(package: Any, obj: Any) -> list[tuple[str, Any]] | None:
+def _contains_methods(package: Any, obj: Any) -> List[tuple[str, Any]] | None:
     """ Returns all public methods of an object.
 
     Parameters
@@ -593,7 +593,7 @@ def _contains_methods(package: Any, obj: Any) -> list[tuple[str, Any]] | None:
         return None
 
 
-def _contains_init(package: Any, obj: Any) -> list[tuple[str, Any]] | None:
+def _contains_init(package: Any, obj: Any) -> List[tuple[str, Any]] | None:
     """ Returns `True` if an object has an __init__ method.
 
     Parameters
@@ -612,7 +612,7 @@ def _contains_init(package: Any, obj: Any) -> list[tuple[str, Any]] | None:
         return None
 
 
-def _contains_exceptions(package: Any, obj: Any) -> list[tuple[str, Any]] | None:
+def _contains_exceptions(package: Any, obj: Any) -> List[tuple[str, Any]] | None:
     """ Returns all public exceptions of object. An exception is any object that
     is an instance or subclass of `Exception`.
 

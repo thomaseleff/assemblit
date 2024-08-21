@@ -1,5 +1,6 @@
 """ Page builder """
 
+from typing import List
 import os
 import copy
 import streamlit as st
@@ -21,7 +22,7 @@ class Content():
         String to display as the webpage tagline
     content_info : `str`
         String to display as `streamlit.info()` when there is no active session
-    settings : `list[Setting]`
+    settings : `List[Setting]`
         List of `assemblit.app.structures.Setting` objects containing the setting(s) parameters & values
     headerless : `bool`
         `True` or `False`, determines whether to display the header & tagline
@@ -55,7 +56,7 @@ class Content():
         header: str = 'Workflow',
         tagline: str = 'Configure the parameters essential to the workflow.',
         content_info: str = 'Navigate to the **scope-selector** page to load a session.',
-        settings: list[blocks.structures.Setting] = [
+        settings: List[blocks.structures.Setting] = [
             blocks.structures.Setting(
                 type='text-input',
                 dtype='str',
@@ -78,7 +79,7 @@ class Content():
             String to display as the webpage tagline
         content_info : `str`
             String to display as `streamlit.info()` when there is no active session
-        settings : `list[Setting]`
+        settings : `List[Setting]`
             List of `assemblit.app.structures.Setting` objects containing the setting(s) parameters & values
         headerless : `bool`
             `True` or `False`, determines whether to display the header & tagline

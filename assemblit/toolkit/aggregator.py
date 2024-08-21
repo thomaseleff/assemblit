@@ -1,6 +1,6 @@
 """ `pandas` based data aggregator """
 
-import typing
+from typing import Literal, List
 import pandas
 from assemblit.toolkit import _exceptions
 
@@ -22,7 +22,7 @@ def agg_df(
     datetime: list | None = None,
     dimension: list | None = None,
     metrics: list | None = None,
-    aggrules: list[typing.Literal[
+    aggrules: List[Literal[
         'Count', 'Sum', 'Min', 'Max', 'Mean', 'Median', 'Mode', 'Standard Deviation', 'Variance'
     ]] | None = None
 ) -> pandas.DataFrame:
@@ -113,7 +113,7 @@ def describe_df(
     df: pandas.DataFrame,
     dimension: list | None = None,
     metrics: list | None = None,
-    aggrules: list[typing.Literal[
+    aggrules: List[Literal[
         'Count', 'Sum', 'Min', 'Max', 'Mean', 'Median', 'Mode', 'Standard Deviation', 'Variance'
     ]] | None = None
 ) -> pandas.DataFrame:

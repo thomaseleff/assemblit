@@ -6,7 +6,7 @@ Supported dataframe schema-objects,
 
 from __future__ import annotations
 from dataclasses import dataclass
-from typing import ClassVar
+from typing import ClassVar, List
 import datetime
 import pandera
 import numpy as np
@@ -18,7 +18,7 @@ class _DATATYPE():
 
     Attributes
     ----------
-    kinds : `list[str]`
+    kinds : `List[str]`
         The `numpy.dtype().kind` values that correspond to the datatype.
     built_in : `type`
         The corresponding python 'built-in' datatype.
@@ -26,7 +26,7 @@ class _DATATYPE():
         The corresponding sqlite3-database datatype.
     """
 
-    kinds: ClassVar[list[str]] = []
+    kinds: ClassVar[List[str]] = []
     built_in: ClassVar[type] = None
     sqlite: ClassVar[str] = 'NULL'
 
@@ -54,7 +54,7 @@ class BLOB(_DATATYPE):
 
     Attributes
     ----------
-    kinds : `list[str]`
+    kinds : `List[str]`
         The `numpy.dtype().kind` values that correspond to the datatype.
     built_in : `type`
         The corresponding python 'built-in' datatype.
@@ -62,7 +62,7 @@ class BLOB(_DATATYPE):
         The corresponding sqlite3-database datatype.
     """
 
-    kinds: ClassVar[list[str]] = [
+    kinds: ClassVar[List[str]] = [
         'V',    # Void
     ]
     built_in: ClassVar[type] = None
@@ -85,7 +85,7 @@ class INTEGER(_DATATYPE):
 
     Attributes
     ----------
-    kinds : `list[str]`
+    kinds : `List[str]`
         The `numpy.dtype().kind` values that correspond to the datatype.
     built_in : `type`
         The corresponding python 'built-in' datatype.
@@ -93,7 +93,7 @@ class INTEGER(_DATATYPE):
         The corresponding sqlite3-database datatype.
     """
 
-    kinds: ClassVar[list[str]] = [
+    kinds: ClassVar[List[str]] = [
         'i',    # Integer
         'u'     # Unsigned integer
     ]
@@ -117,7 +117,7 @@ class REAL(_DATATYPE):
 
     Attributes
     ----------
-    kinds : `list[str]`
+    kinds : `List[str]`
         The `numpy.dtype().kind` values that correspond to the datatype.
     built_in : `type`
         The corresponding python 'built-in' datatype.
@@ -125,7 +125,7 @@ class REAL(_DATATYPE):
         The corresponding sqlite3-database datatype.
     """
 
-    kinds: ClassVar[list[str]] = [
+    kinds: ClassVar[List[str]] = [
         'f',     # Float
         'c',     # Complex float
     ]
@@ -149,7 +149,7 @@ class TEXT(_DATATYPE):
 
     Attributes
     ----------
-    kinds : `list[str]`
+    kinds : `List[str]`
         The `numpy.dtype().kind` values that correspond to the datatype.
     built_in : `type`
         The corresponding python 'built-in' datatype.
@@ -157,7 +157,7 @@ class TEXT(_DATATYPE):
         The corresponding sqlite3-database datatype.
     """
 
-    kinds: ClassVar[list[str]] = [
+    kinds: ClassVar[List[str]] = [
         'b',    # Boolean
         'O',    # Object
         'S',    # String
@@ -183,7 +183,7 @@ class DATETIME(_DATATYPE):
 
     Attributes
     ----------
-    kinds : `list[str]`
+    kinds : `List[str]`
         The `numpy.dtype().kind` values that correspond to the datatype.
     built_in : `type`
         The corresponding python 'built-in' datatype.
@@ -191,7 +191,7 @@ class DATETIME(_DATATYPE):
         The corresponding sqlite3-database datatype.
     """
 
-    kinds: ClassVar[list[str]] = [
+    kinds: ClassVar[List[str]] = [
         'M'     # Datetime
     ]
     built_in: ClassVar[type] = datetime.datetime
@@ -214,7 +214,7 @@ class TIMEDELTA(_DATATYPE):
 
     Attributes
     ----------
-    kinds : `list[str]`
+    kinds : `List[str]`
         The `numpy.dtype().kind` values that correspond to the datatype.
     built_in : `type`
         The corresponding python 'built-in' datatype.
@@ -222,7 +222,7 @@ class TIMEDELTA(_DATATYPE):
         The corresponding sqlite3-database datatype.
     """
 
-    kinds: ClassVar[list[str]] = [
+    kinds: ClassVar[List[str]] = [
         'm'     # Timedelta
     ]
     built_in: ClassVar[type] = datetime.timedelta

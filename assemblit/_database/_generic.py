@@ -67,7 +67,7 @@ class Schema(pandera.DataFrameSchema):
         """
         raise NotImplementedError
 
-    def cols(self) -> list[str]:
+    def cols(self) -> List[str]:
         """ Returns the schema columns as a `list`
         """
         return list(self.columns.keys())
@@ -81,8 +81,8 @@ class Schema(pandera.DataFrameSchema):
         """ Returns a sqlite3-column schema definition. """
         column_name: str
         column_schema: pandera.Column
-        columns: list[str] = []
-        primary_keys: list[str] = []
+        columns: List[str] = []
+        primary_keys: List[str] = []
 
         # Build column definitions(s)
         for column_name, column_schema in self.columns.items():
@@ -427,13 +427,13 @@ class Connection():
     # Define db function(s) to delete table values
     def delete(
         self,
-        tables: list[Table]
+        tables: List[Table]
     ):
         """ Removes all rows in a filtered database table for each database table object.
 
         Parameters
         ----------
-        tables: `list[Table]`
+        tables: `List[Table]`
             List of Table objects containing parameters for deleting table
                 column values.
         """
@@ -488,10 +488,10 @@ class Connection():
 
     def build_database_table_objects_to_delete(
         self,
-        table_names: list[str],
+        table_names: List[str],
         query_index: str,
-        query_index_values: list[str]
-    ) -> list[str]:
+        query_index_values: List[str]
+    ) -> List[str]:
         """ Creates a list object of database Table objects to delete and returns it as a `list`.
 
         Parameters
@@ -564,7 +564,7 @@ class Connection():
         table_name: str,
         col: str,
         filtr: Filter
-    ) -> list[str]:
+    ) -> List[str]:
         """ Selects the associated database table `col` values that belong
         only to the filtered index value, `filtr.val`, and returns them as a `list`.
         The returned values would have no owner once `filtr.val` is deleted
@@ -628,8 +628,8 @@ class Connection():
         self,
         table_name: str,
         query_index: str,
-        query_index_values: list[str]
-    ) -> list[Table]:
+        query_index_values: List[str]
+    ) -> List[Table]:
         """ Creates a Table object containg parameters for deleting rows of a database table
         and returns it as a `list`.
 
@@ -914,7 +914,7 @@ class Connection():
     def select_multi_table_column_value(
         self,
         table_name: str,
-        cols: list[str],
+        cols: List[str],
         filtr: Filter
     ) -> dict:
         """ Returns multiple column values from a filtered database table as a `dict`.
