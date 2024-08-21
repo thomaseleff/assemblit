@@ -12,7 +12,6 @@ db
 archive
 data
 testing.py
-coverage
 /project
 /planning
 tests/resources/app
