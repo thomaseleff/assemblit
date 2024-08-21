@@ -2,7 +2,7 @@
 |------------------------------------------------- | -------: | -------: | ------: | --------: |
 | assemblit/\_\_init\_\_.py                        |        2 |        0 |    100% |           |
 | assemblit/\_app/\_\_init\_\_.py                  |        3 |        0 |    100% |           |
-| assemblit/\_app/\_generic/\_\_init\_\_.py        |       31 |        5 |     84% |74, 80, 90, 98, 102 |
+| assemblit/\_app/\_generic/\_\_init\_\_.py        |       46 |        5 |     89% |74, 100, 118, 122, 145 |
 | assemblit/\_app/aaas/\_\_init\_\_.py             |       14 |        0 |    100% |           |
 | assemblit/\_app/layer.py                         |       72 |       24 |     67% |160-231, 346-355, 480-485, 525 |
 | assemblit/\_app/wiki/\_\_init\_\_.py             |        5 |        0 |    100% |           |
@@ -30,24 +30,24 @@
 | assemblit/pages/\_components/\_core.py           |       60 |       32 |     47% |40-41, 55-60, 117, 139, 177, 186-198, 214-217, 233-266 |
 | assemblit/pages/\_components/\_data\_review.py   |      145 |      124 |     14% |42-182, 218-267, 296, 337-343, 388, 433, 474-710, 732-765, 794-963, 988-1015, 1061-1097, 1122-1161 |
 | assemblit/pages/\_components/\_data\_uploader.py |       99 |       82 |     17% |37-69, 96-138, 169-453, 477, 544-656 |
-| assemblit/pages/\_components/\_key\_value.py     |       99 |       82 |     17% |34-94, 136-181, 209-248, 265, 291-299, 320, 343, 361, 390-488, 511-517, 547-600 |
+| assemblit/pages/\_components/\_key\_value.py     |      100 |       82 |     18% |35-95, 137-182, 210-249, 266, 292-300, 321, 344, 362, 391-489, 512-518, 548-601 |
 | assemblit/pages/\_components/\_run\_analysis.py  |       86 |       67 |     22% |49-158, 188-228, 246, 269, 287, 318-550 |
 | assemblit/pages/\_components/\_run\_listing.py   |      103 |       90 |     13% |42-454, 483, 494, 516-562 |
 | assemblit/pages/\_components/\_selector.py       |      118 |       96 |     19% |50-52, 93, 116-120, 148-190, 220-258, 285-298, 345-383, 405, 437-530, 565-648, 670-793 |
 | assemblit/pages/account\_settings.py             |       44 |       32 |     27% |65-152, 163-242 |
 | assemblit/pages/code\_documentation.py           |      198 |      161 |     19% |66-79, 88-132, 138-156, 171-198, 208-221, 226-242, 247-263, 268-284, 287-331, 336, 348-353, 362, 366-375, 379-380, 384-387, 391-394, 398-401, 405-408, 412, 426, 440-497, 509-512, 526-533, 544-552, 564-574, 585-593, 604-612, 624-636 |
 | assemblit/pages/data\_ingestion.py               |       49 |       37 |     24% |84-134, 143-235 |
-| assemblit/pages/home.py                          |       75 |       43 |     43% |87, 98, 147-154, 176-305, 321-343 |
+| assemblit/pages/home.py                          |       76 |       43 |     43% |88, 99, 148-155, 177-306, 322-344 |
 | assemblit/pages/run\_analysis.py                 |       51 |       40 |     22% |71-150, 161-250 |
 | assemblit/pages/run\_listing.py                  |       39 |       28 |     28% |71-97, 108-186 |
-| assemblit/pages/session\_selector.py             |       79 |       64 |     19% |95-147, 156-294, 313-365, 382, 411, 442 |
-| assemblit/pages/workflow\_settings.py            |       43 |       33 |     23% |91-132, 143-225 |
+| assemblit/pages/session\_selector.py             |       80 |       64 |     20% |96-148, 157-295, 314-366, 383, 412, 443 |
+| assemblit/pages/workflow\_settings.py            |       44 |       33 |     25% |92-133, 144-226 |
 | assemblit/setup.py                               |       13 |        1 |     92% |        19 |
 | assemblit/toolkit/\_\_init\_\_.py                |        4 |        0 |    100% |           |
-| assemblit/toolkit/\_dataframe.py                 |       10 |        7 |     30% |     72-88 |
-| assemblit/toolkit/\_exceptions.py                |       27 |       16 |     41% |16-25, 32-41, 48-57, 81-89 |
+| assemblit/toolkit/\_dataframe.py                 |       11 |        7 |     36% |     73-89 |
+| assemblit/toolkit/\_exceptions.py                |       28 |       16 |     43% |17-26, 33-42, 49-58, 82-90 |
 | assemblit/toolkit/\_yaml.py                      |       61 |       18 |     70% |31, 37-38, 43-45, 82-83, 104-106, 137-139, 183, 214-215, 230 |
 | assemblit/toolkit/aggregator.py                  |       48 |        0 |    100% |           |
 | assemblit/toolkit/content.py                     |       22 |        0 |    100% |           |
 | assemblit/toolkit/plotter.py                     |       16 |        0 |    100% |           |
-|                                        **TOTAL** | **2410** | **1496** | **38%** |           |
+|                                        **TOTAL** | **2431** | **1496** | **38%** |           |
