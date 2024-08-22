@@ -5,6 +5,7 @@ __pycache__
 .regression
 .venv
 .coverage
+.devcontainer
 assemblit.egg-info
 build
 workspace
