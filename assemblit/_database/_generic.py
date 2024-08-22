@@ -1,7 +1,7 @@
 """ Database table """
 
 from __future__ import annotations
-from typing import List, Literal
+from typing import List, Literal, Union
 import os
 import sqlite3
 import contextlib
@@ -19,7 +19,7 @@ class Schema(pandera.DataFrameSchema):
     def from_settings(
         name: str,
         settings_object: List[Setting],
-        primary_key: str | None = None
+        primary_key: Union[str, None] = None
     ) -> Schema:
         """ Returns a `Schema` from a list of `assemblit.blocks.structures.Setting` objects.
 
@@ -29,7 +29,7 @@ class Schema(pandera.DataFrameSchema):
             The name of the schema.
         settings : `List[Setting]`
             List of `assemblit.blocks.structures.Setting` objects.
-        primary_key : `str | None`
+        primary_key : `Union[str, None]`
             The primary key of the schema.
         """
 
@@ -67,7 +67,7 @@ class Schema(pandera.DataFrameSchema):
         """
         raise NotImplementedError
 
-    def cols(self) -> list[str]:
+    def cols(self) -> List[str]:
         """ Returns the schema columns as a `list`
         """
         return list(self.columns.keys())
@@ -81,8 +81,8 @@ class Schema(pandera.DataFrameSchema):
         """ Returns a sqlite3-column schema definition. """
         column_name: str
         column_schema: pandera.Column
-        columns: list[str] = []
-        primary_keys: list[str] = []
+        columns: List[str] = []
+        primary_keys: List[str] = []
 
         # Build column definitions(s)
         for column_name, column_schema in self.columns.items():
@@ -239,7 +239,7 @@ class Connection():
         self,
         table_name: str,
         row: Row,
-        validate: Validate | None = None
+        validate: Union[Validate, None] = None
     ):
         """ Inserts a row of values into the database table.
 
@@ -252,7 +252,7 @@ class Connection():
                 and values `vals` to insert into `table_name`. If
                 the order of the columns does not match the order of
                 columns in the database table, a `KeyError` is raised.
-        validate : `Validate`
+        validate : `Union[Validate, None]`
             Validate object containing the column `col` and value
                 `val` to filter `table_name`. If the filtered table
                 returns a record, a `ValueError` is raised.
@@ -364,7 +364,7 @@ class Connection():
         self,
         table_name: str,
         value: Value,
-        filtr: Filter | None = None
+        filtr: Union[Filter, None] = None
     ):
         """ Resets a column value in the database table.
 
@@ -375,7 +375,7 @@ class Connection():
         value : `Value`
             Value object containing the column `col` and value
                 `val` to update in `table_name`.
-        filtr : `Filter`
+        filtr : `Union[Filter, None]`
             Filter object containing the column `col` and value
                 `val` to filter `table_name`. If the filtered table
                 returns more than one record, a `ValueError` is raised.
@@ -427,13 +427,13 @@ class Connection():
     # Define db function(s) to delete table values
     def delete(
         self,
-        tables: list[Table]
+        tables: List[Table]
     ):
         """ Removes all rows in a filtered database table for each database table object.
 
         Parameters
         ----------
-        tables: `list[Table]`
+        tables: `List[Table]`
             List of Table objects containing parameters for deleting table
                 column values.
         """
@@ -488,10 +488,10 @@ class Connection():
 
     def build_database_table_objects_to_delete(
         self,
-        table_names: list[str],
+        table_names: List[str],
         query_index: str,
-        query_index_values: list[str]
-    ) -> list[str]:
+        query_index_values: List[str]
+    ) -> List[str]:
         """ Creates a list object of database Table objects to delete and returns it as a `list`.
 
         Parameters
@@ -564,7 +564,7 @@ class Connection():
         table_name: str,
         col: str,
         filtr: Filter
-    ) -> list[str]:
+    ) -> List[str]:
         """ Selects the associated database table `col` values that belong
         only to the filtered index value, `filtr.val`, and returns them as a `list`.
         The returned values would have no owner once `filtr.val` is deleted
@@ -628,8 +628,8 @@ class Connection():
         self,
         table_name: str,
         query_index: str,
-        query_index_values: list[str]
-    ) -> list[Table]:
+        query_index_values: List[str]
+    ) -> List[Table]:
         """ Creates a Table object containg parameters for deleting rows of a database table
         and returns it as a `list`.
 
@@ -815,7 +815,7 @@ class Connection():
         multi: bool = False,
         order: str = 'ASC',
         contains: bool = True
-    ) -> str | int | float | bool | list | dict:
+    ) -> Union[str, int, float, bool, list, dict]:
         """ Returns a single column value from a filtered database table as `return_dtype`.
 
         Parameters
@@ -914,7 +914,7 @@ class Connection():
     def select_multi_table_column_value(
         self,
         table_name: str,
-        cols: list[str],
+        cols: List[str],
         filtr: Filter
     ) -> dict:
         """ Returns multiple column values from a filtered database table as a `dict`.
@@ -969,7 +969,7 @@ class Connection():
         self,
         query: str,
         return_dtype: Literal['str', 'int', 'float', 'bool', 'list', 'dict'] = 'str'
-    ) -> str | int | float | bool | list | dict:
+    ) -> Union[str, int, float, bool, list, dict]:
         """ Returns the result of the SQL query as `return_dtype`.
 
         Parameters

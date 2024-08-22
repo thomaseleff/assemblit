@@ -1,10 +1,11 @@
 """ Page builder """
 
+from typing import List
 import os
 import copy
 import streamlit as st
 from assemblit import setup, blocks
-from assemblit.toolkit import _exceptions
+from assemblit.toolkit import _exceptions, content
 from assemblit.pages._components import _key_value, _core
 
 _COMPATIBLE_APP_TYPES = ['aaas']
@@ -21,7 +22,7 @@ class Content():
         String to display as the webpage tagline
     content_info : `str`
         String to display as `streamlit.info()` when there is no active session
-    settings : `list[Setting]`
+    settings : `List[Setting]`
         List of `assemblit.app.structures.Setting` objects containing the setting(s) parameters & values
     headerless : `bool`
         `True` or `False`, determines whether to display the header & tagline
@@ -55,7 +56,7 @@ class Content():
         header: str = 'Workflow',
         tagline: str = 'Configure the parameters essential to the workflow.',
         content_info: str = 'Navigate to the **scope-selector** page to load a session.',
-        settings: list[blocks.structures.Setting] = [
+        settings: List[blocks.structures.Setting] = [
             blocks.structures.Setting(
                 type='text-input',
                 dtype='str',
@@ -78,7 +79,7 @@ class Content():
             String to display as the webpage tagline
         content_info : `str`
             String to display as `streamlit.info()` when there is no active session
-        settings : `list[Setting]`
+        settings : `List[Setting]`
             List of `assemblit.app.structures.Setting` objects containing the setting(s) parameters & values
         headerless : `bool`
             `True` or `False`, determines whether to display the header & tagline
@@ -96,9 +97,9 @@ class Content():
             )
 
         # Assign content class variables
-        self.header = header
-        self.tagline = tagline
-        self.content_info = content_info
+        self.header = content.clean_text(header)
+        self.tagline = content.clean_text(tagline)
+        self.content_info = content.clean_text(content_info)
         self.headerless = headerless
         self.clear_on_submit = clear_on_submit
 
@@ -142,19 +143,17 @@ class Content():
         # Manage authentication
         if st.session_state[setup.NAME][setup.AUTH_NAME][setup.AUTH_QUERY_INDEX]:
 
-            # Configure
-            _core.set_page_config(
-                header=self.header,
-                icon=None,
-                layout=setup.LAYOUT,
-                initial_sidebar_state=setup.INITIAL_SIDEBAR_STATE
-            )
-
             # Manage the active session
             if st.session_state[setup.NAME][setup.SESSIONS_DB_NAME][setup.SESSIONS_DB_QUERY_INDEX]:
 
-                # Display webpage header
+                # Configure and display the header
                 if not self.headerless:
+                    _core.set_page_config(
+                        header=self.header,
+                        icon=None,
+                        layout=setup.LAYOUT,
+                        initial_sidebar_state=setup.INITIAL_SIDEBAR_STATE
+                    )
                     _core.display_page_header(
                         header=self.header,
                         tagline=self.tagline,
@@ -202,8 +201,14 @@ class Content():
 
             else:
 
-                # Display webpage header
+                # Configure and display the header
                 if not self.headerless:
+                    _core.set_page_config(
+                        header=self.header,
+                        icon=None,
+                        layout=setup.LAYOUT,
+                        initial_sidebar_state=setup.INITIAL_SIDEBAR_STATE
+                    )
                     _core.display_page_header(
                         header=self.header,
                         tagline=self.tagline,

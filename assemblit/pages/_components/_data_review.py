@@ -1,5 +1,6 @@
 """ Contains the components for data-review """
 
+from typing import Tuple
 import hashlib
 import json
 import pandas as pd
@@ -772,7 +773,7 @@ def retrieve_data_from_database(
     query_index: str,
     scope_db_name: str,
     scope_query_index: str
-) -> tuple[pd.DataFrame, list, list, list, list, list, list, list]:
+) -> Tuple[pd.DataFrame, list, list, list, list, list, list, list]:
     """ Retrieves a database table and its data-review settings and returns the dataset as a `pd.DataFrame`
     and its settings a series of lists.
 

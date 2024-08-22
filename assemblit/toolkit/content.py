@@ -1,7 +1,40 @@
 """ Web content import utility """
 
 import os
+import re
+import textwrap
 from typing import Union
+
+
+def clean_text(
+    text: str
+):
+    """ Removes leading whitespace from each line of `text` and any extra
+    whitespace from the start and end of `text` while preserving intentional
+    return characters `\\n`.
+
+    Parameters
+    ----------
+    text : `str`
+        The text to clean.
+    """
+
+    # Dedent
+    dedented = textwrap.dedent(str(text)).strip()
+
+    # If '\n' appears once not in any sequence (e.g. an isolated, single-return)
+    #   then replace '\n' with a single-space
+    replaced = re.sub(r'(?<!\n)\n(?!\n)', ' ', dedented)
+
+    # If '\n' appears in any sequence of multiple returns,
+    #   then reduce the sequence of returns by one
+    reduced = re.sub(r'\n{2,}', lambda m: '\n' * (len(m.group(0)) - 1), replaced)
+
+    # Remove whitespace
+    lines = [line.strip().replace('  ', ' ') for line in reduced.splitlines()]
+
+    # Preserve intentional newlines
+    return '\n'.join(lines)
 
 
 def from_markdown(
@@ -11,7 +44,7 @@ def from_markdown(
 
     Parameters
     ----------
-    file_path : `str | os.PathLike`
+    file_path : `Union[str, os.PathLike]`
         The relative or absolute path to a markdown document.
     """
     return _from_text_content(file_path=file_path)
@@ -25,7 +58,7 @@ def to_markdown(
 
     Parameters
     ----------
-    file_path : `str | os.PathLike`
+    file_path : `Union[str, os.PathLike]`
         The relative or absolute path to a markdown document.
     content : `str`
         The markdown text content.
@@ -40,7 +73,7 @@ def to_markdown(
 
 #     Parameters
 #     ----------
-#     file_path : `str | os.PathLike`
+#     file_path : `Union[str, os.PathLike]`
 #         The relative or absolute path to an html document.
 #     """
 #     return _from_text_content(file_path)
@@ -53,7 +86,7 @@ def _from_text_content(
 
     Parameters
     ----------
-    file_path : `str | os.PathLike`
+    file_path : `Union[str, os.PathLike]`
         The relative or absolute path to a text document.
     """
     if not os.path.isfile(os.path.abspath(file_path)):
@@ -71,10 +104,10 @@ def _to_text_content(
 
     Parameters
     ----------
-    file_path : `str | os.PathLike`
+    file_path : `Union[str, os.PathLike]`
         The relative or absolute path to a text document.
     content : `str`
         The markdown text content.
     """
     with open(os.path.abspath(file_path), 'w', encoding='utf-8') as file:
-        file.write(content)
+        file.write(textwrap.dedent(content))

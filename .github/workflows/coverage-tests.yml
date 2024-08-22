@@ -1,0 +1,72 @@
+name: Coverage
+
+on:
+  push:
+    branches: [ "v[0-9]+.[0-9]+.[0-9]+" ]
+
+  pull_request:
+    branches: [ "v[0-9]+.[0-9]+.[0-9]+" ]
+
+permissions:
+    contents: write
+
+env:
+  BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+    
+      matrix:
+        python-version: ["3.10"]
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - run: git checkout $BRANCH_NAME
+
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install pytest coverage
+        python -m pip install -e .
+
+    - name: Create coverage report
+      run: |
+        if [ ! -d coverage ]; then mkdir coverage; fi
+        coverage run -m pytest tests/
+        coverage report -m --format=markdown --omit=tests/* > ./coverage/COVERAGE.md
+
+    - name: Create coverage badge
+      uses: tj-actions/coverage-badge-py@v2
+
+    - name: Move coverage reports
+      run: |
+        mv coverage.svg ./coverage
+
+    - name: Verify Changed files
+      uses: tj-actions/verify-changed-files@v19
+      id: verify-changed-files
+      with:
+        files: ./coverage/coverage.svg
+
+    - name: Commit & push coverage badge
+      if: steps.verify-changed-files.outputs.files_changed == 'true'
+      run: |
+        git config --local user.email "github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "github-actions[bot]"
+        git remote add github https://github.com/thomaseleff/assemblit.git
+        git add coverage/coverage.svg
+        git add coverage/COVERAGE.md
+        git commit -m "Updated coverage"
+        git push github $BRANCH_NAME

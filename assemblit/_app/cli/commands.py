@@ -13,7 +13,7 @@ def run(
 
     Parameters
     ----------
-    script : `str` | `os.PathLike`
+    script : `Union[str, os.PathLike]`
         The relative or absolute path to a local Python script.
 
     Help
@@ -35,7 +35,7 @@ def run(
     ```
 
     """
-    layer.run(script=script)
+    return layer.run(script=script).wait()
 
 
 def build(
@@ -66,4 +66,15 @@ def build(
     assemblit build demo
     ```
     """
-    layer.build(app_type=app_type)
+
+    # Get current work-directory
+    path = os.getcwd()
+
+    # Build
+    application = layer.build(app_type=app_type, path=path)
+
+    # Run
+    return layer.run(
+        script=os.path.join(os.path.abspath(path), 'app.py'),
+        application=application
+    ).wait()

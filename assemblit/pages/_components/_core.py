@@ -1,6 +1,6 @@
 """ Contains the core components for an `assemblit` web-application """
 
-from typing import Any, Literal
+from typing import Any, Literal, List, Union
 import json
 import copy
 import streamlit as st
@@ -88,31 +88,51 @@ def set_page_config(
         initial_sidebar_state=initial_sidebar_state,
     )
 
-    # Force vertical scroll to avoid inconsistent auto-resizing
-    #   when pages do not require vertical scroll
-    st.html(
-        """
-            <style>
+    # Force custom styling
+    if not setup.DEBUG:
+        st.html(
+            """
+                <style>
 
-                header[data-testid="stHeader"] {
-                    display: none;
-                }
+                    header[data-testid="stHeader"] {
+                        display: none;
+                    }
 
-                .main {
-                    overflow-y: scroll;
-                }
+                    .main {
+                        overflow-y: scroll;
+                    }
 
-                div[data-testid="stAppViewBlockContainer"] {
-                    padding: 3rem 1rem 10rem 1rem;
-                }
+                    div[data-testid="stAppViewBlockContainer"] {
+                        padding: 3rem 1rem 10rem 1rem;
+                    }
 
-                div[data-testid="stHorizontalBlock"] {
-                    gap: 0.5rem;
-                }
+                    div[data-testid="stHorizontalBlock"] {
+                        gap: 0.5rem;
+                    }
 
-            </style>
-        """
-    )
+                </style>
+            """
+        )
+    else:
+        st.html(
+            """
+                <style>
+
+                    .main {
+                        overflow-y: scroll;
+                    }
+
+                    div[data-testid="stAppViewBlockContainer"] {
+                        padding: 3rem 1rem 10rem 1rem;
+                    }
+
+                    div[data-testid="stHorizontalBlock"] {
+                        gap: 0.5rem;
+                    }
+
+                </style>
+            """
+        )
 
     # Debug
     if setup.DEBUG:
@@ -131,7 +151,7 @@ def set_page_config(
 def display_page_header(
     header: str = 'Welcome',
     tagline: str = 'Please login or sign-up.',
-    context: list[Setting] | None = None
+    context: Union[List[Setting], None] = None
 ):
     """ Displays the standard header.
 
@@ -141,7 +161,7 @@ def display_page_header(
         String to display as the web-page header
     tagline : `str`
         String to display as the web-page tagline
-    context : `bool`
+    context : `Union[List[Setting], None]`
         List of `assemblit.blocks.structures.Setting` objects to display as context.
     """
 

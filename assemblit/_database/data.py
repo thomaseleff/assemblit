@@ -1,5 +1,6 @@
 """ Database table """
 
+from typing import ClassVar
 from dataclasses import dataclass
 import pandera
 import datetime
@@ -19,7 +20,7 @@ class Schemas():
     """
 
     # The `data` table Schema.
-    data: _generic.Schema = _generic.Schema(
+    data: ClassVar[_generic.Schema] = _generic.Schema(
         name=setup.DATA_DB_NAME,
         columns={
             setup.DATA_DB_QUERY_INDEX: pandera.Column(

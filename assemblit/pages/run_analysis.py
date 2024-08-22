@@ -4,7 +4,7 @@ import os
 import copy
 import streamlit as st
 from assemblit import setup, blocks
-from assemblit.toolkit import _exceptions
+from assemblit.toolkit import _exceptions, content
 from assemblit._database import sessions, data, analysis
 from assemblit.pages._components import _core, _run_analysis
 
@@ -76,9 +76,9 @@ class Content():
             )
 
         # Assign content class variables
-        self.header = header
-        self.tagline = tagline
-        self.content_info = content_info
+        self.header = content.clean_text(header)
+        self.tagline = content.clean_text(tagline)
+        self.content_info = content.clean_text(content_info)
         self.headerless = headerless
 
         # Assign database class variables to set the scope for run analysis
@@ -160,19 +160,17 @@ class Content():
         # Manage authentication
         if st.session_state[setup.NAME][setup.AUTH_NAME][setup.AUTH_QUERY_INDEX]:
 
-            # Configure
-            _core.set_page_config(
-                header=self.header,
-                icon=None,
-                layout=setup.LAYOUT,
-                initial_sidebar_state=setup.INITIAL_SIDEBAR_STATE
-            )
-
             # Manage the active session
             if st.session_state[setup.NAME][setup.SESSIONS_DB_NAME][setup.SESSIONS_DB_QUERY_INDEX]:
 
-                # Display webpage header
+                # Configure and display the header
                 if not self.headerless:
+                    _core.set_page_config(
+                        header=self.header,
+                        icon=None,
+                        layout=setup.LAYOUT,
+                        initial_sidebar_state=setup.INITIAL_SIDEBAR_STATE
+                    )
                     _core.display_page_header(
                         header=self.header,
                         tagline=self.tagline,
@@ -227,8 +225,14 @@ class Content():
 
             else:
 
-                # Display webpage header
+                # Configure and display the header
                 if not self.headerless:
+                    _core.set_page_config(
+                        header=self.header,
+                        icon=None,
+                        layout=setup.LAYOUT,
+                        initial_sidebar_state=setup.INITIAL_SIDEBAR_STATE
+                    )
                     _core.display_page_header(
                         header=self.header,
                         tagline=self.tagline,

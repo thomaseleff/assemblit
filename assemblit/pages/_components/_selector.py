@@ -108,7 +108,7 @@ def parse_selector(
     ----------
     parameter: `str`
         Name of the parameter.
-    settings : `list[Setting]`
+    settings : `List[Setting]`
         List of `assemblit.app.structures.Setting` objects containing the setting(s) parameters & values.
     """
 
